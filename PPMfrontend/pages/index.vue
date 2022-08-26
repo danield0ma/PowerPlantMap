@@ -45,10 +45,102 @@ export default {
         accessToken: this.accessToken,
         container: 'map',
         style: 'mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy',
+        //style: 'mapbox://styles/danieldoma/cl7adhm06003314nzartd14sk',
         center: [19.4, 47],
         zoom: 6.75,
         maxZoom: 9,
         minZoom: 5
+      })
+
+      this.map.on('load', () => {
+
+        this.map.loadImage(
+          'atoms.png',
+          //'https://docs.mapbox.com/mapbox-gl-js/assets/cat.png',
+          (error, image) => {
+          if (error) throw error;
+
+        this.map.addSource('plants', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+              
+              {
+                'type': 'Feature',
+                'properties': {
+                  'name': 'Paks',
+                  'description': '<p>Paksi Atomerőmű</p>'
+                },
+                'geometry': {
+                  'type': 'Point',
+                  'coordinates': [18.8526, 46.5753]
+                }
+                // 'name': 'Paks',
+                // 'img': 'nuclear.png'
+              }
+              // {
+              //   name: 'Mátra',
+              //   lnglat: [20.0679, 47.7889],
+              //   img: 'coal.png'
+              // },
+              // {
+              //   name: 'Gönyű',
+              //   lnglat: [17.8038, 47.7383],
+              //   img: 'gas.png'
+              // }
+            ]
+            }
+        });
+      
+        this.map.addImage('cat', image)
+
+        this.map.addLayer({
+          'id': 'places',
+          'type': 'symbol',
+          'source': 'plants',
+          // 'paint': {
+          //   'circle-color': '#4264fb',
+          //   'circle-radius': 15,
+          //   'circle-stroke-width': 2,
+          //   'circle-stroke-color': '#ffffff'
+          // }
+          'layout': {
+            'icon-image': 'cat',
+            'icon-size': 0.08
+          }
+        })
+
+        const popup = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false
+        })
+
+        this.map.on('mouseenter', 'places', (e) => {
+            // Change the cursor style as a UI indicator.
+            this.map.getCanvas().style.cursor = 'pointer';
+
+            // Copy coordinates array.
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const description = e.features[0].properties.description;
+
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            // Populate the popup and set its coordinates
+            // based on the feature found.
+            popup.setLngLat(coordinates).setHTML(description).addTo(this.map);
+        });
+
+        this.map.on('mouseleave', 'places', () => {
+            this.map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+      })
       })
 
       const coord = [
@@ -82,12 +174,16 @@ export default {
 
         const m = new mapboxgl.Marker(element)
           .setLngLat(marker.lnglat)
-          .setPopup(new mapboxgl.Popup().setHTML('<h1>Paks</h1><h3>2000MW</h3>'))
+          //.setPopup(new mapboxgl.Popup().setHTML('<h1>Paks</h1><h3>2000MW</h3>'))
           .addTo(this.map)
 
         m.getElement().addEventListener('click', () => {
-          this.$store.dispatch('power/setLeftPanel', true)
-          this.$store.dispatch('power/setLeftContent', marker.name)
+          if (this.showLeftPanel && this.content == marker.name) {
+            this.$store.dispatch('power/setLeftPanel', false)
+          } else {
+            this.$store.dispatch('power/setLeftPanel', true)
+            this.$store.dispatch('power/setLeftContent', marker.name)
+          }
         })
       }
       
