@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "8+Joi6y6JfaCmCB9BfmX5havMR2bagIy5CCb3VjJLFrCVmp3CjlBxSp4VsUhhROvr28hRC2XUfyTymd7eAyg8g==",
+  "dgSpecHash": "3/s1cEKnRWilIjARwFps/B8aFS7lSADzKzk1tB+w/JMVqQRHqgrIXKXBbeu4Q9HN80gKsE76P2qCrPsSzf2CHw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\danie\\Desktop\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
+  "projectFilePath": "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\danie\\.nuget\\packages\\microsoft.extensions.apidescription.server\\3.0.0\\microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\swashbuckle.aspnetcore\\6.2.3\\swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.2.3\\swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.2.3\\swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",
-    "C:\\Users\\danie\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.2.3\\swashbuckle.aspnetcore.swaggerui.6.2.3.nupkg.sha512"
+    "C:\\Users\\Dániel Doma\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "C:\\Users\\Dániel Doma\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
+    "C:\\Users\\Dániel Doma\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
+    "C:\\Users\\Dániel Doma\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.4.0\\swashbuckle.aspnetcore.swagger.6.4.0.nupkg.sha512",
+    "C:\\Users\\Dániel Doma\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.4.0\\swashbuckle.aspnetcore.swaggergen.6.4.0.nupkg.sha512",
+    "C:\\Users\\Dániel Doma\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.4.0\\swashbuckle.aspnetcore.swaggerui.6.4.0.nupkg.sha512"
   ],
   "logs": []
 }

@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\danie\\Desktop\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {}
+    "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\danie\\Desktop\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {
+    "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\danie\\Desktop\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
+        "projectUniqueName": "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
         "projectName": "PowerPlantMapAPI",
-        "projectPath": "C:\\Users\\danie\\Desktop\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
-        "packagesPath": "C:\\Users\\danie\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\danie\\Desktop\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\obj\\",
+        "projectPath": "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
+        "packagesPath": "C:\\Users\\Dániel Doma\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\danie\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Dániel Doma\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -46,7 +42,7 @@
           "dependencies": {
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.2.3, )"
+              "version": "[6.4.0, )"
             }
           },
           "imports": [

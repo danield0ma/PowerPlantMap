@@ -1,7 +1,16 @@
 <template>
   <div>
-    <Header id="head" />
-    <Nuxt id="body" /> 
+    <div v-if="isMap">
+      <Header id="head" />
+      <Nuxt id="body" />
+    </div>
+    <div v-else>
+      <Header />
+      <Nuxt />
+    </div>
+    <!-- <Header id="head" />
+    <Nuxt id="body" v-show="isMap" />
+    <Nuxt v-show="notMap" /> -->
   </div>
   
 </template>
@@ -11,6 +20,16 @@
   export default {
     components: {
       Header
+    },
+
+    computed: {
+      isMap() {
+        return this.$route.path == '/map'
+      },
+
+      notMap() {
+        return this.$route.path != '/map'
+      }
     }
   }
 </script>
@@ -21,11 +40,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    /* background: rgba(236, 225, 204, 0.7); */
-    /* background: rgba(245, 240, 240, 0.8); */
     background: rgba(255, 255, 255, 0.75);
-    margin: 0;
-    padding: 0;
     border: 0;  
     z-index: 2;  
     height: 3.5rem;
