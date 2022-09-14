@@ -20,5 +20,6 @@ export const state = () => ({
     },
     async setLeftContent({commit}, content) {
         await commit('SET_CONTENT', content)
+        console.log('Left content: ', content)
     }
   }

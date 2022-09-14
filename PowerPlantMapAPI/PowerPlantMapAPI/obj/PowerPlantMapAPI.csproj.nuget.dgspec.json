@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {}
+    "C:\\DEV\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {
+    "C:\\DEV\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
+        "projectUniqueName": "C:\\DEV\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
         "projectName": "PowerPlantMapAPI",
-        "projectPath": "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
+        "projectPath": "C:\\DEV\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\PowerPlantMapAPI.csproj",
         "packagesPath": "C:\\Users\\Dániel Doma\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Dániel Doma\\OneDrive - Széchenyi István Egyetem\\Desktop\\SZE\\Szakkoli\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\obj\\",
+        "outputPath": "C:\\DEV\\PowerPlantMap\\PowerPlantMapAPI\\PowerPlantMapAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Dániel Doma\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,9 +40,17 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.0.123, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.3, )"
             }
           },
           "imports": [
@@ -63,7 +71,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.303\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.304\\RuntimeIdentifierGraph.json"
         }
       }
     }

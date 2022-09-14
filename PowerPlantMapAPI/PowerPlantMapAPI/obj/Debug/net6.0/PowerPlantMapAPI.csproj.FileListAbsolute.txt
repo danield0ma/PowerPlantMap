@@ -25,3 +25,37 @@ C:\Users\Dániel Doma\OneDrive - Széchenyi István Egyetem\Desktop\SZE\Szakkoli
 C:\Users\Dániel Doma\OneDrive - Széchenyi István Egyetem\Desktop\SZE\Szakkoli\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.pdb
 C:\Users\Dániel Doma\OneDrive - Széchenyi István Egyetem\Desktop\SZE\Szakkoli\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.genruntimeconfig.cache
 C:\Users\Dániel Doma\OneDrive - Széchenyi István Egyetem\Desktop\SZE\Szakkoli\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\ref\PowerPlantMapAPI.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\appsettings.json
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\appsettings.Development.json
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\PowerPlantMapAPI.exe
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\PowerPlantMapAPI.deps.json
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\PowerPlantMapAPI.runtimeconfig.json
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\PowerPlantMapAPI.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\PowerPlantMapAPI.pdb
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\Dapper.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\Microsoft.OpenApi.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\System.Data.SqlClient.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\runtimes\win-arm64\native\sni.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\runtimes\win-x64\native\sni.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\runtimes\win-x86\native\sni.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\bin\Debug\net6.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.csproj.AssemblyReference.cache
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.GeneratedMSBuildEditorConfig.editorconfig
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.AssemblyInfoInputs.cache
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.AssemblyInfo.cs
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.csproj.CoreCompileInputs.cache
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.MvcApplicationPartsAssemblyInfo.cs
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.MvcApplicationPartsAssemblyInfo.cache
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\staticwebassets.build.json
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\staticwebassets.development.json
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\scopedcss\bundle\PowerPlantMapAPI.styles.css
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.csproj.CopyComplete
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\refint\PowerPlantMapAPI.dll
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.pdb
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\PowerPlantMapAPI.genruntimeconfig.cache
+C:\DEV\PowerPlantMap\PowerPlantMapAPI\PowerPlantMapAPI\obj\Debug\net6.0\ref\PowerPlantMapAPI.dll
