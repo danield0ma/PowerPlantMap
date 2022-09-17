@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Data;
 using PowerPlantMapAPI.Models.DTO;
 using Microsoft.AspNetCore.Cors;
+using System.Xml;
 //using Microsoft.AspNetCore.Mvc.HttpGet;
 
 namespace PowerPlantMapAPI.Controllers
@@ -81,17 +82,67 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<string>> getData()
+        public async Task<ActionResult<XmlNode>> getData()
         {
+            string query = "https://transparency.entsoe.eu/api?securityToken=a5fb8873-ad26-4972-a5f4-62e2e069f782&documentType=A73&processType=A16&psrType=B14&in_Domain=10YFR-RTE------C&periodStart=202208252000&periodEnd=202208252100";
+
             var httpClient = new HttpClient();
             
             string apiResponse = "";
-            var response = await httpClient.GetAsync("https://transparency.entsoe.eu/api?securityToken=a5fb8873-ad26-4972-a5f4-62e2e069f782&documentType=A73&processType=A16&psrType=B14&in_Domain=10YFR-RTE------C&periodStart=202208252000&periodEnd=202208252100");
-            
+            var response = await httpClient.GetAsync(query);
+
+            XmlDocument doc = new XmlDocument();
+            doc.PreserveWhitespace = true;
+
+
             apiResponse = await response.Content.ReadAsStringAsync();
-            //reservationList = JsonConvert.DeserializeObject<List<Reservation>>(apiResponse);
+
+            doc.Load(new StringReader(apiResponse));
+
+            //foreach(XmlNode node in doc.ChildNodes[10])
+            //System.Diagnostics.Debug.WriteLine("Child Nodes count: " + doc.ChildNodes[2].ChildNodes.Count);
+
+            int sum = 0;
             
-            return apiResponse;
+            for (int i = 20; i < doc.ChildNodes[2].ChildNodes.Count; i++)
+            {
+                XmlNode node = doc.ChildNodes[2].ChildNodes[i];
+                
+                if(node.ChildNodes.Count != 0)
+                {
+                    XmlNode first = node.ChildNodes[15];
+                    //System.Diagnostics.Debug.WriteLine("15: " + first.InnerXml);
+                    //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes.Count);
+                    //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].InnerXml);
+                    //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].ChildNodes.Count);
+                    System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].ChildNodes[3].InnerXml);
+
+                    XmlNode second = node.ChildNodes[17];
+                    //System.Diagnostics.Debug.WriteLine("17: " + second.InnerXml);
+                    //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes.Count);
+                    //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].InnerXml);
+                    //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].ChildNodes.Count);
+                    //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].ChildNodes[3].InnerXml);
+                    int p = Int32.Parse(second.ChildNodes[5].ChildNodes[3].InnerXml);
+                    System.Diagnostics.Debug.WriteLine("17: " + p);
+                    sum += p;
+                }
+
+                //System.Diagnostics.Debug.WriteLine("Inner node count: " + node.ChildNodes.Count);
+                //System.Diagnostics.Debug.WriteLine("I:" + i);
+            }
+
+            System.Diagnostics.Debug.WriteLine("Sum: " + sum);
+
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+            nsmgr.AddNamespace("asd", query);
+            string xPathString = "//asd:GL_MarketDocument/asd:TimeSeries/asd:MktPSRType/asd:PowerSystemResources[@name='BELLEVILLE 1']";
+            XmlNode xmlNode = doc.DocumentElement.SelectSingleNode(xPathString, nsmgr);
+            return xmlNode;
+
+            //reservationList = JsonConvert.DeserializeObject<List<Reservation>>(apiResponse);
+
+            //return apiResponse;
         }
 
 
