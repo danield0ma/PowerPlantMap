@@ -82,9 +82,34 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<XmlNode>> getData()
+        public async Task<ActionResult<IEnumerable<PowerDTO>>> getData(
+                    string documentType = "A73",
+                    string processType = "A16",
+                    string psrType = "B14",
+                    string in_Domain = "10YHU-MAVIR----U",
+                    string periodStart = "202209211700",
+                    string periodEnd = "202209211800"
+                )
         {
-            string query = "https://transparency.entsoe.eu/api?securityToken=a5fb8873-ad26-4972-a5f4-62e2e069f782&documentType=A73&processType=A16&psrType=B14&in_Domain=10YFR-RTE------C&periodStart=202208252000&periodEnd=202208252100";
+            string url = "https://transparency.entsoe.eu/api";
+            string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
+            //string documentType = "A73";
+            //string processType = "A16";
+            //string psrType = "B14";
+            ////string in_Domain = "10YFR-RTE------C";
+            ////string periodStart = "202208252000";
+            ////string periodEnd = "202208252100";
+            //string in_Domain = "10YHU-MAVIR----U";
+            //string periodStart = "202209211700";
+            //string periodEnd = "202209211800";
+
+            string query = url + "?securityToken=" + securityToken + 
+                           "&documentType=" + documentType +
+                           "&processType=" + processType + 
+                           //"&psrType=" + psrType + 
+                           "&in_Domain=" + in_Domain + 
+                           "&periodStart=" + periodStart + 
+                           "&periodEnd=" + periodEnd;
 
             var httpClient = new HttpClient();
             
@@ -94,7 +119,6 @@ namespace PowerPlantMapAPI.Controllers
             XmlDocument doc = new XmlDocument();
             doc.PreserveWhitespace = true;
 
-
             apiResponse = await response.Content.ReadAsStringAsync();
 
             doc.Load(new StringReader(apiResponse));
@@ -102,6 +126,7 @@ namespace PowerPlantMapAPI.Controllers
             //foreach(XmlNode node in doc.ChildNodes[10])
             //System.Diagnostics.Debug.WriteLine("Child Nodes count: " + doc.ChildNodes[2].ChildNodes.Count);
 
+            List<PowerDTO> data = new List<PowerDTO>();
             int sum = 0;
             
             for (int i = 20; i < doc.ChildNodes[2].ChildNodes.Count; i++)
@@ -115,7 +140,8 @@ namespace PowerPlantMapAPI.Controllers
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes.Count);
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].InnerXml);
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].ChildNodes.Count);
-                    System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].ChildNodes[3].InnerXml);
+                    string name = first.ChildNodes[3].ChildNodes[3].InnerXml;
+                    System.Diagnostics.Debug.WriteLine("15: " + name);
 
                     XmlNode second = node.ChildNodes[17];
                     //System.Diagnostics.Debug.WriteLine("17: " + second.InnerXml);
@@ -123,22 +149,33 @@ namespace PowerPlantMapAPI.Controllers
                     //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].InnerXml);
                     //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].ChildNodes.Count);
                     //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].ChildNodes[3].InnerXml);
-                    int p = Int32.Parse(second.ChildNodes[5].ChildNodes[3].InnerXml);
-                    System.Diagnostics.Debug.WriteLine("17: " + p);
-                    sum += p;
+                    int power = Int32.Parse(second.ChildNodes[5].ChildNodes[3].InnerXml);
+                    System.Diagnostics.Debug.WriteLine("17: " + power);
+
+                    PowerDTO current = new PowerDTO()
+                    {
+                        PowerPlantBloc = name,
+                        Power = power
+                    };
+                    data.Add(current);
+                    sum += power;
                 }
 
                 //System.Diagnostics.Debug.WriteLine("Inner node count: " + node.ChildNodes.Count);
                 //System.Diagnostics.Debug.WriteLine("I:" + i);
             }
 
-            System.Diagnostics.Debug.WriteLine("Sum: " + sum);
+            System.Diagnostics.Debug.WriteLine(apiResponse);
+            System.Diagnostics.Debug.WriteLine(query);
+            System.Diagnostics.Debug.WriteLine("Sum: " + sum + ", " + periodEnd);
+            data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
+            return data;
 
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
-            nsmgr.AddNamespace("asd", query);
-            string xPathString = "//asd:GL_MarketDocument/asd:TimeSeries/asd:MktPSRType/asd:PowerSystemResources[@name='BELLEVILLE 1']";
-            XmlNode xmlNode = doc.DocumentElement.SelectSingleNode(xPathString, nsmgr);
-            return xmlNode;
+            //XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+            //nsmgr.AddNamespace("asd", query);
+            //string xPathString = "//asd:GL_MarketDocument/asd:TimeSeries/asd:MktPSRType/asd:PowerSystemResources[@name='BELLEVILLE 1']";
+            //XmlNode xmlNode = doc.DocumentElement.SelectSingleNode(xPathString, nsmgr);
+            //return xmlNode;
 
             //reservationList = JsonConvert.DeserializeObject<List<Reservation>>(apiResponse);
 
@@ -147,7 +184,7 @@ namespace PowerPlantMapAPI.Controllers
 
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<PowerPlantModel>> getDetailsOfPowerPlant(string id)
+        public async Task<ActionResult<PowerPlantModel>> getDetailsOfPowerPlant(string id = "PKS")
         {
             ReactorModel model1 = new ReactorModel()
             {
