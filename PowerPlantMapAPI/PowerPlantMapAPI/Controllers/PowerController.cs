@@ -81,6 +81,18 @@ namespace PowerPlantMapAPI.Controllers
             //return l;
         }
 
+        private string getTime(int diff)
+        {
+            string now = Convert.ToString(DateTime.Now.Year);
+            if (DateTime.Now.Month < 10) { now += "0"; }
+            now += Convert.ToString(DateTime.Now.Month);
+            if (DateTime.Now.Day < 10) { now += "0"; }
+            now += Convert.ToString(DateTime.Now.Day);
+            if (DateTime.Now.Hour < 10) { now += "0"; }
+            now += Convert.ToString(DateTime.Now.Hour - diff) + "00";
+            return now;
+        }
+
         [HttpGet("[action]")]
         public async Task<ActionResult<IEnumerable<PowerDTO>>> getData(
                     string documentType = "A73",
@@ -91,6 +103,9 @@ namespace PowerPlantMapAPI.Controllers
                     string periodEnd = "202209211800"
                 )
         {
+            periodStart = getTime(4);
+            periodEnd = getTime(3);
+
             string url = "https://transparency.entsoe.eu/api";
             string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
             //string documentType = "A73";
@@ -165,9 +180,11 @@ namespace PowerPlantMapAPI.Controllers
                 //System.Diagnostics.Debug.WriteLine("I:" + i);
             }
 
-            System.Diagnostics.Debug.WriteLine(apiResponse);
+            //System.Diagnostics.Debug.WriteLine(apiResponse);
             System.Diagnostics.Debug.WriteLine(query);
             System.Diagnostics.Debug.WriteLine("Sum: " + sum + ", " + periodEnd);
+            System.Diagnostics.Debug.WriteLine("MOST: " + periodStart + ", " + periodEnd);
+
             data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
             return data;
 
