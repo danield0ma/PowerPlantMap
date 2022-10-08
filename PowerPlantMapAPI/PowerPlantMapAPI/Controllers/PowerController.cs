@@ -41,7 +41,7 @@ namespace PowerPlantMapAPI.Controllers
                 feature.Type = "Feature";
 
                 FeaturePropertyModelDTO properties = new FeaturePropertyModelDTO();
-                properties.id = PowerPlant.id;
+                properties.id = PowerPlant.PowerPlantID;
                 properties.name = PowerPlant.name;
                 properties.description = PowerPlant.description;
                 properties.img = PowerPlant.image;
@@ -59,26 +59,103 @@ namespace PowerPlantMapAPI.Controllers
             }
 
             return PowerPlantBasics;
+        }
 
-            //PowerPlantModel Paks = new PowerPlantModel
+        private async Task<BasicsOfPowerPlantDTO> GetBasicsOfPowerPlant(string id)
+        {
+            var parameters = new { id = id };
+            List<PowerPlantDataDTO> PP = (List<PowerPlantDataDTO>)await 
+                _connection.QueryAsync<PowerPlantDataDTO>
+                ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
+
+            PowerPlantDataDTO PowerPlant = PP[0];
+            BasicsOfPowerPlantDTO b = new BasicsOfPowerPlantDTO();
+            b.id = PowerPlant.PowerPlantID;
+            b.name = PowerPlant.name;
+            b.description = PowerPlant.description;
+            b.OperatorCompany = PowerPlant.OperatorCompany;
+            b.webpage = PowerPlant.webpage;
+
+            return b;
+        }
+
+        [HttpGet("[action]")]
+        public async Task<ActionResult<PowerPlantDetailsModel>> getDetailsOfPowerPlant(string id)
+        {
+            PowerPlantDetailsModel PowerPlant = new PowerPlantDetailsModel();
+            PowerPlant.PowerPlantID = id;
+            BasicsOfPowerPlantDTO basics = await GetBasicsOfPowerPlant(id);
+
+            PowerPlant.name = basics.name;
+            PowerPlant.description = basics.description;
+            PowerPlant.OperatorCompany = basics.OperatorCompany;
+            PowerPlant.webpage = basics.webpage;
+
+            var parameters = new { PowerPlantID = id };
+            List<PowerPlantDetailsDTO> PowerPlantDetails = 
+                (List<PowerPlantDetailsDTO>)await _connection.
+                QueryAsync<PowerPlantDetailsDTO>("GetPowerPlantDetails", 
+                    parameters, commandType: CommandType.StoredProcedure);
+            
+            int PPMaxPower = 0, PPCurrentPower = 0;
+            List<BlocModel> Blocs = new List<BlocModel>();
+            for (int i = 0; i < PowerPlantDetails.Count; i += 0)
+            {
+                BlocModel Bloc = new BlocModel();
+                Bloc.BlocID = PowerPlantDetails[i].BlocId;
+                Bloc.BlocType = PowerPlantDetails[i].BlocType;
+                Bloc.MaxBlocCapacity = PowerPlantDetails[i].MaxBlocCapacity;
+                Bloc.ComissionDate = PowerPlantDetails[i].ComissionDate;
+                
+                List<GeneratorModel> Generators = new List<GeneratorModel>();
+                int CurrentPower = 0, MaxPower = 0;
+                while (i < PowerPlantDetails.Count && PowerPlantDetails[i].BlocId == Bloc.BlocID)
+                {
+                    GeneratorModel Generator = new GeneratorModel();
+                    Generator.GeneratorID = PowerPlantDetails[i].GeneratorID;
+                    Generator.MaxCapacity = PowerPlantDetails[i].MaxCapacity;
+                    Generator.CurrentPower = await getGeneratorPower(Generator.GeneratorID);
+                    Generators.Add(Generator);
+                    CurrentPower += Generator.CurrentPower[0];
+                    MaxPower += Generator.MaxCapacity;
+                    i++;
+                }
+                Bloc.CurrentPower = CurrentPower;
+                Bloc.MaxPower = MaxPower;
+                Bloc.Generators = Generators;
+                Blocs.Add(Bloc);
+
+                PPCurrentPower += CurrentPower;
+                PPMaxPower += MaxPower;
+            }
+            PowerPlant.Blocs = Blocs;
+            PowerPlant.CurrentPower = PPCurrentPower;
+            PowerPlant.MaxPower = PPMaxPower;
+            return PowerPlant;
+        }
+
+        private async Task<List<int>> getGeneratorPower(string generator)
+        {
+            var parameters = new { GID = generator };
+            List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
+                ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
+
+            List<int> power = new List<int>();
+            foreach(var Activity in PastActivity)
+            {
+                power.Add(Activity.ActualPower);
+            }
+            return power;
+
+            //List<PowerDTO> data = (List<PowerDTO>)await getData();
+            //foreach(PowerDTO gen in data)
             //{
-            //    id = "PKS",
-            //    name = "Paks",
-            //    description = "Paksi atomerőmű",
-            //};
-
-            //PowerPlantModel Paks2 = new PowerPlantModel
-            //{
-            //    id = "PKS2",
-            //    name = "Paks 2",
-            //    description = "Paksi atomerőmű 2",
-            //};
-
-            //List<PowerPlantModel> l = new List<PowerPlantModel>();
-            //l.Add(Paks);
-            //l.Add(Paks2);
-
-            //return l;
+            //    if(gen.PowerPlantBloc == generator)
+            //    {
+            //        return gen.Power;
+            //    }
+            //}
+            //return -1;
         }
 
         private string getTime(int diff)
@@ -88,16 +165,16 @@ namespace PowerPlantMapAPI.Controllers
             now += Convert.ToString(DateTime.Now.Month);
             if (DateTime.Now.Day < 10) { now += "0"; }
             now += Convert.ToString(DateTime.Now.Day);
-            if (DateTime.Now.Hour < 10) { now += "0"; }
+            if (DateTime.Now.Hour - diff < 10) { now += "0"; }
             now += Convert.ToString(DateTime.Now.Hour - diff) + "00";
             return now;
         }
 
-        [HttpGet("[action]")]
-        public async Task<ActionResult<IEnumerable<PowerDTO>>> getData(
+        //[HttpGet("[action]")]
+        private async Task<IEnumerable<PowerDTO>> getData(
                     string documentType = "A73",
                     string processType = "A16",
-                    string psrType = "B14",
+                    string psrType = "B04",
                     string in_Domain = "10YHU-MAVIR----U",
                     string periodStart = "202209211700",
                     string periodEnd = "202209211800"
@@ -197,41 +274,6 @@ namespace PowerPlantMapAPI.Controllers
             //reservationList = JsonConvert.DeserializeObject<List<Reservation>>(apiResponse);
 
             //return apiResponse;
-        }
-
-
-        [HttpGet("[action]")]
-        public async Task<ActionResult<PowerPlantModel>> getDetailsOfPowerPlant(string id = "PKS")
-        {
-            ReactorModel model1 = new ReactorModel()
-            {
-                ReactorId = "1",
-                ReactorType = "VVER-440",
-                ReactorName = "Paks 1",
-                MaxPower = 500
-            };
-
-            ReactorModel model2 = new ReactorModel()
-            {
-                ReactorId = "2",
-                ReactorType = "VVER-440",
-                ReactorName = "Paks 2",
-                MaxPower = 500
-            };
-
-            List < ReactorModel > l = new List<ReactorModel>();
-            l.Add(model1);
-            l.Add(model2);
-
-            PowerPlantModel Paks = new PowerPlantModel
-            {
-                id = "PKS",
-                name = "Paks",
-                description = "Paksi atomerőmű",
-                reactors = l
-            };
-
-            return Paks;
         }
     }
 }

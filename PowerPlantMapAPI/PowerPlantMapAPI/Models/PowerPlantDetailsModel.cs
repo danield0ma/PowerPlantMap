@@ -1,14 +1,14 @@
-﻿namespace PowerPlantMapAPI.Models.DTO
+﻿namespace PowerPlantMapAPI.Models
 {
-    public class PowerPlantDataDTO
+    public class PowerPlantDetailsModel
     {
         public string? PowerPlantID { get; set; }
         public string? name { get; set; }
         public string description { get; set; }
         public string? OperatorCompany { get; set; }
         public string? webpage { get; set; }
-        public string? image { get; set; }
-        public float longitude { get; set; }
-        public float latitude { get; set; }
+        public int CurrentPower { get; set; }
+        public int MaxPower { get; set; }
+        public List<BlocModel> Blocs { get; set; }
     }
 }

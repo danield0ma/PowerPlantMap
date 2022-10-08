@@ -1,25 +1,31 @@
 <template>
     <div>
       <div style="height: 3.5rem; position: absolute;"></div>
-      <div id="left" v-if="showLeftPanel">
-        <div style="padding: 1rem; display: flex; justify-content: space-between; vertical-align: middle;">
-          <div>
-            <h3>{{ content.description }}</h3>            
-          </div>        
-          <!-- <v-icon v-on:click="close" style="cursor: pointer; color: red; align-items: center; margin: auto;"> -->
-            <!-- <font-awesome-icon icon="fa-solid fa-arrow-left fa-2xl" /> -->
-          <font-awesome-icon icon="fa-solid fa-xmark fa-xs" v-on:click="close" style="cursor: pointer; color: red; vertical-align: baseline;" />
-          <!-- </v-icon> -->
+      <div id="left" v-show="showLeftPanel">
+        <div v-if="isLoading">
+          <h1>LOADING...</h1>
         </div>
-        <h5>{{ content.operator }}</h5>
-        <!-- <a>{{ content.webpage }}</a> -->
-        <h5>Maximális teljesítmény: {{ content.maxPower }} MW</h5>
-        <h1>Blokkok</h1>
-        <div v-for="block in content.blocks" :key="block.name">
-          <p>{{block.name}}({{block.type}}): {{block.current}} / {{block.maxPower}}MW</p>
-        </div>
-        <!-- <h5>1. Blokk</h5>
-        <h5>Típus: </h5> -->
+        <div v-else>
+          <div style="padding: 1rem; display: flex; justify-content: space-between; vertical-align: middle;">
+            <div>
+              <h3>{{ content.description }}</h3>            
+            </div>
+            <font-awesome-icon icon="fa-solid fa-xmark fa-xs" v-on:click="close" style="cursor: pointer; color: red; vertical-align: baseline;" />
+          </div>
+          <h5>{{ content.operatorCompany }}</h5>
+          <h5>{{ content.webpage }}</h5>
+          <!-- <a href={{ content.webpage }}>{{ content.webpage }}</a> -->
+          <h5>Maximális teljesítmény: {{ content.maxPower }} MW</h5>
+          <h1>Blokkok</h1>
+          <div v-for="bloc in content.blocs" :key="bloc.blocID">
+            <p>{{bloc.blocID}}({{bloc.blocType}}): {{bloc.currentPower}} / {{bloc.maxBlocCapacity}}MW</p>
+            <div v-for="generator in bloc.generators" :key="generator.generatorID">
+              <p>     {{generator.generatorID}}: {{generator.currentPower}} / {{generator.maxCapacity}}MW</p>
+            </div>
+          </div>
+          <!-- <h5>1. Blokk</h5>
+          <h5>Típus: </h5> -->
+        </div>        
       </div>
       <div id="map"></div>
     </div>  
@@ -27,6 +33,7 @@
   
   <script>
   import mapboxgl from "mapbox-gl"
+import { runInThisContext } from "vm"
   
   export default {
     name: 'IndexPage',
@@ -53,9 +60,11 @@
       showLeftPanel() {
         return this.$store.state.power.left
       },
-
       content() {
         return this.$store.state.power.content
+      },
+      isLoading() {
+        return this.$store.state.power.isLoading
       }
     },
 
@@ -136,7 +145,7 @@
         //     })
         // })
   
-        const gj = await this.getPowerPlantBasics()      
+        const gj = await this.getPowerPlantBasics()
         const coord = gj.data.features
         console.log('coord: ', coord)
 
@@ -156,11 +165,11 @@
             .addTo(this.map)
   
           m.getElement().addEventListener('click', () => {
-            if (this.showLeftPanel && this.content.id == marker.properties.id) {
+            if (this.showLeftPanel && this.content.powerPlantID == marker.properties.id) {
               this.$store.dispatch('power/setLeftPanel', false)
             } else {
-              this.$store.dispatch('power/setLeftPanel', true)
-              this.$store.dispatch('power/setLeftContent', this.getDetailsOfPowerPlant(marker.properties.id))
+              this.getDetailsOfPowerPlant(marker.properties.id)
+              //this.$store.dispatch('power/setLeftContent', this.getDetailsOfPowerPlant(marker.properties.id))
             }
           })
         }
@@ -170,225 +179,184 @@
       close() {
         this.$store.dispatch('power/setLeftPanel', false)
       },
-  
-      power() {
-  
-      },
-  
-      getDetailsOfPowerPlant(id) {
-        console.log('ID: ', id == 'PKS')
-        if (id == 'PKS') {
-          return {
-            'id': 'PKS',
-            'name': 'Paks',
-            'description': 'Paksi Atomerőmű',
-            'operator': 'MVM Paksi atomeromu Zrt.',
-            'webpage': 'https://www.atomeromu.hu',
-            'maxPower': 2000,
-            'blocks': [
-              {
-                'name': 'Paks 1',
-                'birth': '1982',
-                'current': 0,
-                'maxPower': 506,
-                'type': 'VVER-440',
-                'turbines': [
-                  {
-                    'name': 'Paks_Gép_1',
-                    'maxPower': 250
-                  },
-                  {
-                    'name': 'Paks_Gép_2',
-                    'maxPower': 250
-                  }
-                ]
-              },
-              {
-                'name': 'Paks 2',
-                'maxPower': 506,
-                'current': 506,
-                'type': 'VVER-440',
-                'turbines': [
-                  {
-                    'name': 'Paks_Gép_3',
-                    'maxPower': 250
-                  },
-                  {
-                    'name': 'Paks_Gép_4',
-                    'maxPower': 250
-                  }
-                ]
-              },
-              {
-                'name': 'Paks 3',
-                'maxPower': 506,
-                'current': 506,
-                'type': 'VVER-440',
-                'turbines': [
-                  {
-                    'name': 'Paks_Gép_5',
-                    'maxPower': 250
-                  },
-                  {
-                    'name': 'Paks_Gép_6',
-                    'maxPower': 250
-                  }
-                ]
-              },
-              {
-                'name': 'Paks 4',
-                'maxPower': 506,
-                'current': 506,
-                'type': 'VVER-440',
-                'turbines': [
-                  {
-                    'name': 'Paks_Gép_7',
-                    'maxPower': 250
-                  },
-                  {
-                    'name': 'Paks_Gép_8',
-                    'maxPower': 250
-                  }
-                ]
-              }
-            ]
-          }
-        } else if (id == 'MTR') {
-          return {
-            'id': 'MTR',
-            'description': 'Mátrai Szén',
-            'operator': 'MVM',
-            'maxPower': 1000,
-            'blocks': [
-              {
-                'name': 'Mátra 1',
-                'birth': '1962',
-                'maxPower': 300,
-                'current': 150,
-                'type': 'Coal',
-                'turbines': [
-                  {
-                    'name': 'Mátra_Gép_1',
-                    'maxPower': 150
-                  },
-                  {
-                    'name': 'Mátra_Gép_2',
-                    'maxPower': 150
-                  }
-                ]
-              },
-              {
-                'name': 'Mátra 2',
-                'maxPower': 300,
-                'current': 150,
-                'type': 'Coal',
-                'turbines': [
-                  {
-                    'name': 'Mátra_Gép_3',
-                    'maxPower': 150
-                  },
-                  {
-                    'name': 'Mátra_Gép_4',
-                    'maxPower': 150
-                  }
-                ]
-              }
-            ]
-          }
-        } else if (id == 'GNY') {
-          return {
-            'id': 'GNY',
-            'description': 'Gönyűi gáz',
-            'operator': 'MVM',
-            'maxPower': 500,
-            'blocks': [
-              {
-                'name': 'Gönyű 1',
-                'birth': '2010',
-                'maxPower': 500,
-                'current': 300,
-                'type': 'Gas',
-                'turbines': [
-                  {
-                    'name': 'Gönyű_Gép_1',
-                    'maxPower': 250
-                  },
-                  {
-                    'name': 'Gönyű_Gép_2',
-                    'maxPower': 250
-                  }
-                ]
-              },
-            ]
-          }
-        }
-      },
-  
+
       async getPowerPlantBasics() {
         const res = await fetch('https://localhost:7032/API/Power/getPowerPlantBasics/')
         const f = await res.json()
-        console.log('asdfgh: ', f)
-        for(const ff of f) {
-          console.log(ff.properties.id)
-        }
-
-        const paks = {
-          'type': f[0].type,
-          'properties': f[0].properties,
-          'geometry': f[0].geometry
-        }
-        console.log('Paks: ', paks)
         
         const data = {
               'type': 'geojson',
               'data': {
                 'type': 'FeatureCollection',
-                'features': f //[
-                  // {
-                  //   'type': 'Feature',
-                  //   'properties': {
-                  //     'id': 'PKS',
-                  //     'name': 'Paks',
-                  //     'description': 'Paksi Atomerőmű',
-                  //     'img': 'nuclear.png'
-                  //   },
-                  //   'geometry': {
-                  //     'type': 'Point',
-                  //     'coordinates': [18.8526, 46.5753]
-                  //   }
-                  // },
-                  // {
-                  //   'type': 'Feature',
-                  //   'properties': {
-                  //     'id': 'MTR',
-                  //     'name': 'Mátra',
-                  //     'description': 'Mátrai széntüzelésű hőerőmű',
-                  //     'img': 'coal.png'
-                  //   },
-                  //   'geometry': {
-                  //     'type': 'Point',
-                  //     'coordinates': [20.0679, 47.7889]
-                  //   }
-                  // },
-                  // {
-                  //   'type': 'Feature',
-                  //   'properties': {
-                  //     'id': 'GNY',
-                  //     'name': 'Gönyű',
-                  //     'description': 'Gönyűi gázturbinás hőerőmű',
-                  //     'img': 'gas.png'
-                  //   },
-                  //   'geometry': {
-                  //     'type': 'Point',
-                  //     'coordinates': [17.8038, 47.7383]
-                  //   }
-                  // }
-                //]
+                'features': f
               }
             }
-
         console.log(data)
         return data
+      },
+  
+      async getDetailsOfPowerPlant(id) {
+        console.log('ID: ', id)
+        try {
+          //loading page
+          await this.$store.dispatch('power/setLeftPanelLoading', true)
+          await this.$store.dispatch('power/setLeftPanel', true)
+
+          const res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id)
+          const data = await res.json()
+          console.log(data)
+          //return data
+          await this.$store.dispatch('power/setLeftContent', data)
+          await this.$store.dispatch('power/setLeftPanelLoading', false)
+        } catch(error) {
+          console.error(error)
+        }
+        
+        // if (id == 'PKS') {
+        //   return {
+        //     'id': 'PKS',
+        //     'name': 'Paks',
+        //     'description': 'Paksi Atomerőmű',
+        //     'operator': 'MVM Paksi atomeromu Zrt.',
+        //     'webpage': 'https://www.atomeromu.hu',
+        //     'maxPower': 2000,
+        //     'blocks': [
+        //       {
+        //         'name': 'Paks 1',
+        //         'birth': '1982',
+        //         'current': 0,
+        //         'maxPower': 506,
+        //         'type': 'VVER-440',
+        //         'turbines': [
+        //           {
+        //             'name': 'Paks_Gép_1',
+        //             'maxPower': 250
+        //           },
+        //           {
+        //             'name': 'Paks_Gép_2',
+        //             'maxPower': 250
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         'name': 'Paks 2',
+        //         'maxPower': 506,
+        //         'current': 506,
+        //         'type': 'VVER-440',
+        //         'turbines': [
+        //           {
+        //             'name': 'Paks_Gép_3',
+        //             'maxPower': 250
+        //           },
+        //           {
+        //             'name': 'Paks_Gép_4',
+        //             'maxPower': 250
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         'name': 'Paks 3',
+        //         'maxPower': 506,
+        //         'current': 506,
+        //         'type': 'VVER-440',
+        //         'turbines': [
+        //           {
+        //             'name': 'Paks_Gép_5',
+        //             'maxPower': 250
+        //           },
+        //           {
+        //             'name': 'Paks_Gép_6',
+        //             'maxPower': 250
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         'name': 'Paks 4',
+        //         'maxPower': 506,
+        //         'current': 506,
+        //         'type': 'VVER-440',
+        //         'turbines': [
+        //           {
+        //             'name': 'Paks_Gép_7',
+        //             'maxPower': 250
+        //           },
+        //           {
+        //             'name': 'Paks_Gép_8',
+        //             'maxPower': 250
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   }
+        // } else if (id == 'MTR') {
+        //   return {
+        //     'id': 'MTR',
+        //     'description': 'Mátrai Szén',
+        //     'operator': 'MVM',
+        //     'maxPower': 1000,
+        //     'blocks': [
+        //       {
+        //         'name': 'Mátra 1',
+        //         'birth': '1962',
+        //         'maxPower': 300,
+        //         'current': 150,
+        //         'type': 'Coal',
+        //         'turbines': [
+        //           {
+        //             'name': 'Mátra_Gép_1',
+        //             'maxPower': 150
+        //           },
+        //           {
+        //             'name': 'Mátra_Gép_2',
+        //             'maxPower': 150
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         'name': 'Mátra 2',
+        //         'maxPower': 300,
+        //         'current': 150,
+        //         'type': 'Coal',
+        //         'turbines': [
+        //           {
+        //             'name': 'Mátra_Gép_3',
+        //             'maxPower': 150
+        //           },
+        //           {
+        //             'name': 'Mátra_Gép_4',
+        //             'maxPower': 150
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   }
+        // } else if (id == 'GNY') {
+        //   return {
+        //     'id': 'GNY',
+        //     'description': 'Gönyűi gáz',
+        //     'operator': 'MVM',
+        //     'maxPower': 500,
+        //     'blocks': [
+        //       {
+        //         'name': 'Gönyű 1',
+        //         'birth': '2010',
+        //         'maxPower': 500,
+        //         'current': 300,
+        //         'type': 'Gas',
+        //         'turbines': [
+        //           {
+        //             'name': 'Gönyű_Gép_1',
+        //             'maxPower': 250
+        //           },
+        //           {
+        //             'name': 'Gönyű_Gép_2',
+        //             'maxPower': 250
+        //           }
+        //         ]
+        //       },
+        //     ]
+        //   }
+        // }
       }
     }
   }

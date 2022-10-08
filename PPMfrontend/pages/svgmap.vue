@@ -123,9 +123,9 @@
     } */
 
     svg {
-        width: 100vw;
+        /* width: 100vw;
         height: 100vh;
-        position: relative;
+        position: relative; */
         /* display: block;
       position: absolute;
       z-index: 1; */
@@ -137,7 +137,7 @@
     }
 
     svg path {
-        fill: #00394f;
+        /* fill: #00394f; */
         stroke: #eee;
         stroke-width: .25;
     }
