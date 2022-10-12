@@ -3,6 +3,6 @@
     public class PowerDTO
     {
         public string? PowerPlantBloc { get; set; }
-        public int Power { get; set; }
+        public List<int> Power { get; set; }
     }
 }

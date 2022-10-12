@@ -8,6 +8,7 @@ using System.Data;
 using PowerPlantMapAPI.Models.DTO;
 using Microsoft.AspNetCore.Cors;
 using System.Xml;
+using System.Collections;
 //using Microsoft.AspNetCore.Mvc.HttpGet;
 
 namespace PowerPlantMapAPI.Controllers
@@ -96,7 +97,9 @@ namespace PowerPlantMapAPI.Controllers
                 (List<PowerPlantDetailsDTO>)await _connection.
                 QueryAsync<PowerPlantDetailsDTO>("GetPowerPlantDetails", 
                     parameters, commandType: CommandType.StoredProcedure);
-            
+
+            List<DateTime> TimeStamps = await GetStartAndEnd(false);
+
             int PPMaxPower = 0, PPCurrentPower = 0;
             List<BlocModel> Blocs = new List<BlocModel>();
             for (int i = 0; i < PowerPlantDetails.Count; i += 0)
@@ -114,7 +117,7 @@ namespace PowerPlantMapAPI.Controllers
                     GeneratorModel Generator = new GeneratorModel();
                     Generator.GeneratorID = PowerPlantDetails[i].GeneratorID;
                     Generator.MaxCapacity = PowerPlantDetails[i].MaxCapacity;
-                    Generator.CurrentPower = await getGeneratorPower(Generator.GeneratorID);
+                    Generator.CurrentPower = await GetGeneratorPower(Generator.GeneratorID, TimeStamps[0], TimeStamps[1]);
                     Generators.Add(Generator);
                     CurrentPower += Generator.CurrentPower[0];
                     MaxPower += Generator.MaxCapacity;
@@ -134,9 +137,9 @@ namespace PowerPlantMapAPI.Controllers
             return PowerPlant;
         }
 
-        private async Task<List<int>> getGeneratorPower(string generator)
+        private async Task<List<int>> GetGeneratorPower(string generator, DateTime start, DateTime end)
         {
-            var parameters = new { GID = generator };
+            var parameters = new { GID = generator, start = start, end = end };
             List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
                 ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
 
@@ -170,18 +173,19 @@ namespace PowerPlantMapAPI.Controllers
             return now;
         }
 
-        //[HttpGet("[action]")]
-        private async Task<IEnumerable<PowerDTO>> getData(
-                    string documentType = "A73",
-                    string processType = "A16",
-                    string psrType = "B04",
-                    string in_Domain = "10YHU-MAVIR----U",
-                    string periodStart = "202209211700",
-                    string periodEnd = "202209211800"
+        [HttpGet("[action]")]
+        public async Task<IEnumerable<PowerDTO>> getData(
+                    string PPID,
+                    string periodStart,
+                    string periodEnd
                 )
         {
-            periodStart = getTime(4);
-            periodEnd = getTime(3);
+            string documentType = "A73";
+            string processType = "A16";
+            string in_Domain = "10YHU-MAVIR----U";
+
+            //periodStart = getTime(4);
+            //periodEnd = getTime(3);
 
             string url = "https://transparency.entsoe.eu/api";
             string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
@@ -194,6 +198,9 @@ namespace PowerPlantMapAPI.Controllers
             //string in_Domain = "10YHU-MAVIR----U";
             //string periodStart = "202209211700";
             //string periodEnd = "202209211800";
+
+            System.Diagnostics.Debug.WriteLine(periodStart);
+            System.Diagnostics.Debug.WriteLine(periodEnd);
 
             string query = url + "?securityToken=" + securityToken + 
                            "&documentType=" + documentType +
@@ -212,6 +219,7 @@ namespace PowerPlantMapAPI.Controllers
             doc.PreserveWhitespace = true;
 
             apiResponse = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine(apiResponse);
 
             doc.Load(new StringReader(apiResponse));
 
@@ -219,7 +227,12 @@ namespace PowerPlantMapAPI.Controllers
             //System.Diagnostics.Debug.WriteLine("Child Nodes count: " + doc.ChildNodes[2].ChildNodes.Count);
 
             List<PowerDTO> data = new List<PowerDTO>();
-            int sum = 0;
+            //int sum = 0;
+            List<int> sum = new List<int>();
+            for(int i = 0; i < 100; i++)
+            {
+                sum.Add(0);
+            }
             
             for (int i = 20; i < doc.ChildNodes[2].ChildNodes.Count; i++)
             {
@@ -227,21 +240,30 @@ namespace PowerPlantMapAPI.Controllers
                 
                 if(node.ChildNodes.Count != 0)
                 {
-                    XmlNode first = node.ChildNodes[15];
+                    XmlNode MktPSRType = node.ChildNodes[15];
                     //System.Diagnostics.Debug.WriteLine("15: " + first.InnerXml);
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes.Count);
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].InnerXml);
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].ChildNodes.Count);
-                    string name = first.ChildNodes[3].ChildNodes[3].InnerXml;
+                    string name = MktPSRType.ChildNodes[3].ChildNodes[3].InnerXml;
                     System.Diagnostics.Debug.WriteLine("15: " + name);
 
-                    XmlNode second = node.ChildNodes[17];
+                    XmlNode Period = node.ChildNodes[17];
                     //System.Diagnostics.Debug.WriteLine("17: " + second.InnerXml);
                     //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes.Count);
                     //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].InnerXml);
                     //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].ChildNodes.Count);
                     //System.Diagnostics.Debug.WriteLine("17: " + second.ChildNodes[5].ChildNodes[3].InnerXml);
-                    int power = Int32.Parse(second.ChildNodes[5].ChildNodes[3].InnerXml);
+
+                    List<int> power = new List<int>();
+                    for(int j = 5; j < Period.ChildNodes.Count; j += 2)
+                    {
+                        int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
+                        power.Add(p);
+                        sum[(j - 5) / 2] += p;
+                    }
+                    
+                    //int power = Int32.Parse(Period.ChildNodes[5].ChildNodes[3].InnerXml);
                     System.Diagnostics.Debug.WriteLine("17: " + power);
 
                     PowerDTO current = new PowerDTO()
@@ -250,7 +272,6 @@ namespace PowerPlantMapAPI.Controllers
                         Power = power
                     };
                     data.Add(current);
-                    sum += power;
                 }
 
                 //System.Diagnostics.Debug.WriteLine("Inner node count: " + node.ChildNodes.Count);
@@ -262,18 +283,136 @@ namespace PowerPlantMapAPI.Controllers
             System.Diagnostics.Debug.WriteLine("Sum: " + sum + ", " + periodEnd);
             System.Diagnostics.Debug.WriteLine("MOST: " + periodStart + ", " + periodEnd);
 
+            //List<int> summ = new List<int>();
+            //summ.Add(sum);
             data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
             return data;
+        }
 
-            //XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
-            //nsmgr.AddNamespace("asd", query);
-            //string xPathString = "//asd:GL_MarketDocument/asd:TimeSeries/asd:MktPSRType/asd:PowerSystemResources[@name='BELLEVILLE 1']";
-            //XmlNode xmlNode = doc.DocumentElement.SelectSingleNode(xPathString, nsmgr);
-            //return xmlNode;
+        private string EditTime(DateTime start)
+        {
+            string StartTime = Convert.ToString(start.Year);
+            if (start.Month < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Month);
+            if (start.Day < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Day);
+            if (start.Hour < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Hour);
+            if (start.Minute < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Minute);
+            return StartTime;
+        }
 
-            //reservationList = JsonConvert.DeserializeObject<List<Reservation>>(apiResponse);
+        private async Task<List<DateTime>> GetStartAndEnd(bool complexity)
+        {
+            DateTime now = DateTime.Now;
+            DateTime end = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
 
-            //return apiResponse;
+            if (now.Minute < 15)
+            {
+                end = end.AddHours(now.Hour - 1);
+                end = end.AddMinutes(45);
+            }
+            else if (now.Minute < 30)
+            {
+                end = end.AddHours((int)now.Hour);
+                end = end.AddMinutes(0);
+            }
+            else if (now.Minute < 45)
+            {
+                end = end.AddHours(now.Hour);
+                end = end.AddMinutes(15);
+            }
+            else
+            {
+                end = end.AddHours(now.Hour);
+                end = end.AddMinutes(30);
+            }
+            DateTime start = end.AddDays(-1);
+
+            if(!complexity) { return new List<DateTime> { start, end }; }
+
+            //foreach(var PP in PowerPlants)
+
+            var parameter = new { PPID = "PKS" };
+            List<DateTime> LastData = (List<DateTime>)await _connection.QueryAsync<DateTime>
+                ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
+
+            double diff = (double)(start - LastData[0]).TotalHours;
+
+            System.Diagnostics.Debug.WriteLine("DIFFERENCE: ", diff);
+
+            if (LastData[0] > start)
+            {
+                start = LastData[0];
+            }
+
+            System.Diagnostics.Debug.WriteLine(start.ToString());
+            System.Diagnostics.Debug.WriteLine(end.ToString());
+
+            List<DateTime> asd = new List<DateTime>
+            {
+                start,
+                end
+            };
+            return asd;
+        }
+
+        [HttpGet("[action]")]
+        public async Task<bool> InitData()
+        {
+            List<DateTime> TimeStamps = await GetStartAndEnd(true);
+            string StartTime = EditTime(TimeStamps[0]);
+            string EndTime = EditTime(TimeStamps[1]);
+            //System.Diagnostics.Debug.WriteLine(StartTime);
+            //System.Diagnostics.Debug.WriteLine(EndTime);
+            DateTime start = TimeStamps[0];
+
+            //TODO: query, INSERT
+            List<PowerDTO> PowerDataSet = (List<PowerDTO>)await
+                        getData("PKS", StartTime, EndTime);
+            List<string> generators = new List<string>
+            {
+                "GÖNYÜ_gép1", "MÁ2_gép3", "MÁ2_gép4", "MÁ2_gép5",
+                "PA_gép1", "PA_gép2", "PA_gép3", "PA_gép4", "PA_gép5", "PA_gép6", "PA_gép7", "PA_gép8"
+            };
+            List<string> PowerPlants = new List<string> { "PKS", "MTR", "GNY" };
+
+            foreach(PowerDTO PowerData in PowerDataSet)
+            {
+                if (generators.Contains(PowerData.PowerPlantBloc))
+                {
+                    //insert into
+                    DateTime asd = start.AddMinutes(-15);
+                    foreach(int p in PowerData.Power)
+                    {
+                        asd = asd.AddMinutes(15);
+                        var par = new { GID = PowerData.PowerPlantBloc, start = asd, end = asd.AddMinutes(15), power = p };
+                        await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
+                    }
+                }
+                
+
+                
+                //query
+                //List<string> GeneratorsOfPowerPlant = new List<string>();
+                //var p = new { PPID = PPID };
+                //GeneratorsOfPowerPlant = (List<string>)await _connection.QueryAsync("GetGeneratorsOfPowerPlant", p, commandType: CommandType.StoredProcedure);
+                //foreach(string GeneratorID in GeneratorsOfPowerPlant)
+                //{
+                //    foreach(PowerDTO GeneratorData in data)
+                //    {
+                //        //INSERT INTO
+                //        var par = new { GeneratorID = GeneratorID, start = start, end = end, ActualPower = GeneratorData.Power };
+                //    }
+                //}
+
+                
+            }
+
+            
+
+            return true;
         }
     }
 }
