@@ -1,48 +1,27 @@
 <template>
-    <div>
-      <div style="height: 3.5rem; position: absolute;"></div>
-      <div id="left" v-show="showLeftPanel">
-        <div v-if="isLoading">
-          <h1>LOADING...</h1>
-        </div>
-        <div v-else>
-          <div style="padding: 1rem; display: flex; justify-content: space-between; vertical-align: middle;">
-            <div>
-              <h3>{{ content.description }}</h3>            
-            </div>
-            <font-awesome-icon icon="fa-solid fa-xmark fa-xs" v-on:click="close" style="cursor: pointer; color: red; vertical-align: baseline;" />
-          </div>
-          <h5>{{ content.operatorCompany }}</h5>
-          <h5>{{ content.webpage }}</h5>
-          <!-- <a href={{ content.webpage }}>{{ content.webpage }}</a> -->
-          <h5>Maximális teljesítmény: {{ content.maxPower }} MW</h5>
-          <h1>Blokkok</h1>
-          <div v-for="bloc in content.blocs" :key="bloc.blocID">
-            <p>{{bloc.blocID}}({{bloc.blocType}}): {{bloc.currentPower}} / {{bloc.maxBlocCapacity}}MW</p>
-            <div v-for="generator in bloc.generators" :key="generator.generatorID">
-              <p>     {{generator.generatorID}}: {{generator.currentPower}} / {{generator.maxCapacity}}MW</p>
-            </div>
-          </div>
-          <!-- <h5>1. Blokk</h5>
-          <h5>Típus: </h5> -->
-        </div>        
-      </div>
-      <div id="map"></div>
-    </div>  
-  </template>
+  <div>
+    <div style="height: 3.5rem; position: absolute;"></div>
+    <div id="left" v-if="showLeftPanel">
+      <LeftPanel @close="close"></LeftPanel>
+    </div>
+    <div id="map"></div>
+  </div>
+</template>
   
-  <script>
-  import mapboxgl from "mapbox-gl"
-import { runInThisContext } from "vm"
-  
-  export default {
-    name: 'IndexPage',
+<script>
+import mapboxgl from "mapbox-gl"
+// import { runInThisContext } from "vm"
+import LeftPanel from '../components/LeftPanel.vue'
+
+export default {
+    name: 'MapView',
     data() {
       return {
         accessToken: 'pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q',
         map: {},
         marker: [],
-        popup: {}
+        popup: {},
+        // content: {}
       }
     },
 
@@ -50,6 +29,10 @@ import { runInThisContext } from "vm"
       return {
         title: 'Map View - PowerPlantMap'
       }
+    },
+
+    components: {
+      LeftPanel
     },
 
     mounted() {
@@ -62,10 +45,10 @@ import { runInThisContext } from "vm"
       },
       content() {
         return this.$store.state.power.content
-      },
-      isLoading() {
-        return this.$store.state.power.isLoading
       }
+      // isLoading() {
+      //   return this.$store.state.power.isLoading
+      // }
     },
 
     methods: {
@@ -147,7 +130,7 @@ import { runInThisContext } from "vm"
   
         const gj = await this.getPowerPlantBasics()
         const coord = gj.data.features
-        console.log('coord: ', coord)
+        //console.log('coord: ', coord)
 
         for (const marker of coord)
         {
@@ -191,12 +174,12 @@ import { runInThisContext } from "vm"
                 'features': f
               }
             }
-        console.log(data)
+        //console.log(data)
         return data
       },
   
       async getDetailsOfPowerPlant(id) {
-        console.log('ID: ', id)
+        //console.log('ID: ', id)
         try {
           //loading page
           await this.$store.dispatch('power/setLeftPanelLoading', true)
@@ -204,196 +187,50 @@ import { runInThisContext } from "vm"
 
           const res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id)
           const data = await res.json()
-          console.log(data)
+          //console.log(data)
           //return data
           await this.$store.dispatch('power/setLeftContent', data)
           await this.$store.dispatch('power/setLeftPanelLoading', false)
         } catch(error) {
           console.error(error)
         }
-        
-        // if (id == 'PKS') {
-        //   return {
-        //     'id': 'PKS',
-        //     'name': 'Paks',
-        //     'description': 'Paksi Atomerőmű',
-        //     'operator': 'MVM Paksi atomeromu Zrt.',
-        //     'webpage': 'https://www.atomeromu.hu',
-        //     'maxPower': 2000,
-        //     'blocks': [
-        //       {
-        //         'name': 'Paks 1',
-        //         'birth': '1982',
-        //         'current': 0,
-        //         'maxPower': 506,
-        //         'type': 'VVER-440',
-        //         'turbines': [
-        //           {
-        //             'name': 'Paks_Gép_1',
-        //             'maxPower': 250
-        //           },
-        //           {
-        //             'name': 'Paks_Gép_2',
-        //             'maxPower': 250
-        //           }
-        //         ]
-        //       },
-        //       {
-        //         'name': 'Paks 2',
-        //         'maxPower': 506,
-        //         'current': 506,
-        //         'type': 'VVER-440',
-        //         'turbines': [
-        //           {
-        //             'name': 'Paks_Gép_3',
-        //             'maxPower': 250
-        //           },
-        //           {
-        //             'name': 'Paks_Gép_4',
-        //             'maxPower': 250
-        //           }
-        //         ]
-        //       },
-        //       {
-        //         'name': 'Paks 3',
-        //         'maxPower': 506,
-        //         'current': 506,
-        //         'type': 'VVER-440',
-        //         'turbines': [
-        //           {
-        //             'name': 'Paks_Gép_5',
-        //             'maxPower': 250
-        //           },
-        //           {
-        //             'name': 'Paks_Gép_6',
-        //             'maxPower': 250
-        //           }
-        //         ]
-        //       },
-        //       {
-        //         'name': 'Paks 4',
-        //         'maxPower': 506,
-        //         'current': 506,
-        //         'type': 'VVER-440',
-        //         'turbines': [
-        //           {
-        //             'name': 'Paks_Gép_7',
-        //             'maxPower': 250
-        //           },
-        //           {
-        //             'name': 'Paks_Gép_8',
-        //             'maxPower': 250
-        //           }
-        //         ]
-        //       }
-        //     ]
-        //   }
-        // } else if (id == 'MTR') {
-        //   return {
-        //     'id': 'MTR',
-        //     'description': 'Mátrai Szén',
-        //     'operator': 'MVM',
-        //     'maxPower': 1000,
-        //     'blocks': [
-        //       {
-        //         'name': 'Mátra 1',
-        //         'birth': '1962',
-        //         'maxPower': 300,
-        //         'current': 150,
-        //         'type': 'Coal',
-        //         'turbines': [
-        //           {
-        //             'name': 'Mátra_Gép_1',
-        //             'maxPower': 150
-        //           },
-        //           {
-        //             'name': 'Mátra_Gép_2',
-        //             'maxPower': 150
-        //           }
-        //         ]
-        //       },
-        //       {
-        //         'name': 'Mátra 2',
-        //         'maxPower': 300,
-        //         'current': 150,
-        //         'type': 'Coal',
-        //         'turbines': [
-        //           {
-        //             'name': 'Mátra_Gép_3',
-        //             'maxPower': 150
-        //           },
-        //           {
-        //             'name': 'Mátra_Gép_4',
-        //             'maxPower': 150
-        //           }
-        //         ]
-        //       }
-        //     ]
-        //   }
-        // } else if (id == 'GNY') {
-        //   return {
-        //     'id': 'GNY',
-        //     'description': 'Gönyűi gáz',
-        //     'operator': 'MVM',
-        //     'maxPower': 500,
-        //     'blocks': [
-        //       {
-        //         'name': 'Gönyű 1',
-        //         'birth': '2010',
-        //         'maxPower': 500,
-        //         'current': 300,
-        //         'type': 'Gas',
-        //         'turbines': [
-        //           {
-        //             'name': 'Gönyű_Gép_1',
-        //             'maxPower': 250
-        //           },
-        //           {
-        //             'name': 'Gönyű_Gép_2',
-        //             'maxPower': 250
-        //           }
-        //         ]
-        //       },
-        //     ]
-        //   }
-        // }
       }
     }
   }
-  </script>
+</script>
   
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
-  
-    #left {
-      display: block;
-      position: absolute;
-      z-index: 1;
-      background: rgba(255, 255, 255, 0.75);
-      height: auto;
-      width: 33vw;
-      margin-top: 3.5rem;
-      bottom: 0;
-      top: 0;
-      /* left:0;
-      right:0; */
-    }
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
 
-    #map {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-  
-    .marker {
-      display: block;
-      border: none;
-      /* border-radius: 50%; */
-      cursor: pointer;
-      padding: 0;
-    } 
-  </style>
+  #left {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.75);
+    height: auto;
+    width: 33vw;
+    margin-top: 3.5rem;
+    bottom: 0;
+    top: 0;
+    /* left:0;
+    right:0; */
+  }
+
+  #map {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .marker {
+    display: block;
+    border: none;
+    /* border-radius: 50%; */
+    cursor: pointer;
+    padding: 0;
+  } 
+</style>
   

@@ -9,6 +9,8 @@
         public string? webpage { get; set; }
         public int CurrentPower { get; set; }
         public int MaxPower { get; set; }
+        public DateTime DataStart { get; set; }
+        public DateTime DataEnd { get; set; }
         public List<BlocModel> Blocs { get; set; }
     }
 }

@@ -99,6 +99,8 @@ namespace PowerPlantMapAPI.Controllers
                     parameters, commandType: CommandType.StoredProcedure);
 
             List<DateTime> TimeStamps = await GetStartAndEnd(false);
+            PowerPlant.DataStart = TimeStamps[0];
+            PowerPlant.DataEnd = TimeStamps[1];
 
             int PPMaxPower = 0, PPCurrentPower = 0;
             List<BlocModel> Blocs = new List<BlocModel>();

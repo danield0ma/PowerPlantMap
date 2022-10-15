@@ -11,7 +11,7 @@ export const state = () => ({
       state.left = value
     },
     SET_CONTENT(state, content) {
-        state.content = content
+      state.content = content
     },
     SET_LOADING(state, value) {
       state.isLoading = value
@@ -24,7 +24,7 @@ export const state = () => ({
     },
     async setLeftContent({commit}, content) {
       await commit('SET_CONTENT', content)
-      console.log('Left content: ', content)
+      //console.log('Left content: ', content)
     },
     async setLeftPanelLoading({commit}, value) {
       await commit('SET_LOADING', value)

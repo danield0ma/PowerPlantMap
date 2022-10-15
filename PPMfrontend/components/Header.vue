@@ -27,13 +27,6 @@
     display: flex;
   }
 
-  h4 {
-    margin: 0;
-    color: orange;
-    padding-left: 1rem;
-    text-decoration: none;
-  }
-
   ul {
     display: flex;
     margin: 0;
