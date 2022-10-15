@@ -8,6 +8,7 @@
         public string? OperatorCompany { get; set; }
         public string? webpage { get; set; }
         public int MaxPower { get; set; }
+        public string? Color { get; set; }
 
     }
 }

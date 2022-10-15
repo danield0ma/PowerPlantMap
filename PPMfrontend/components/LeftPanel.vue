@@ -15,19 +15,21 @@
             <h6>Cím: </h6>
             <h6>Kontakt: </h6>
             <h6>Üzemeltető: {{ content.operatorCompany }}</h6>
-            <h6>Web: {{ content.webpage }}</h6>
+            <h6>Weboldal: <a :href=content.webpage target="_blank">{{ content.webpage }}</a></h6>
             <!-- <a href={{ content.webpage }}>{{ content.webpage }}</a> -->
             <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
 
-            <client-only>
-                <line-chart
-                    :chart-data = "chartData"
-                    :chart-options = "chartOptions"
-                    :height = "300"
-                    :width = "500"
-                    chart-id = bloc.blocID
-                />
-            </client-only>
+            <div v-if="blocsNotEnabled">
+                <client-only>
+                    <line-chart
+                        :chart-data = "chartData('all')"
+                        :chart-options = "chartOptions"
+                        :height = "300"
+                        :width = "500"
+                        chart-id = bloc.blocID
+                    />
+                </client-only>
+            </div>
 
             <div class="flexbox" v-if="content.blocs.length > 1">
                 <h4>Blokkok</h4>
@@ -46,20 +48,17 @@
                             <font-awesome-icon icon="fa-solid fa-xmark fa-xs" class="faicon" />
                         </div>
                     </div>
+
                     <client-only>
                         <line-chart
-                            :chart-data = "chartData"
+                            :chart-data = "chartData(bloc.blocID)"
                             :chart-options = "chartOptions"
                             :height = "300"
                             :width = "500"
                             chart-id = bloc.blocID
                         />
                     </client-only>
-                    
-                    
-                    <!-- <client-only>
-                        <line-chart :data="chartData"></line-chart>
-                    </client-only> -->
+
                     <div v-if="bloc.generators.length > 1">
                         <div v-for="generator in bloc.generators" :key="generator.generatorID">
                             <p>{{generator.generatorID}}: {{generator.currentPower[0]}}/{{generator.maxCapacity}}MW</p>
@@ -97,23 +96,12 @@ export default {
             return this.$store.state.power.enableBlocs
         },
 
-        chartData() {
-            let asd = {
-                labels: this.getDateArray(),
-                datasets: [
-                    {
-                        label: 'Power [MW]',
-                        backgroundColor: '#C1536D',
-                        data: this.getPowerArray()
-                    },
-                    {
-                        label: 'Max Capacity [MW]',
-                        backgroundColor: '#C1536D',
-                        data: this.getMaxCap()
-                    }
-                ]
-            }
-            return asd
+        blocsNotEnabled() {
+            return !this.$store.state.power.enableBlocs
+        },
+
+        color() {
+            return '#' + this.content.color
         },
 
         chartOptions() {
@@ -128,7 +116,7 @@ export default {
                 },
                 elements: {
                     line: {
-                        borderColor: '#C1536D',
+                        borderColor: this.color,
                         borderWidth: 2
                     }
                 },
@@ -142,6 +130,25 @@ export default {
         }
     },
     methods: {
+        chartData(blocID) {
+            let asd = {
+                labels: this.getDateArray(),
+                datasets: [
+                    {
+                        label: 'Power [MW]',
+                        backgroundColor: this.color,
+                        data: this.getPowerArray(blocID)
+                    },
+                    {
+                        label: 'Max Capacity [MW]',
+                        backgroundColor: '#777',
+                        data: this.getMaxCap(blocID)
+                    }
+                ]
+            }
+            return asd
+        },
+
         getContent() {
             while(this.isLoading) {
                 console.log('getContent')
@@ -171,28 +178,55 @@ export default {
                 timeArray.push(time)
                 resultArray.push(moment(time).format("hh:mm"))
                 previous = time
-            }
-            console.log(resultArray)
-            
+            }            
             return resultArray
         },
 
-        getPowerArray() {
-            let data = this.getContent()
-            let a = JSON.parse(JSON.stringify(data.blocs[0].generators[0].currentPower))
-            for(let i=a.length; i<96; i++)
+        getPowerArray(blocID) {
+            let choice = false
+            if(blocID == 'all') {
+                choice = true
+            }
+            
+            let data = this.content
+            let a = []
+            for(let i = 0; i < 96; i++)
             {
                 a.push(0)
             }
-            console.log(a)
+            
+
+            for(let bloc of data.blocs) {
+                if(choice || blocID == bloc.blocID) {
+                    for(let generator of bloc.generators) {
+                        for(let i = 0; i < 96; i++) {
+                            a[i] += generator.currentPower[i]
+                        }
+                    }
+                }
+            }
             return a
         },
 
-        getMaxCap() {
+        getMaxCap(blocID) {
+            let choice = false
+            if(blocID == 'all') {
+                choice = true
+            }
+            let maxCap = 0
+
+            for(let bloc of this.content.blocs) {
+                if(choice || blocID == bloc.blocID) {
+                    for(let generator of bloc.generators) {
+                        maxCap += generator.maxCapacity
+                    }
+                }
+            }
+
             let arr = []
             for(let i=0;i<96;i++)
             {
-                arr.push(433)
+                arr.push(maxCap)
             }
             return arr
         },

@@ -76,6 +76,7 @@ namespace PowerPlantMapAPI.Controllers
             b.description = PowerPlant.description;
             b.OperatorCompany = PowerPlant.OperatorCompany;
             b.webpage = PowerPlant.webpage;
+            b.Color = PowerPlant.Color;
 
             return b;
         }
@@ -91,6 +92,7 @@ namespace PowerPlantMapAPI.Controllers
             PowerPlant.description = basics.description;
             PowerPlant.OperatorCompany = basics.OperatorCompany;
             PowerPlant.webpage = basics.webpage;
+            PowerPlant.Color = basics.Color;
 
             var parameters = new { PowerPlantID = id };
             List<PowerPlantDetailsDTO> PowerPlantDetails = 
@@ -150,17 +152,11 @@ namespace PowerPlantMapAPI.Controllers
             {
                 power.Add(Activity.ActualPower);
             }
+            for(int i = power.Count; i < 96; i++)
+            {
+                power.Add(0);
+            }
             return power;
-
-            //List<PowerDTO> data = (List<PowerDTO>)await getData();
-            //foreach(PowerDTO gen in data)
-            //{
-            //    if(gen.PowerPlantBloc == generator)
-            //    {
-            //        return gen.Power;
-            //    }
-            //}
-            //return -1;
         }
 
         private string getTime(int diff)

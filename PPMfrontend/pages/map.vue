@@ -146,6 +146,7 @@ export default {
           m.getElement().addEventListener('click', () => {
             if (this.showLeftPanel && this.content.powerPlantID == marker.properties.id) {
               this.$store.dispatch('power/setLeftPanel', false)
+              this.$store.dispatch('power/toggleBlocs', false)
             } else {
               this.getDetailsOfPowerPlant(marker.properties.id)
             }
@@ -173,14 +174,15 @@ export default {
         //console.log('ID: ', id)
         try {
           //loading page
-          
+          await this.$store.dispatch('power/setLeftPanelLoading', true)
+          this.$store.dispatch('power/toggleBlocs', false)
+          await this.$store.dispatch('power/setLeftPanel', true)
 
           const res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id)
           const data = await res.json()
           //console.log(data)
           //return data
-          await this.$store.dispatch('power/setLeftPanelLoading', true)
-          await this.$store.dispatch('power/setLeftPanel', true)
+          
           await this.$store.dispatch('power/setLeftContent', data)
           await this.$store.dispatch('power/setLeftPanelLoading', false)
         } catch(error) {
