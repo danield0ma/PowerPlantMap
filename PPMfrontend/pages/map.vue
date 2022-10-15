@@ -2,7 +2,7 @@
   <div>
     <div style="height: 3.5rem; position: absolute;"></div>
     <div id="left" v-if="showLeftPanel">
-      <LeftPanel @close="close"></LeftPanel>
+      <LeftPanel></LeftPanel>
     </div>
     <div id="map"></div>
   </div>
@@ -10,7 +10,6 @@
   
 <script>
 import mapboxgl from "mapbox-gl"
-// import { runInThisContext } from "vm"
 import LeftPanel from '../components/LeftPanel.vue'
 
 export default {
@@ -20,8 +19,7 @@ export default {
         accessToken: 'pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q',
         map: {},
         marker: [],
-        popup: {},
-        // content: {}
+        popup: {}
       }
     },
 
@@ -43,12 +41,10 @@ export default {
       showLeftPanel() {
         return this.$store.state.power.left
       },
+
       content() {
         return this.$store.state.power.content
       }
-      // isLoading() {
-      //   return this.$store.state.power.isLoading
-      // }
     },
 
     methods: {
@@ -152,15 +148,10 @@ export default {
               this.$store.dispatch('power/setLeftPanel', false)
             } else {
               this.getDetailsOfPowerPlant(marker.properties.id)
-              //this.$store.dispatch('power/setLeftContent', this.getDetailsOfPowerPlant(marker.properties.id))
             }
           })
         }
         
-      },
-  
-      close() {
-        this.$store.dispatch('power/setLeftPanel', false)
       },
 
       async getPowerPlantBasics() {
@@ -182,13 +173,14 @@ export default {
         //console.log('ID: ', id)
         try {
           //loading page
-          await this.$store.dispatch('power/setLeftPanelLoading', true)
-          await this.$store.dispatch('power/setLeftPanel', true)
+          
 
           const res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id)
           const data = await res.json()
           //console.log(data)
           //return data
+          await this.$store.dispatch('power/setLeftPanelLoading', true)
+          await this.$store.dispatch('power/setLeftPanel', true)
           await this.$store.dispatch('power/setLeftContent', data)
           await this.$store.dispatch('power/setLeftPanelLoading', false)
         } catch(error) {

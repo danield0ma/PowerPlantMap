@@ -11,6 +11,7 @@
         public int MaxPower { get; set; }
         public DateTime DataStart { get; set; }
         public DateTime DataEnd { get; set; }
+        //public string? Color { get; set; }
         public List<BlocModel> Blocs { get; set; }
     }
 }
