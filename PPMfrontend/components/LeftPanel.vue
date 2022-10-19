@@ -3,7 +3,7 @@
         <div v-if="isLoading">
             <h1>LOADING...</h1>
         </div>
-        <div v-else style="padding: 0.5rem 1rem;">
+        <div v-else id="velse">
             <div class="flexbox">
                 <h4>{{ content.description }}</h4>
                 <div class="inline">
@@ -269,5 +269,11 @@ export default {
         cursor: pointer;
         color: red;
         vertical-align: sub;
+    }
+
+    #velse {
+        max-height: calc(100vh - 3.5rem);
+        padding: 0.5rem 1rem;
+        overflow: auto;
     }
 </style>

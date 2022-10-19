@@ -4,6 +4,24 @@
     <div id="left" v-if="showLeftPanel">
       <LeftPanel></LeftPanel>
     </div>
+    <div id="rightPanel">
+      <div id="innerRight">
+        <div class="flexbox">
+          <div class="flexbox">
+            <div style="display: inline;">
+              <img src="hu.png" alt="zászló" width="40px" height="20px" style="vertical-align: baseline;">
+            </div>
+            <h4>Hungary</h4>
+          </div>
+          <h6>2022.10.19 12:00</h6>
+        </div>
+        <h6>Teljes rendszerterhelés: XXXX MW</h6>
+        <h6>Energia-mix diagram</h6>
+      </div>
+    </div>
+    <div id="chooseDay">
+      <p>Napválasztó</p>
+    </div>
     <div id="map"></div>
   </div>
 </template>
@@ -225,6 +243,43 @@ export default {
     /* border-radius: 50%; */
     cursor: pointer;
     padding: 0;
-  } 
+  }
+
+  #rightPanel {
+    /* float: right; */
+    display: block;
+    position: absolute;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.75);
+    height: calc(100vh - 3.5rem);
+    width: 25vw;
+    margin-top: 3.5rem;
+    right: 0;
+  }
+
+  #innerRight {
+    padding: 0.5rem 1rem;
+  }
+
+  .flexbox {
+        display: flex;
+        justify-content: space-between;
+    }
+
+  #chooseDay {
+    margin: auto;
+    /* display: block; */
+    position: absolute;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.75);
+    /* height: calc(100vh - 3.5rem); */
+    width: 20vw;
+    height: 80px;
+    text-align: center;
+    bottom: 2rem;
+    left: 40vw;
+    border-radius: 25px;
+  }
+
 </style>
   

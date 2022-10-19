@@ -369,12 +369,20 @@ namespace PowerPlantMapAPI.Controllers
             //TODO: query, INSERT
             List<PowerDTO> PowerDataSet = (List<PowerDTO>)await
                         getData("PKS", StartTime, EndTime);
-            List<string> generators = new List<string>
-            {
-                "GÖNYÜ_gép1", "MÁ2_gép3", "MÁ2_gép4", "MÁ2_gép5",
-                "PA_gép1", "PA_gép2", "PA_gép3", "PA_gép4", "PA_gép5", "PA_gép6", "PA_gép7", "PA_gép8"
-            };
-            List<string> PowerPlants = new List<string> { "PKS", "MTR", "GNY" };
+
+            //List<string> generators = new List<string>
+            //{
+            //    "GÖNYÜ_gép1", "MÁ2_gép3", "MÁ2_gép4", "MÁ2_gép5",
+            //    "PA_gép1", "PA_gép2", "PA_gép3", "PA_gép4", "PA_gép5", "PA_gép6", "PA_gép7", "PA_gép8"
+            //};
+            List<string> generators = (List<string>)await _connection.QueryAsync<string>
+                    ("GetGenerators", commandType: CommandType.StoredProcedure);
+
+            //List<string> PowerPlants = new List<string> { "PKS", "MTR", "GNY" };
+            List<string> PowerPlants = (List<string>) await _connection.QueryAsync<string>
+                    ("GetPowerPlants", commandType: CommandType.StoredProcedure);
+
+            System.Diagnostics.Debug.WriteLine("PowerDataSet: ", PowerDataSet);
 
             foreach(PowerDTO PowerData in PowerDataSet)
             {
@@ -389,27 +397,7 @@ namespace PowerPlantMapAPI.Controllers
                         await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
                     }
                 }
-                
-
-                
-                //query
-                //List<string> GeneratorsOfPowerPlant = new List<string>();
-                //var p = new { PPID = PPID };
-                //GeneratorsOfPowerPlant = (List<string>)await _connection.QueryAsync("GetGeneratorsOfPowerPlant", p, commandType: CommandType.StoredProcedure);
-                //foreach(string GeneratorID in GeneratorsOfPowerPlant)
-                //{
-                //    foreach(PowerDTO GeneratorData in data)
-                //    {
-                //        //INSERT INTO
-                //        var par = new { GeneratorID = GeneratorID, start = start, end = end, ActualPower = GeneratorData.Power };
-                //    }
-                //}
-
-                
             }
-
-            
-
             return true;
         }
     }
