@@ -5,19 +5,7 @@
       <LeftPanel></LeftPanel>
     </div>
     <div id="rightPanel">
-      <div id="innerRight">
-        <div class="flexbox">
-          <div class="flexbox">
-            <div style="display: inline;">
-              <img src="hu.png" alt="zászló" width="40px" height="20px" style="vertical-align: baseline;">
-            </div>
-            <h4>Hungary</h4>
-          </div>
-          <h6>{{this.$store.state.power.currentLoadDateTime}}</h6>
-        </div>
-        <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
-        <h6>Energia-mix diagram</h6>
-      </div>
+      <RightPanel></RightPanel>
     </div>
     <div id="chooseDay">
       <p>Napválasztó</p>
@@ -29,6 +17,7 @@
 <script>
 import mapboxgl from "mapbox-gl"
 import LeftPanel from '../components/LeftPanel.vue'
+import RightPanel from '../components/RightPanel.vue'
 
 export default {
     name: 'MapView',
@@ -48,12 +37,12 @@ export default {
     },
 
     components: {
-      LeftPanel
+      LeftPanel,
+      RightPanel
     },
 
     mounted() {
       this.createMap()
-      this.getCurrentLoad()
     },
 
     computed: {
@@ -171,13 +160,6 @@ export default {
             }
           })
         }  
-      },
-
-      async getCurrentLoad() {
-        const res = await fetch('https://localhost:7032/API/Power/getCurrentLoad/')
-        const f = await res.json()
-        this.$store.dispatch('power/setCurrentLoad', f)
-        //return f.currentLoad
       },
 
       async getPowerPlantBasics() {

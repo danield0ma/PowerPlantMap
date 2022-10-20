@@ -28,14 +28,21 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async /*Task<ActionResult<ActualLoadDTO>>*/ Task<CurrentLoadDTO> GetCurrentLoad()
+        public async Task<CurrentLoadDTO> GetCurrentLoad()
         {
             List<DateTime> startend = await GetStartAndEnd(false);
             //List<string> asd = EditTime(startend[0]);
-            CurrentLoadDTO apiResponse = await _service.APIquery(EditTime(startend[0]), EditTime(startend[1]));
+            CurrentLoadDTO apiResponse = await _service.GetCurrentLoad(EditTime(startend[0]), EditTime(startend[1]));
             //System.Diagnostics.Debug.WriteLine(apiResponse);
 
             return apiResponse;
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory()
+        {
+            List<DateTime> startend = await GetStartAndEnd(false);
+            return await _service.GetLoadHistory(EditTime(startend[0]), EditTime(startend[1]));
         }
 
         [HttpGet("[action]")]
@@ -370,33 +377,21 @@ namespace PowerPlantMapAPI.Controllers
             List<DateTime> TimeStamps = await GetStartAndEnd(true);
             string StartTime = EditTime(TimeStamps[0]);
             string EndTime = EditTime(TimeStamps[1]);
-            //System.Diagnostics.Debug.WriteLine(StartTime);
-            //System.Diagnostics.Debug.WriteLine(EndTime);
             DateTime start = TimeStamps[0];
 
-            //TODO: query, INSERT
-            List<PowerDTO> PowerDataSet = (List<PowerDTO>)await
+            List<PowerDTO> PowerDataSet = (List<PowerDTO>) await
                         getData("PKS", StartTime, EndTime);
 
-            //List<string> generators = new List<string>
-            //{
-            //    "GÖNYÜ_gép1", "MÁ2_gép3", "MÁ2_gép4", "MÁ2_gép5",
-            //    "PA_gép1", "PA_gép2", "PA_gép3", "PA_gép4", "PA_gép5", "PA_gép6", "PA_gép7", "PA_gép8"
-            //};
             List<string> generators = (List<string>)await _connection.QueryAsync<string>
                     ("GetGenerators", commandType: CommandType.StoredProcedure);
 
-            //List<string> PowerPlants = new List<string> { "PKS", "MTR", "GNY" };
             List<string> PowerPlants = (List<string>) await _connection.QueryAsync<string>
                     ("GetPowerPlants", commandType: CommandType.StoredProcedure);
-
-            //System.Diagnostics.Debug.WriteLine("PowerDataSet: ", PowerDataSet);
 
             foreach(PowerDTO PowerData in PowerDataSet)
             {
                 if (generators.Contains(PowerData.PowerPlantBloc))
                 {
-                    //insert into
                     DateTime asd = start.AddMinutes(-15);
                     foreach(int p in PowerData.Power)
                     {

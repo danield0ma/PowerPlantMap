@@ -2,7 +2,7 @@
 {
     public class CurrentLoadDTO
     {
-        public string end { get; set; }
+        public DateTime end { get; set; }
         public int CurrentLoad { get; set; }
     }
 }

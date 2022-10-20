@@ -13,7 +13,7 @@ namespace PowerPlantMapAPI.Services
             _connection.Open();
         }
 
-        public async Task<CurrentLoadDTO> APIquery(string periodStart, string periodEnd)
+        private async Task<XmlNode> APIquery(string periodStart, string periodEnd)
         {
             string documentType = "A65";
             string processType = "A16";
@@ -50,23 +50,45 @@ namespace PowerPlantMapAPI.Services
 
             XmlNode Period = doc.ChildNodes[2].ChildNodes[21].ChildNodes[13];
 
-            //for (int i = 5; i < Period.ChildNodes.Count; i+=2)
-            //{
-            //    //System.Diagnostics.Debug.WriteLine(Period.ChildNodes[i].ChildNodes[3].InnerXml);
-            //}
+            return Period;
+        }
 
-            //System.Diagnostics.Debug.WriteLine(Period.ChildNodes[Period.ChildNodes.Count - 2].ChildNodes[3].InnerXml);
+        private DateTime TransformTime(string time)
+        {
+            DateTime t = new DateTime(Int32.Parse(time.Substring(0, 4)),
+                Int32.Parse(time.Substring(5, 2)), Int32.Parse(time.Substring(8, 2)),
+                Int32.Parse(time.Substring(11, 2)), Int32.Parse(time.Substring(14, 2)), 00);
+
+            return t;
+        }
+
+        public async Task<CurrentLoadDTO> GetCurrentLoad(string periodStart, string periodEnd)
+        {
+            XmlNode Period = await APIquery(periodStart, periodEnd);
 
             CurrentLoadDTO load = new CurrentLoadDTO();
 
-            load.end = Period.ChildNodes[1].ChildNodes[3].InnerXml;
+            load.end = TransformTime(Period.ChildNodes[1].ChildNodes[3].InnerXml);
             load.CurrentLoad = Int32.Parse(Period.ChildNodes[Period.ChildNodes.Count - 2].ChildNodes[3].InnerXml);
             
-            //string end = Period.ChildNodes[1].ChildNodes[3].InnerXml;
-            //System.Diagnostics.Debug.WriteLine(end);
-            //int a = Int32.Parse(Period.ChildNodes[Period.ChildNodes.Count - 2].ChildNodes[3].InnerXml);
-            
             return load;
+        }
+        
+        public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(string periodStart, string periodEnd)
+        {
+            XmlNode Period = await APIquery(periodStart, periodEnd);
+
+            List<CurrentLoadDTO> loadHistory = new List<CurrentLoadDTO>();
+
+            for (int i = 5; i < Period.ChildNodes.Count; i+=2)
+            {
+                CurrentLoadDTO load = new CurrentLoadDTO();
+                load.CurrentLoad = Int32.Parse(Period.ChildNodes[i].ChildNodes[3].InnerXml);
+                load.end = TransformTime(Period.ChildNodes[1].ChildNodes[3].InnerXml);
+                loadHistory.Add(load);
+            }
+
+            return loadHistory;
         }
     }
 }

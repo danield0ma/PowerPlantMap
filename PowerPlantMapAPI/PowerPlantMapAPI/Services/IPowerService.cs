@@ -4,6 +4,7 @@ namespace PowerPlantMapAPI.Services
 {
     public interface IPowerService
     {
-        Task<CurrentLoadDTO> APIquery(string periodStart, string periodEnd);
+        Task<CurrentLoadDTO> GetCurrentLoad(string periodStart, string periodEnd);
+        Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(string periodStart, string periodEnd);
     }
 }
