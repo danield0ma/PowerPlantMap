@@ -3,6 +3,8 @@ export const state = () => ({
     content: '',
     isLoading: false,
     enableBlocs: false,
+    currentLoad: 0,
+    currentLoadDateTime: ''
   })
   
   export const getters = {}
@@ -19,6 +21,12 @@ export const state = () => ({
     },
     TOGGLE_BLOCS(state, value) {
       state.enableBlocs = value
+    },
+    SET_CURRENTLOAD(state, value) {
+      state.currentLoad = value
+    },
+    SET_CURRENTLOADDATETIME(state, value) {
+      state.currentLoadDateTime = value
     }
   }
   
@@ -35,5 +43,9 @@ export const state = () => ({
     },
     async toggleBlocs({commit}, value) {
       await commit('TOGGLE_BLOCS', value)
+    },
+    async setCurrentLoad({commit}, value) {
+      await commit('SET_CURRENTLOAD', value.currentLoad)
+      await commit('SET_CURRENTLOADDATETIME', value.end)
     }
   }

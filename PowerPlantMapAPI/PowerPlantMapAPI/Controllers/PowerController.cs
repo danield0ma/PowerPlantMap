@@ -9,7 +9,7 @@ using PowerPlantMapAPI.Models.DTO;
 using Microsoft.AspNetCore.Cors;
 using System.Xml;
 using System.Collections;
-//using Microsoft.AspNetCore.Mvc.HttpGet;
+using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers
 {
@@ -19,16 +19,24 @@ namespace PowerPlantMapAPI.Controllers
     public class PowerController : ControllerBase
     {
         private readonly SqlConnection _connection;
-        public PowerController(IConfiguration configuration)
+        private readonly IPowerService _service;
+        public PowerController(IConfiguration configuration, IPowerService powerService)
         {
             _connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
             _connection.Open();
+            _service = powerService;
         }
 
-        //~PowerController()
-        //{
-        //    _connection.Close();
-        //}
+        [HttpGet("[action]")]
+        public async /*Task<ActionResult<ActualLoadDTO>>*/ Task<CurrentLoadDTO> GetCurrentLoad()
+        {
+            List<DateTime> startend = await GetStartAndEnd(false);
+            //List<string> asd = EditTime(startend[0]);
+            CurrentLoadDTO apiResponse = await _service.APIquery(EditTime(startend[0]), EditTime(startend[1]));
+            //System.Diagnostics.Debug.WriteLine(apiResponse);
+
+            return apiResponse;
+        }
 
         [HttpGet("[action]")]
         public async Task<ActionResult<IEnumerable<FeatureModel>>> getPowerPlantBasics()
@@ -197,8 +205,8 @@ namespace PowerPlantMapAPI.Controllers
             //string periodStart = "202209211700";
             //string periodEnd = "202209211800";
 
-            System.Diagnostics.Debug.WriteLine(periodStart);
-            System.Diagnostics.Debug.WriteLine(periodEnd);
+            //System.Diagnostics.Debug.WriteLine(periodStart);
+            //System.Diagnostics.Debug.WriteLine(periodEnd);
 
             string query = url + "?securityToken=" + securityToken + 
                            "&documentType=" + documentType +
@@ -217,7 +225,7 @@ namespace PowerPlantMapAPI.Controllers
             doc.PreserveWhitespace = true;
 
             apiResponse = await response.Content.ReadAsStringAsync();
-            System.Diagnostics.Debug.WriteLine(apiResponse);
+            //System.Diagnostics.Debug.WriteLine(apiResponse);
 
             doc.Load(new StringReader(apiResponse));
 
@@ -244,7 +252,7 @@ namespace PowerPlantMapAPI.Controllers
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].InnerXml);
                     //System.Diagnostics.Debug.WriteLine("15: " + first.ChildNodes[3].ChildNodes.Count);
                     string name = MktPSRType.ChildNodes[3].ChildNodes[3].InnerXml;
-                    System.Diagnostics.Debug.WriteLine("15: " + name);
+                    //System.Diagnostics.Debug.WriteLine("15: " + name);
 
                     XmlNode Period = node.ChildNodes[17];
                     //System.Diagnostics.Debug.WriteLine("17: " + second.InnerXml);
@@ -262,7 +270,7 @@ namespace PowerPlantMapAPI.Controllers
                     }
                     
                     //int power = Int32.Parse(Period.ChildNodes[5].ChildNodes[3].InnerXml);
-                    System.Diagnostics.Debug.WriteLine("17: " + power);
+                    //System.Diagnostics.Debug.WriteLine("17: " + power);
 
                     PowerDTO current = new PowerDTO()
                     {
@@ -277,9 +285,9 @@ namespace PowerPlantMapAPI.Controllers
             }
 
             //System.Diagnostics.Debug.WriteLine(apiResponse);
-            System.Diagnostics.Debug.WriteLine(query);
-            System.Diagnostics.Debug.WriteLine("Sum: " + sum + ", " + periodEnd);
-            System.Diagnostics.Debug.WriteLine("MOST: " + periodStart + ", " + periodEnd);
+            //System.Diagnostics.Debug.WriteLine(query);
+            //System.Diagnostics.Debug.WriteLine("Sum: " + sum + ", " + periodEnd);
+            //System.Diagnostics.Debug.WriteLine("MOST: " + periodStart + ", " + periodEnd);
 
             //List<int> summ = new List<int>();
             //summ.Add(sum);
@@ -338,15 +346,15 @@ namespace PowerPlantMapAPI.Controllers
 
             double diff = (double)(start - LastData[0]).TotalHours;
 
-            System.Diagnostics.Debug.WriteLine("DIFFERENCE: ", diff);
+            //System.Diagnostics.Debug.WriteLine("DIFFERENCE: ", diff);
 
             if (LastData[0] > start)
             {
                 start = LastData[0];
             }
 
-            System.Diagnostics.Debug.WriteLine(start.ToString());
-            System.Diagnostics.Debug.WriteLine(end.ToString());
+            //System.Diagnostics.Debug.WriteLine(start.ToString());
+            //System.Diagnostics.Debug.WriteLine(end.ToString());
 
             List<DateTime> asd = new List<DateTime>
             {
@@ -382,7 +390,7 @@ namespace PowerPlantMapAPI.Controllers
             List<string> PowerPlants = (List<string>) await _connection.QueryAsync<string>
                     ("GetPowerPlants", commandType: CommandType.StoredProcedure);
 
-            System.Diagnostics.Debug.WriteLine("PowerDataSet: ", PowerDataSet);
+            //System.Diagnostics.Debug.WriteLine("PowerDataSet: ", PowerDataSet);
 
             foreach(PowerDTO PowerData in PowerDataSet)
             {

@@ -13,9 +13,9 @@
             </div>
             <h4>Hungary</h4>
           </div>
-          <h6>2022.10.19 12:00</h6>
+          <h6>{{this.$store.state.power.currentLoadDateTime}}</h6>
         </div>
-        <h6>Teljes rendszerterhelés: XXXX MW</h6>
+        <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
         <h6>Energia-mix diagram</h6>
       </div>
     </div>
@@ -53,6 +53,7 @@ export default {
 
     mounted() {
       this.createMap()
+      this.getCurrentLoad()
     },
 
     computed: {
@@ -169,8 +170,14 @@ export default {
               this.getDetailsOfPowerPlant(marker.properties.id)
             }
           })
-        }
-        
+        }  
+      },
+
+      async getCurrentLoad() {
+        const res = await fetch('https://localhost:7032/API/Power/getCurrentLoad/')
+        const f = await res.json()
+        this.$store.dispatch('power/setCurrentLoad', f)
+        //return f.currentLoad
       },
 
       async getPowerPlantBasics() {
