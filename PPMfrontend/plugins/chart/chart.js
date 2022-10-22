@@ -10,6 +10,7 @@ import {
   LinearScale,
   LineElement,
   PointElement,
+  Filler
 } from "chart.js";
 
 ChartJS.register(
@@ -21,6 +22,7 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   LineElement,
+  Filler
 );
 
 Vue.component("line-chart", {

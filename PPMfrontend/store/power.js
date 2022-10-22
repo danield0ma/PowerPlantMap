@@ -2,9 +2,12 @@ export const state = () => ({
     left: false,
     content: '',
     isLoading: false,
+    rightLoading: true,
     enableBlocs: false,
     currentLoad: 0,
-    currentLoadDateTime: ''
+    currentLoadDateTime: '',
+    loadHistory: [],
+    powerOfPowerPlants: []
   })
   
   export const getters = {}
@@ -19,6 +22,9 @@ export const state = () => ({
     SET_LOADING(state, value) {
       state.isLoading = value
     },
+    SET_RIGHTLOADING(state, value) {
+      state.rightLoading = value
+    },
     TOGGLE_BLOCS(state, value) {
       state.enableBlocs = value
     },
@@ -27,6 +33,12 @@ export const state = () => ({
     },
     SET_CURRENTLOADDATETIME(state, value) {
       state.currentLoadDateTime = value
+    },
+    SET_LOADHISTORY(state, value) {
+      state.loadHistory = value
+    },
+    SET_POWEROFPOWERPLANTS(state, value) {
+      state.powerOfPowerPlants = value
     }
   }
   
@@ -41,11 +53,21 @@ export const state = () => ({
     async setLeftPanelLoading({commit}, value) {
       await commit('SET_LOADING', value)
     },
+    async setRightLoading({commit}, value) {
+      await commit('SET_RIGHTLOADING', value)
+    },
     async toggleBlocs({commit}, value) {
       await commit('TOGGLE_BLOCS', value)
     },
     async setCurrentLoad({commit}, value) {
       await commit('SET_CURRENTLOAD', value.currentLoad)
       await commit('SET_CURRENTLOADDATETIME', value.end)
+    },
+    async setLoadHistory({commit}, value) {
+      await commit('SET_LOADHISTORY', value)
+    },
+    async setPowerOfPowerPlants({commit}, value) {
+      await commit('SET_POWEROFPOWERPLANTS', value)
     }
+
   }

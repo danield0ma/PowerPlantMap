@@ -156,6 +156,7 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         private async Task<List<int>> GetGeneratorPower(string generator, DateTime start, DateTime end)
+        //TODO GeneratorPowerDTO-val térjen vissza, hogy ne a frontenden kelljen az időket hozzáigazítani
         {
             var parameters = new { GID = generator, start = start, end = end };
             List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
@@ -174,6 +175,46 @@ namespace PowerPlantMapAPI.Controllers
             return power;
         }
 
+        [HttpGet("[action]")]
+        public async Task<IEnumerable<PowerDTO>> GetPowerOfPowerPlants()
+        {
+            List<string> PowerPlants = (List<string>)await _connection.QueryAsync<string>
+                    ("GetPowerPlants", commandType: CommandType.StoredProcedure);
+
+            List<DateTime> TimeStamps = await GetStartAndEnd(false);
+
+            List<PowerDTO> PowerOfPPs = new List<PowerDTO>();
+
+            foreach (string PowerPlant in PowerPlants)
+            {
+                PowerDTO Power = new PowerDTO();
+                Power.PowerPlantBloc = PowerPlant;
+                Power.Power = new List<int>();
+
+                for (int i = 0; i < 97; i++)
+                {
+                    Power.Power.Add(0);
+                }
+
+                var parameters = new { PPID = PowerPlant };
+                List<string> Generators = (List<string>)await _connection.QueryAsync<string>
+                    ("GetGeneratorsOfPowerPlant", parameters, commandType: CommandType.StoredProcedure);
+
+                foreach (string Generator in Generators)
+                {
+                    List<int> Gen = await GetGeneratorPower(Generator, TimeStamps[0], TimeStamps[1]);
+                    for (int i = 0; i < 97; i++)
+                    {
+                        Power.Power[i] += Gen[i];
+                    }
+                }
+
+                PowerOfPPs.Add(Power);
+            }
+
+            return PowerOfPPs;
+        }
+
         private string getTime(int diff)
         {
             string now = Convert.ToString(DateTime.Now.Year);
@@ -186,39 +227,17 @@ namespace PowerPlantMapAPI.Controllers
             return now;
         }
 
-        [HttpGet("[action]")]
-        public async Task<IEnumerable<PowerDTO>> getData(
-                    string PPID,
-                    string periodStart,
-                    string periodEnd
-                )
+        private async Task<IEnumerable<PowerDTO>> getData(string PPID, string periodStart, string periodEnd)
         {
             string documentType = "A73";
             string processType = "A16";
             string in_Domain = "10YHU-MAVIR----U";
-
-            //periodStart = getTime(4);
-            //periodEnd = getTime(3);
-
             string url = "https://transparency.entsoe.eu/api";
             string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
-            //string documentType = "A73";
-            //string processType = "A16";
-            //string psrType = "B14";
-            ////string in_Domain = "10YFR-RTE------C";
-            ////string periodStart = "202208252000";
-            ////string periodEnd = "202208252100";
-            //string in_Domain = "10YHU-MAVIR----U";
-            //string periodStart = "202209211700";
-            //string periodEnd = "202209211800";
-
-            //System.Diagnostics.Debug.WriteLine(periodStart);
-            //System.Diagnostics.Debug.WriteLine(periodEnd);
 
             string query = url + "?securityToken=" + securityToken + 
                            "&documentType=" + documentType +
-                           "&processType=" + processType + 
-                           //"&psrType=" + psrType + 
+                           "&processType=" + processType +
                            "&in_Domain=" + in_Domain + 
                            "&periodStart=" + periodStart + 
                            "&periodEnd=" + periodEnd;
@@ -394,9 +413,6 @@ namespace PowerPlantMapAPI.Controllers
             List<string> generators = (List<string>)await _connection.QueryAsync<string>
                     ("GetGenerators", commandType: CommandType.StoredProcedure);
 
-            List<string> PowerPlants = (List<string>) await _connection.QueryAsync<string>
-                    ("GetPowerPlants", commandType: CommandType.StoredProcedure);
-
             foreach(PowerDTO PowerData in PowerDataSet)
             {
                 if (generators.Contains(PowerData.PowerPlantBloc))
@@ -414,7 +430,7 @@ namespace PowerPlantMapAPI.Controllers
                         {
                             System.Diagnostics.Debug.WriteLine(E.Message);
                             //TODO SQL UPDATE COMMAND kellene!!
-                        }                        
+                        }
                     }
                 }
             }

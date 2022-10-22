@@ -4,7 +4,7 @@
     <div id="left" v-if="showLeftPanel">
       <LeftPanel></LeftPanel>
     </div>
-    <div id="rightPanel">
+    <div id="rightPanel" v-if="rightNotLoading">
       <RightPanel></RightPanel>
     </div>
     <div id="chooseDay">
@@ -43,11 +43,16 @@ export default {
 
     mounted() {
       this.createMap()
+      this.getLoad()
     },
 
     computed: {
       showLeftPanel() {
         return this.$store.state.power.left
+      },
+
+      rightNotLoading() {
+        return !this.$store.state.power.rightLoading
       },
 
       content() {
@@ -56,6 +61,22 @@ export default {
     },
 
     methods: {
+      async getLoad() {
+        const currentLoadResponse = await fetch('https://localhost:7032/API/Power/getCurrentLoad/')
+        const currentLoad = await currentLoadResponse.json()
+        this.$store.dispatch('power/setCurrentLoad', currentLoad)
+
+        const loadHistoryResponse = await fetch('https://localhost:7032/API/Power/getLoadHistory/')
+        const loadHistory = await loadHistoryResponse.json()
+        this.$store.dispatch('power/setLoadHistory', loadHistory)
+
+        const powerOfPowerPlantsResponse = await fetch('https://localhost:7032/API/Power/getPowerOfPowerPlants/')
+        const powerOfPowerPlants = await powerOfPowerPlantsResponse.json()
+        this.$store.dispatch('power/setPowerOfPowerPlants', powerOfPowerPlants)
+
+        this.$store.dispatch('power/setRightLoading', false)
+      },
+
       async createMap() {
         mapboxgl.accessToken = this.accessToken
         this.map = new mapboxgl.Map({

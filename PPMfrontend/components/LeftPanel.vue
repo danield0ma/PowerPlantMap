@@ -110,18 +110,12 @@ export default {
 
         chartOptions() {
             return {
-                plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: false
-                    }
-                },
                 elements: {
                     line: {
-                        borderColor: this.color,
-                        borderWidth: 2
+                        borderWidth: 3
+                    },
+                    point: {
+                        pointRadius: 0
                     }
                 },
                 layout: {
@@ -129,6 +123,32 @@ export default {
                 },
                 tooltips: {
                     enabled: true
+                },
+                plugins: {
+                    title: {
+                        display: false
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        intersect: false,
+                        mode: 'nearest'
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        grid: {
+                            lineWidth: 0
+                        },
+                        stacked: false
+                    },
+                    x: {
+                        grid: {
+                            lineWidth: 0
+                        }
+                    }
                 }
             }
         }
@@ -141,11 +161,15 @@ export default {
                     {
                         label: 'Power [MW]',
                         backgroundColor: this.color,
+                        borderColor: this.color,
+                        fill: {value: 0},
                         data: this.getPowerArray(blocID)
                     },
                     {
                         label: 'Max Capacity [MW]',
                         backgroundColor: '#777',
+                        borderColor: '#777',
+                        fill: false,
                         data: this.getMaxCap(blocID)
                     }
                 ]

@@ -6,20 +6,20 @@
             </div>
             <h4 style="padding-left: 0.5rem; display: inline; vertical-align: top;">Hungary</h4>
         </div>
-        <p style="padding: 0;">{{ time }}</p>
+        <p style="padding: 0;">{{ startTime }} - {{ endTime }}</p>
         <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
         <h6>Energia-mix diagram</h6>
-        <!-- <div>
+        <div>
             <client-only>
                 <line-chart
-                    :chart-data = "chartData('all')"
+                    :chart-data = "chartData()"
                     :chart-options = "chartOptions"
-                    :height = "300"
+                    :height = "500"
                     :width = "500"
                     chart-id = 'Energiamix'
                 />
             </client-only>
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -27,28 +27,24 @@
 import moment from 'moment'
 
 export default {
-    created() {
-        this.getCurrentLoad()
-    },
-
     computed: {
-        time() {
+        startTime() {
             return moment(this.$store.state.power.currentLoadDateTime).format('YYYY.MM.DD HH:mm')
         },
+
+        endTime() {
+            return moment(this.$store.state.power.currentLoadDateTime).format('YYYY.MM.DD HH:mm')
+        },
+
         chartOptions() {
             return {
-                plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: false
-                    }
-                },
                 elements: {
                     line: {
-                        borderColor: this.color,
-                        borderWidth: 2
+                        borderColor: '#C1536D',
+                        borderWidth: 3
+                    },
+                    point: {
+                        pointRadius: 0
                     }
                 },
                 layout: {
@@ -56,87 +52,131 @@ export default {
                 },
                 tooltips: {
                     enabled: true
-                }
-            }
-        },
-
-        color() {
-            return '#' + this.$store.state.power.content.color
-        }
-    },
-
-    methods: {
-        async getCurrentLoad() {
-            const res = await fetch('https://localhost:7032/API/Power/getCurrentLoad/')
-            const f = await res.json()
-            this.$store.dispatch('power/setCurrentLoad', f)
-        },
-
-        chartData(blocID) {
-            let asd = {
-                labels: this.getDateArray(),
-                datasets: [
-                    {
-                        label: 'Power [MW]',
-                        backgroundColor: this.color,
-                        data: this.getPowerArray(blocID)
+                },
+                plugins: {
+                    title: {
+                        display: false
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        intersect: false
                     }
-                    // {
-                    //     label: 'Max Capacity [MW]',
-                    //     backgroundColor: '#777',
-                    //     data: this.getMaxCap(blocID)
-                    // }
-                ]
-            }
-            return asd
-        },
-
-        getDateArray() {
-            moment.locale('hu')
-            //console.log('DataStart: ')
-            console.log(this.$store.state.power.content.dataStart)
-            let time = moment(this.$store.state.power.content.dataStart).toDate()
-            console.log(moment(time).format("hh:mm"))
-            
-            let timeArray = []
-            let resultArray = []
-            let previous = time
-            timeArray.push(time)
-            resultArray.push(moment(time).format("hh:mm"))
-            for(let i=1; i<96; i++)
-            {
-                let time = moment(previous).add(15, 'm').toDate()
-                timeArray.push(time)
-                resultArray.push(moment(time).format("hh:mm"))
-                previous = time
-            }            
-            return resultArray
-        },
-
-        getPowerArray(blocID) {
-            let choice = false
-            if(blocID == 'all') {
-                choice = true
-            }
-            
-            let data = this.$store.state.power.content
-            let a = []
-            for(let i = 0; i < 96; i++)
-            {
-                a.push(0)
-            }
-            
-
-            for(let bloc of data.blocs) {
-                if(choice || blocID == bloc.blocID) {
-                    for(let generator of bloc.generators) {
-                        for(let i = 0; i < 96; i++) {
-                            a[i] += generator.currentPower[i]
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        grid: {
+                            lineWidth: 0
+                        },
+                        stacked: true
+                    },
+                    x: {
+                        grid: {
+                            lineWidth: 0
                         }
                     }
                 }
             }
-            return a
+        }
+    },
+
+    methods: {
+        chartData() {
+            return {
+                labels: this.getDateArray(),
+                datasets: [
+                    {
+                        label: 'Total System Load [MW]',
+                        backgroundColor: '#777',
+                        borderColor: '#777',
+                        fill: false,
+                        data: this.getLoadArray()
+                    },
+                    {
+                        label: 'Paks [MW]',
+                        backgroundColor: '#B7BF50',
+                        borderColor: '#B7BF50',
+                        pointRadius: 0,
+                        stack: 'PP',
+                        fill: {value: 0},
+                        data: this.getPowerOfPowerPlant('PKS')
+                    },
+                    {
+                        label: 'Mátra [MW]',
+                        backgroundColor: '#B59C5E',
+                        borderColor: '#B59C5E',
+                        pointRadius: 0,
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('MTR')
+                    },
+                    {
+                        label: 'Dunamenti [MW]',
+                        backgroundColor: '#e691a5',
+                        borderColor: '#e691a5',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('DME')
+                    },
+                    {
+                        label: 'Gönyű [MW]',
+                        backgroundColor: '#C1536D',
+                        borderColor: '#C1536D',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('GNY')
+                    },
+                    {
+                        label: 'Csepel II. [MW]',
+                        backgroundColor: '#990f30',
+                        borderColor: '#990f30',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('CSP')
+                    },
+                    {
+                        label: 'Kispest [MW]',
+                        backgroundColor: '#5c0318',
+                        borderColor: '#5c0318',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('KIP')
+                    }
+                ]
+            }
+        },
+
+        getDateArray() {
+            let dateArray = []
+            for (const load of this.$store.state.power.loadHistory)
+            {
+                dateArray.push(moment(load.end).format('HH:mm'))
+            }
+
+            return dateArray
+        },
+
+        getLoadArray() {
+            let loadArray = []
+            for (const load of this.$store.state.power.loadHistory)
+            {
+                loadArray.push(load.currentLoad)
+            }
+
+            return loadArray
+        },
+
+        getPowerOfPowerPlant(PPID) {
+            let powerArray = this.$store.state.power.powerOfPowerPlants
+            for (let power of powerArray)
+            {
+                if(power.powerPlantBloc == PPID)
+                {
+                    return power.power
+                }
+            }
         }
     }
 }
