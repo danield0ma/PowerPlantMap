@@ -1,14 +1,12 @@
 <template>
     <div id="innerRight">
-        <div class="flexbox">
-          <div class="flexbox">
-            <div style="display: inline;">
-              <img src="hu.png" alt="zászló" width="40px" height="20px" style="vertical-align: baseline;">
+        <div style="display: flex;">
+            <div style="display: inline; vertical-align: sub;">
+                <img src="hu.png" alt="zászló" width="40px" height="20px" style="margin-top: 0.7rem;">
             </div>
-            <h4>Hungary</h4>
-          </div>
-          <h6>{{this.$store.state.power.currentLoadDateTime}}</h6>
+            <h4 style="padding-left: 0.5rem; display: inline; vertical-align: top;">Hungary</h4>
         </div>
+        <p style="padding: 0;">{{ time }}</p>
         <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
         <h6>Energia-mix diagram</h6>
         <!-- <div>
@@ -34,6 +32,9 @@ export default {
     },
 
     computed: {
+        time() {
+            return moment(this.$store.state.power.currentLoadDateTime).format('YYYY.MM.DD HH:mm')
+        },
         chartOptions() {
             return {
                 plugins: {

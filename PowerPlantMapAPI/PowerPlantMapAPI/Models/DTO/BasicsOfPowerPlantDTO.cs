@@ -9,6 +9,7 @@
         public string? webpage { get; set; }
         public int MaxPower { get; set; }
         public string? Color { get; set; }
+        public string? Address { get; set; }
 
     }
 }

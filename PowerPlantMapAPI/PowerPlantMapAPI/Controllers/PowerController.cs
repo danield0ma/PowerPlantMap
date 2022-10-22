@@ -31,10 +31,7 @@ namespace PowerPlantMapAPI.Controllers
         public async Task<CurrentLoadDTO> GetCurrentLoad()
         {
             List<DateTime> startend = await GetStartAndEnd(false);
-            //List<string> asd = EditTime(startend[0]);
-            CurrentLoadDTO apiResponse = await _service.GetCurrentLoad(EditTime(startend[0]), EditTime(startend[1]));
-            //System.Diagnostics.Debug.WriteLine(apiResponse);
-
+            CurrentLoadDTO apiResponse = await _service.GetCurrentLoad(_service.EditTime(startend[0]), _service.EditTime(startend[1]));
             return apiResponse;
         }
 
@@ -42,7 +39,7 @@ namespace PowerPlantMapAPI.Controllers
         public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory()
         {
             List<DateTime> startend = await GetStartAndEnd(false);
-            return await _service.GetLoadHistory(EditTime(startend[0]), EditTime(startend[1]));
+            return await _service.GetLoadHistory(startend[0], startend[1]);
         }
 
         [HttpGet("[action]")]
@@ -92,6 +89,7 @@ namespace PowerPlantMapAPI.Controllers
             b.OperatorCompany = PowerPlant.OperatorCompany;
             b.webpage = PowerPlant.webpage;
             b.Color = PowerPlant.Color;
+            b.Address = PowerPlant.Address;
 
             return b;
         }
@@ -108,6 +106,7 @@ namespace PowerPlantMapAPI.Controllers
             PowerPlant.OperatorCompany = basics.OperatorCompany;
             PowerPlant.webpage = basics.webpage;
             PowerPlant.Color = basics.Color;
+            PowerPlant.Address = basics.Address;
 
             var parameters = new { PowerPlantID = id };
             List<PowerPlantDetailsDTO> PowerPlantDetails = 
@@ -167,7 +166,8 @@ namespace PowerPlantMapAPI.Controllers
             {
                 power.Add(Activity.ActualPower);
             }
-            for(int i = power.Count; i < 96; i++)
+
+            for(int i = power.Count; i < 97; i++)
             {
                 power.Add(0);
             }
@@ -232,7 +232,7 @@ namespace PowerPlantMapAPI.Controllers
             doc.PreserveWhitespace = true;
 
             apiResponse = await response.Content.ReadAsStringAsync();
-            //System.Diagnostics.Debug.WriteLine(apiResponse);
+            System.Diagnostics.Debug.WriteLine(apiResponse);
 
             doc.Load(new StringReader(apiResponse));
 
@@ -302,86 +302,95 @@ namespace PowerPlantMapAPI.Controllers
             return data;
         }
 
-        private string EditTime(DateTime start)
-        {
-            string StartTime = Convert.ToString(start.Year);
-            if (start.Month < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Month);
-            if (start.Day < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Day);
-            if (start.Hour < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Hour);
-            if (start.Minute < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Minute);
-            return StartTime;
-        }
-
-        private async Task<List<DateTime>> GetStartAndEnd(bool complexity)
+        private async Task<List<DateTime>> GetStartAndEnd(bool initData)
         {
             DateTime now = DateTime.Now;
             DateTime end = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-
-            if (now.Minute < 15)
-            {
-                end = end.AddHours(now.Hour - 1);
-                end = end.AddMinutes(45);
-            }
-            else if (now.Minute < 30)
-            {
-                end = end.AddHours((int)now.Hour);
-                end = end.AddMinutes(0);
-            }
-            else if (now.Minute < 45)
-            {
-                end = end.AddHours(now.Hour);
-                end = end.AddMinutes(15);
-            }
-            else
-            {
-                end = end.AddHours(now.Hour);
-                end = end.AddMinutes(30);
-            }
-            DateTime start = end.AddDays(-1);
-
-            if(!complexity) { return new List<DateTime> { start, end }; }
-
-            //foreach(var PP in PowerPlants)
+            DateTime start;
 
             var parameter = new { PPID = "PKS" };
             List<DateTime> LastData = (List<DateTime>)await _connection.QueryAsync<DateTime>
                 ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
 
-            double diff = (double)(start - LastData[0]).TotalHours;
-
-            //System.Diagnostics.Debug.WriteLine("DIFFERENCE: ", diff);
-
-            if (LastData[0] > start)
+            if(!initData)
             {
-                start = LastData[0];
+                //TODO túl régi adat esetén nincs elérhető adat kiírása...
+                end = LastData[0];
+                start = end.AddDays(-1).AddMinutes(-15);
+            }
+            else
+            {
+                if (now.Minute < 15)
+                {
+                    end = end.AddHours(now.Hour - 1);
+                    end = end.AddMinutes(45);
+                }
+                else if (now.Minute < 30)
+                {
+                    end = end.AddHours((int)now.Hour);
+                    end = end.AddMinutes(0);
+                }
+                else if (now.Minute < 45)
+                {
+                    end = end.AddHours(now.Hour);
+                    end = end.AddMinutes(15);
+                }
+                else
+                {
+                    end = end.AddHours(now.Hour);
+                    end = end.AddMinutes(30);
+                }
+                start = end.AddHours(-30);
+
+                if (LastData[0] > start)
+                {
+                    start = LastData[0];
+                }
             }
 
-            //System.Diagnostics.Debug.WriteLine(start.ToString());
-            //System.Diagnostics.Debug.WriteLine(end.ToString());
-
-            List<DateTime> asd = new List<DateTime>
-            {
-                start,
-                end
-            };
-            return asd;
+            return new List<DateTime> { start, end };
         }
 
         [HttpGet("[action]")]
-        public async Task<bool> InitData()
+        public async Task<string> InitData()
         {
             List<DateTime> TimeStamps = await GetStartAndEnd(true);
-            string StartTime = EditTime(TimeStamps[0]);
-            string EndTime = EditTime(TimeStamps[1]);
-            DateTime start = TimeStamps[0];
 
-            List<PowerDTO> PowerDataSet = (List<PowerDTO>) await
-                        getData("PKS", StartTime, EndTime);
+            if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 24)
+            {
+                string StartTime = _service.EditTime(TimeStamps[0]);
+                string EndTime = _service.EditTime(TimeStamps[1]);
+                DateTime start = TimeStamps[0];
 
+                List<PowerDTO> PowerDataSet = (List<PowerDTO>) await
+                            getData("PKS", StartTime, EndTime);
+
+                await saveData(PowerDataSet, start);
+            }
+            else
+            {
+                string StartTime = _service.EditTime(TimeStamps[0]);
+                string MiddleTime = _service.EditTime(TimeStamps[1].AddHours(-24));
+                string EndTime = _service.EditTime(TimeStamps[1]);
+                DateTime start = TimeStamps[0];
+
+                List<PowerDTO> PowerDataSet = (List<PowerDTO>) await getData("PKS", StartTime, MiddleTime);
+                await saveData(PowerDataSet, start);
+
+                start = TimeStamps[1].AddHours(-24);
+                PowerDataSet = (List<PowerDTO>) await getData("PKS", MiddleTime, EndTime);
+                await saveData(PowerDataSet, start);
+            }
+
+            var parameter = new { PPID = "PKS" };
+            List<DateTime> LastData = (List<DateTime>)await _connection.QueryAsync<DateTime>
+                ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
+
+            return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
+        }
+
+        private async Task<bool> saveData(List<PowerDTO> PowerDataSet, DateTime start)
+        {
             List<string> generators = (List<string>)await _connection.QueryAsync<string>
                     ("GetGenerators", commandType: CommandType.StoredProcedure);
 
@@ -397,7 +406,15 @@ namespace PowerPlantMapAPI.Controllers
                     {
                         asd = asd.AddMinutes(15);
                         var par = new { GID = PowerData.PowerPlantBloc, start = asd, end = asd.AddMinutes(15), power = p };
-                        await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
+                        try
+                        {
+                            await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
+                        }
+                        catch(Exception E)
+                        {
+                            System.Diagnostics.Debug.WriteLine(E.Message);
+                            //TODO SQL UPDATE COMMAND kellene!!
+                        }                        
                     }
                 }
             }

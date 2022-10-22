@@ -251,9 +251,9 @@ export default {
   }
 
   .flexbox {
-        display: flex;
-        justify-content: space-between;
-    }
+      display: flex;
+      justify-content: space-between;
+  }
 
   #chooseDay {
     margin: auto;

@@ -11,5 +11,6 @@
         public float longitude { get; set; }
         public float latitude { get; set; }
         public string? Color { get; set; }
+        public string? Address { get; set; }
     }
 }

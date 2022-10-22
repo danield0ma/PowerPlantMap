@@ -12,10 +12,10 @@
                     />
                 </div>
             </div>
-            <h6>Cím: </h6>
-            <h6>Kontakt: </h6>
+            <p style="padding: 0;">{{ dataEnd }}</p>
+            <h6>Cím: {{ content.address }}</h6>
             <h6>Üzemeltető: {{ content.operatorCompany }}</h6>
-            <h6>Weboldal: <a :href=content.webpage target="_blank">{{ content.webpage }}</a></h6>
+            <h6><a :href=content.webpage target="_blank">Weboldal</a></h6>
             <!-- <a href={{ content.webpage }}>{{ content.webpage }}</a> -->
             <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
 
@@ -81,6 +81,10 @@ export default {
     },
 
     computed: {
+        dataEnd() {
+            return moment(this.$store.state.power.content.dataEnd).format('YYYY.MM.DD HH:mm')
+        },
+
         isLoading() {
             return this.$store.state.power.isLoading
         },
@@ -162,21 +166,20 @@ export default {
 
         getDateArray() {
             moment.locale('hu')
-            //console.log('DataStart: ')
             console.log(this.$store.state.power.content.dataStart)
-            let time = moment(this.$store.state.power.content.dataStart).toDate()
-            console.log(moment(time).format("hh:mm"))
+            let time = moment(this.$store.state.power.content.dataStart).add(15, 'm').toDate()
+            console.log(moment(time).format("HH:mm"))
             
             let timeArray = []
             let resultArray = []
             let previous = time
             timeArray.push(time)
-            resultArray.push(moment(time).format("hh:mm"))
-            for(let i=1; i<96; i++)
+            resultArray.push(moment(time).format("HH:mm"))
+            for(let i=1; i<97; i++)
             {
                 let time = moment(previous).add(15, 'm').toDate()
                 timeArray.push(time)
-                resultArray.push(moment(time).format("hh:mm"))
+                resultArray.push(moment(time).format("HH:mm"))
                 previous = time
             }            
             return resultArray
@@ -190,7 +193,7 @@ export default {
             
             let data = this.content
             let a = []
-            for(let i = 0; i < 96; i++)
+            for(let i = 0; i < 97; i++)
             {
                 a.push(0)
             }
@@ -199,7 +202,7 @@ export default {
             for(let bloc of data.blocs) {
                 if(choice || blocID == bloc.blocID) {
                     for(let generator of bloc.generators) {
-                        for(let i = 0; i < 96; i++) {
+                        for(let i = 0; i < 97; i++) {
                             a[i] += generator.currentPower[i]
                         }
                     }
@@ -224,7 +227,7 @@ export default {
             }
 
             let arr = []
-            for(let i=0;i<96;i++)
+            for(let i=0;i<97;i++)
             {
                 arr.push(maxCap)
             }

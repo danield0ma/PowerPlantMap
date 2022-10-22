@@ -74,9 +74,9 @@ namespace PowerPlantMapAPI.Services
             return load;
         }
         
-        public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(string periodStart, string periodEnd)
+        public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(DateTime periodStart, DateTime periodEnd)
         {
-            XmlNode Period = await APIquery(periodStart, periodEnd);
+            XmlNode Period = await APIquery(EditTime(periodStart), EditTime(periodEnd));
 
             List<CurrentLoadDTO> loadHistory = new List<CurrentLoadDTO>();
 
@@ -84,11 +84,26 @@ namespace PowerPlantMapAPI.Services
             {
                 CurrentLoadDTO load = new CurrentLoadDTO();
                 load.CurrentLoad = Int32.Parse(Period.ChildNodes[i].ChildNodes[3].InnerXml);
-                load.end = TransformTime(Period.ChildNodes[1].ChildNodes[3].InnerXml);
+                periodStart = periodStart.AddMinutes(15);
+                load.end = periodStart;
                 loadHistory.Add(load);
             }
 
             return loadHistory;
+        }
+
+        public string EditTime(DateTime start)
+        {
+            string StartTime = Convert.ToString(start.Year);
+            if (start.Month < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Month);
+            if (start.Day < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Day);
+            if (start.Hour < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Hour);
+            if (start.Minute < 10) { StartTime += "0"; }
+            StartTime += Convert.ToString(start.Minute);
+            return StartTime;
         }
     }
 }
