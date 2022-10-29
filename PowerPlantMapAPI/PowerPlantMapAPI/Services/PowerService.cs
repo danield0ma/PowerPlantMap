@@ -193,11 +193,11 @@ namespace PowerPlantMapAPI.Services
                 }
             }
 
-            data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
+            //data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
             return data;
         }
 
-        public async Task<IEnumerable<PowerDTO>> getImportData(string periodStart, string periodEnd)
+        public async Task<IEnumerable<PowerDTO>> getImportData(bool export, string periodStart, string periodEnd)
         {
             //https://transparency.entsoe.eu/api?securityToken=a5fb8873-ad26-4972-a5f4-62e2e069f782&documentType=A11&in_Domain=10YHU-MAVIR----U&out_Domain=10YAT-APG------L&periodStart=202110201200&periodEnd=202110201800
             string documentType = "A11";
@@ -205,9 +205,11 @@ namespace PowerPlantMapAPI.Services
             string url = "https://transparency.entsoe.eu/api";
             string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
 
-            List<string> countries = new List<string>
+            List<string> NeighbourCountries = new List<string>
             {
-                "10YSK-SEPS-----K", "10YAT-APG------L", "10YRO-TEL------P"
+                "10YSK-SEPS-----K", "10YAT-APG------L", "10YSI-ELES-----O",
+                "10YHR-HEP------M", "10YCS-SERBIATSOV", "10YRO-TEL------P",
+                "10Y1001C--00003F"
             };
 
             List<PowerDTO> data = new List<PowerDTO>();
@@ -218,20 +220,37 @@ namespace PowerPlantMapAPI.Services
                 sum.Add(0);
             }
 
-            foreach (string CountryCode in countries)
+            foreach (string CountryCode in NeighbourCountries)
             {
-                string end = periodEnd;
-                if (CountryCode == "10YSK-SEPS-----K")
+                string CC = CountryCode;
+                if (export)
                 {
+                    in_Domain = CountryCode;
+                    CC = "10YHU-MAVIR----U";
+                }
+
+                string end = periodEnd;
+                string start = periodStart;
+
+                List<string> problematic = new List<String>
+                {
+                    "10YSK-SEPS-----K", "10YHR-HEP------M", "10YCS-SERBIATSOV", "10Y1001C--00003F"
+                };
+
+                //if (CountryCode == "10YSK-SEPS-----K" || CountryCode == "10YHR-HEP------M" || CountryCode == "10YCS-SERBIATSOV" || CountryCode == "10Y1001C--00003F")
+                if (problematic.Contains(CountryCode))
+                {
+                    start = periodStart.Remove(10);
+                    start += "00";
                     end = periodEnd.Remove(10);
                     end += "00";
                 }
 
-                string query = url +   "?securityToken=" + securityToken +
+                string query = url + "?securityToken=" + securityToken +
                                        "&documentType=" + documentType +
                                        "&in_Domain=" + in_Domain +
-                                       "&out_Domain=" + CountryCode +
-                                       "&periodStart=" + periodStart +
+                                       "&out_Domain=" + CC +
+                                       "&periodStart=" + start +
                                        "&periodEnd=" + end;
 
                 var httpClient = new HttpClient();
@@ -258,8 +277,58 @@ namespace PowerPlantMapAPI.Services
                     for (int j = 5; j < Period.ChildNodes.Count; j += 2)
                     {
                         int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
-                        power.Add(p);
-                        sum[(j - 5) / 2] += p;
+
+                        if(export)
+                        {
+                            p *= -1;
+                        }
+
+                        int n = 1;
+                        if (problematic.Contains(CountryCode))
+                        {
+                            if (j == 5)
+                            {
+                                if (periodStart.Substring(10, 2) == "15")
+                                {
+                                    n = 3;
+                                }
+                                else if (periodStart.Substring(10, 2) == "30")
+                                {
+                                    n = 2;
+                                }
+                                else if (periodStart.Substring(10, 2) == "45")
+                                {
+                                    n = 1;
+                                }
+                            }
+                            
+                            else if (j == Period.ChildNodes.Count - 1)
+                            {
+                                if (periodEnd.Substring(10, 2) == "15")
+                                {
+                                    n = 1;
+                                }
+                                if (periodEnd.Substring(10, 2) == "30")
+                                {
+                                    n = 2;
+                                }
+                                if (periodEnd.Substring(10, 2) == "45")
+                                {
+                                    n = 3;
+                                }
+                            }
+
+                            else
+                            {
+                                n = 4;
+                            }
+                        }
+
+                        for (int i = 0; i < n; i++)
+                        {
+                            power.Add(p);
+                            sum[(j - 5) / 2 + i] += p;
+                        }
                     }
 
                     PowerDTO current = new PowerDTO()
@@ -267,11 +336,12 @@ namespace PowerPlantMapAPI.Services
                         PowerPlantBloc = CountryCode,
                         Power = power
                     };
+
                     data.Add(current);
                 }
             }
 
-            data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
+            //data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodStart+ ", " + periodEnd, Power = sum });
             return data;
         }
 
@@ -327,30 +397,41 @@ namespace PowerPlantMapAPI.Services
         public async Task<string> InitData()
         {
             List<DateTime> TimeStamps = await GetStartAndEnd(true);
+            DateTime start = TimeStamps[0];
 
             if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 24)
             {
                 string StartTime = EditTime(TimeStamps[0]);
                 string EndTime = EditTime(TimeStamps[1]);
-                DateTime start = TimeStamps[0];
 
-                List<PowerDTO> PowerDataSet = (List<PowerDTO>) await getPPData("A73", StartTime, EndTime);
+                List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>) await getPPData("A73", StartTime, EndTime);
+                List<PowerDTO> ImportDataSet = (List<PowerDTO>) await getImportData(false, StartTime, EndTime);
+                List<PowerDTO> ExportDataSet = (List<PowerDTO>)await getImportData(true, StartTime, EndTime);
 
-                await saveData(PowerDataSet, start);
+                await saveData(PowerPlantDataSet, start);
+                await saveData(ImportDataSet, start);
+                await saveData(ExportDataSet, start);
             }
             else
             {
                 string StartTime = EditTime(TimeStamps[0]);
                 string MiddleTime = EditTime(TimeStamps[1].AddHours(-24));
                 string EndTime = EditTime(TimeStamps[1]);
-                DateTime start = TimeStamps[0];
 
-                List<PowerDTO> PowerDataSet = (List<PowerDTO>)await getPPData("A73", StartTime, MiddleTime);
-                await saveData(PowerDataSet, start);
+                List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", StartTime, MiddleTime);
+                List<PowerDTO> ImportDataSet = (List<PowerDTO>)await getImportData(false, StartTime, MiddleTime);
+                List<PowerDTO> ExportDataSet = (List<PowerDTO>)await getImportData(true, StartTime, MiddleTime);
+                await saveData(PowerPlantDataSet, start);
+                await saveData(ImportDataSet, start);
+                await saveData(ExportDataSet, start);
 
                 start = TimeStamps[1].AddHours(-24);
-                PowerDataSet = (List<PowerDTO>)await getPPData("A73", MiddleTime, EndTime);
-                await saveData(PowerDataSet, start);
+                PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", MiddleTime, EndTime);
+                ImportDataSet = (List<PowerDTO>)await getImportData(false, MiddleTime, EndTime);
+                ExportDataSet = (List<PowerDTO>)await getImportData(true, MiddleTime, EndTime);
+                await saveData(PowerPlantDataSet, start);
+                await saveData(ImportDataSet, start);
+                await saveData(ExportDataSet, start);
             }
 
             var parameter = new { PPID = "PKS" };

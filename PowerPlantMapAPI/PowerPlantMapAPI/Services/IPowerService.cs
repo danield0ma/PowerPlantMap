@@ -9,7 +9,7 @@ namespace PowerPlantMapAPI.Services
         string EditTime(DateTime start);
         Task<List<DateTime>> GetStartAndEnd(bool initData);
         Task<IEnumerable<PowerDTO>> getPPData(string docType, string periodStart, string periodEnd);
-        Task<IEnumerable<PowerDTO>> getImportData(string periodStart, string periodEnd);
+        Task<IEnumerable<PowerDTO>> getImportData(bool export, string periodStart, string periodEnd);
         Task<string> InitData();
     }
 }

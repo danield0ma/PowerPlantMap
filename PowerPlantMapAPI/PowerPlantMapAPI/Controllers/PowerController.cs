@@ -243,12 +243,12 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IEnumerable<PowerDTO>> GetImportData()
+        public async Task<IEnumerable<PowerDTO>> GetImportData(bool export = false)
         {
             List<DateTime> TimeStamps = await _service.GetStartAndEnd(true);
             string StartTime = _service.EditTime(TimeStamps[0]);
             string EndTime = _service.EditTime(TimeStamps[1]);
-            return await _service.getImportData(StartTime, EndTime);
+            return await _service.getImportData(export, StartTime, EndTime);
         }
     }
 }
