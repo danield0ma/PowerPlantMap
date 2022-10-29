@@ -29,7 +29,7 @@ import moment from 'moment'
 export default {
     computed: {
         startTime() {
-            return moment(this.$store.state.power.currentLoadDateTime).format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.currentLoadDateTime).add(-24, 'h').format('YYYY.MM.DD HH:mm')
         },
 
         endTime() {
@@ -100,6 +100,7 @@ export default {
                         borderColor: '#B7BF50',
                         pointRadius: 0,
                         stack: 'PP',
+                        //fill: origin,
                         fill: {value: 0},
                         data: this.getPowerOfPowerPlant('PKS')
                     },
@@ -142,7 +143,39 @@ export default {
                         borderColor: '#5c0318',
                         stack: 'PP',
                         fill: '-1',
-                        data: this.getPowerOfPowerPlant('KIP')
+                        data: this.getPowerOfPowerPlant('KP')
+                    },
+                    {
+                        label: 'Kelenföld [MW]',
+                        backgroundColor: '#e691a5',
+                        borderColor: '#e691a5',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('KF')
+                    },
+                    {
+                        label: 'Litér [MW]',
+                        backgroundColor: '#9D9684',
+                        borderColor: '#9D9684',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('LIT')
+                    },
+                    {
+                        label: 'Lőrinci [MW]',
+                        backgroundColor: '#9D9684',
+                        borderColor: '#9D9684',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('LOR')
+                    },
+                    {
+                        label: 'Sajószöged [MW]',
+                        backgroundColor: '#9D9684',
+                        borderColor: '#9D9684',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('SAJ')
                     }
                 ]
             }
@@ -154,7 +187,7 @@ export default {
             {
                 dateArray.push(moment(load.end).format('HH:mm'))
             }
-
+            console.log(dateArray)
             return dateArray
         },
 

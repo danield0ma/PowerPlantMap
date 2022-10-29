@@ -7,5 +7,9 @@ namespace PowerPlantMapAPI.Services
         Task<CurrentLoadDTO> GetCurrentLoad(string periodStart, string periodEnd);
         Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(DateTime periodStart, DateTime periodEnd);
         string EditTime(DateTime start);
+        Task<List<DateTime>> GetStartAndEnd(bool initData);
+        Task<IEnumerable<PowerDTO>> getPPData(string docType, string periodStart, string periodEnd);
+        Task<IEnumerable<PowerDTO>> getImportData(string periodStart, string periodEnd);
+        Task<string> InitData();
     }
 }
