@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Cors;
 using System.Xml;
 using System.Collections;
 using PowerPlantMapAPI.Services;
+using System.Reflection.Emit;
 
 namespace PowerPlantMapAPI.Controllers
 {
@@ -48,7 +49,7 @@ namespace PowerPlantMapAPI.Controllers
             List<PowerPlantDataDTO> PowerPlants = (List<PowerPlantDataDTO>)await _connection.QueryAsync<PowerPlantDataDTO>("[PowerPlantBasics]", CommandType.StoredProcedure);
             List<FeatureModel> PowerPlantBasics = new List<FeatureModel>();
 
-            foreach(var PowerPlant in PowerPlants)
+            foreach (var PowerPlant in PowerPlants)
             {
                 FeatureModel feature = new FeatureModel();
                 feature.Type = "Feature";
@@ -64,7 +65,7 @@ namespace PowerPlantMapAPI.Controllers
                 geometry.type = "Point";
                 List<float> coordinates = new List<float>();
                 coordinates.Add(PowerPlant.latitude);
-                coordinates.Add(PowerPlant.longitude);                
+                coordinates.Add(PowerPlant.longitude);
                 geometry.coordinates = coordinates;
                 feature.geometry = geometry;
 
@@ -77,7 +78,7 @@ namespace PowerPlantMapAPI.Controllers
         private async Task<BasicsOfPowerPlantDTO> GetBasicsOfPowerPlant(string id)
         {
             var parameters = new { id = id };
-            List<PowerPlantDataDTO> PP = (List<PowerPlantDataDTO>)await 
+            List<PowerPlantDataDTO> PP = (List<PowerPlantDataDTO>)await
                 _connection.QueryAsync<PowerPlantDataDTO>
                 ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
 
@@ -95,8 +96,40 @@ namespace PowerPlantMapAPI.Controllers
             return b;
         }
 
+        private async Task<List<DateTime>> CheckDate (DateTime? date)
+        {
+            List <DateTime> TimeStamps  = new List <DateTime>();
+            if (date == null)
+            {
+                TimeStamps = await _service.GetStartAndEnd(false);
+            }
+            else
+            {
+                DateTime Start = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0);
+                date = date.Value.AddDays(1);
+                DateTime End = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0);
+                TimeStamps.Add(Start);
+                TimeStamps.Add(End);
+            }
+
+            return TimeStamps;
+        }
+
+        private async Task<string> CheckData(List<DateTime> TimeStamps)
+        {
+            var parameters = new { GID = "PA_gép1", start = TimeStamps[0], end = TimeStamps[1] };
+            List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
+            ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
+            System.Diagnostics.Debug.WriteLine("HOSSZA:" + PastActivity.Count);
+            if (PastActivity.Count == 0)
+            {
+                return await InitData(TimeStamps[0], TimeStamps[1]);
+            }
+            return "no InitData";
+        }
+
         [HttpGet("[action]")]
-        public async Task<ActionResult<PowerPlantDetailsModel>> getDetailsOfPowerPlant(string id)
+        public async Task<ActionResult<PowerPlantDetailsModel>> getDetailsOfPowerPlant(string id, DateTime? date = null)
         {
             PowerPlantDetailsModel PowerPlant = new PowerPlantDetailsModel();
             PowerPlant.PowerPlantID = id;
@@ -111,12 +144,19 @@ namespace PowerPlantMapAPI.Controllers
             PowerPlant.IsCountry = basics.IsCountry;
 
             var parameters = new { PowerPlantID = id };
-            List<PowerPlantDetailsDTO> PowerPlantDetails = 
+            List<PowerPlantDetailsDTO> PowerPlantDetails =
                 (List<PowerPlantDetailsDTO>)await _connection.
-                QueryAsync<PowerPlantDetailsDTO>("GetPowerPlantDetails", 
+                QueryAsync<PowerPlantDetailsDTO>("GetPowerPlantDetails",
                     parameters, commandType: CommandType.StoredProcedure);
 
-            List<DateTime> TimeStamps = await _service.GetStartAndEnd(false);
+
+            List<DateTime> TimeStamps = await CheckDate(date);
+            if (date != null)
+            {
+                string msg = await CheckData(TimeStamps);
+                System.Diagnostics.Debug.WriteLine(msg);
+            }
+
             PowerPlant.DataStart = TimeStamps[0];
             PowerPlant.DataEnd = TimeStamps[1];
 
@@ -129,7 +169,7 @@ namespace PowerPlantMapAPI.Controllers
                 Bloc.BlocType = PowerPlantDetails[i].BlocType;
                 Bloc.MaxBlocCapacity = PowerPlantDetails[i].MaxBlocCapacity;
                 Bloc.ComissionDate = PowerPlantDetails[i].ComissionDate;
-                
+
                 List<GeneratorModel> Generators = new List<GeneratorModel>();
                 int CurrentPower = 0, MaxPower = 0;
                 while (i < PowerPlantDetails.Count && PowerPlantDetails[i].BlocId == Bloc.BlocID)
@@ -165,12 +205,12 @@ namespace PowerPlantMapAPI.Controllers
                 ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
 
             List<int> power = new List<int>();
-            foreach(var Activity in PastActivity)
+            foreach (var Activity in PastActivity)
             {
                 power.Add(Activity.ActualPower);
             }
 
-            for(int i = power.Count; i < 97; i++)
+            for (int i = power.Count; i < 97; i++)
             {
                 power.Add(0);
             }
@@ -178,12 +218,18 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IEnumerable<PowerDTO>> GetPowerOfPowerPlants()
+        public async Task<IEnumerable<PowerDTO>> GetPowerOfPowerPlants(DateTime? date = null)
         {
             List<string> PowerPlants = (List<string>)await _connection.QueryAsync<string>
                     ("GetPowerPlants", commandType: CommandType.StoredProcedure);
 
-            List<DateTime> TimeStamps = await _service.GetStartAndEnd(false);
+            List<DateTime> TimeStamps = await CheckDate(date);
+
+            if (date != null)
+            {
+                string msg = await CheckData(TimeStamps);
+                System.Diagnostics.Debug.WriteLine(msg);
+            }
 
             List<PowerDTO> PowerOfPPs = new List<PowerDTO>();
 
@@ -230,9 +276,9 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<string> InitData()
+        public async Task<string> InitData(DateTime? start = null, DateTime? end = null)
         {
-            return await _service.InitData();
+            return await _service.InitData(start, end);
         }
 
         [HttpGet("[action]")]
@@ -251,6 +297,19 @@ namespace PowerPlantMapAPI.Controllers
             string StartTime = _service.EditTime(TimeStamps[0]);
             string EndTime = _service.EditTime(TimeStamps[1]);
             return await _service.getImportData(export, StartTime, EndTime);
+        }
+
+        [HttpGet("[action]")]
+        public async Task<bool> Test(DateTime Start, DateTime End)
+        {
+            var parameters = new { GID = "PA_gép1", start = Start, end = End };
+            List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
+            ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
+
+            System.Diagnostics.Debug.WriteLine(PastActivity[0]);
+            System.Diagnostics.Debug.WriteLine("HOSSZA: " + PastActivity.Count);
+
+            return true;
         }
     }
 }

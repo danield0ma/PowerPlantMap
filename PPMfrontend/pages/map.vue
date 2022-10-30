@@ -1,23 +1,28 @@
 <template>
-  <div>
-    <div style="height: 3.5rem; position: absolute;"></div>
-    <div id="left" v-if="showLeftPanel">
-      <LeftPanel></LeftPanel>
+    <div>
+        <div style="height: 3.5rem; position: absolute;"></div>
+        <div id="left" v-if="showLeftPanel">
+            <LeftPanel></LeftPanel>
+        </div>
+        <div id="rightPanel" v-if="rightNotLoading">
+            <RightPanel></RightPanel>
+        </div>
+        <div id="chooseDay">
+            <p>Napválasztó</p>
+            <form>
+                <input type="date" v-model="chosenDate">
+                <button :click=this.setDate() class="btn btn-primary" style="margin-left: 0.5rem;">OK</button>
+            </form>
+        </div>
+        <div id="map"></div>
     </div>
-    <div id="rightPanel" v-if="rightNotLoading">
-      <RightPanel></RightPanel>
-    </div>
-    <div id="chooseDay">
-      <p>Napválasztó</p>
-    </div>
-    <div id="map"></div>
-  </div>
 </template>
   
 <script>
 import mapboxgl from "mapbox-gl"
 import LeftPanel from '../components/LeftPanel.vue'
 import RightPanel from '../components/RightPanel.vue'
+import moment from 'moment'
 
 export default {
     name: 'MapView',
@@ -26,7 +31,8 @@ export default {
         accessToken: 'pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q',
         map: {},
         marker: [],
-        popup: {}
+        popup: {},
+        chosenDate: ''
       }
     },
 
@@ -44,6 +50,7 @@ export default {
     mounted() {
       this.createMap()
       this.getLoad()
+      this.defaultTime
     },
 
     computed: {
@@ -57,6 +64,14 @@ export default {
 
       content() {
         return this.$store.state.power.content
+      },
+
+      defaultTime() {
+        let time = moment(Date(Date.now())).format('YYYY-MM-DD')
+        console.log(time)
+        this.chosenDate = time
+        this.$store.dispatch('power/setDate', time)
+        return time
       }
     },
 
@@ -218,6 +233,11 @@ export default {
         } catch(error) {
           console.error(error)
         }
+      },
+
+      setDate() {
+        this.$store.dispatch('power/setDate', this.chosenDate)
+        console.log('DATE: ', this.$store.state.power.date)
       }
     }
   }

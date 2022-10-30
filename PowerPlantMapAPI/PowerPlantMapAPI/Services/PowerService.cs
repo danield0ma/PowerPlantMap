@@ -278,7 +278,18 @@ namespace PowerPlantMapAPI.Services
                 XmlNode TimeSeries = doc.ChildNodes[2].ChildNodes[19];
                 System.Diagnostics.Debug.Write(TimeSeries);
 
-                if (TimeSeries.ChildNodes.Count != 0)
+                int ChildNodeCount;
+                try
+                {
+                    ChildNodeCount = TimeSeries.ChildNodes.Count;
+                }
+                catch (NullReferenceException e)
+                {
+                    System.Diagnostics.Debug.WriteLine(e);
+                    ChildNodeCount = 0;
+                }
+                
+                if (ChildNodeCount != 0)
                 {
                     XmlNode Period = TimeSeries.ChildNodes[13];
 
@@ -403,9 +414,18 @@ namespace PowerPlantMapAPI.Services
             return new List<DateTime> { start, end };
         }
 
-        public async Task<string> InitData()
+        public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
         {
-            List<DateTime> TimeStamps = await GetStartAndEnd(true);
+            List<DateTime> TimeStamps = new List<DateTime>();
+            if (periodStart == null && periodEnd == null)
+            {
+                TimeStamps = await GetStartAndEnd(true);
+            }
+            else
+            {
+                TimeStamps.Add(periodStart.Value);
+                TimeStamps.Add(periodEnd.Value);
+            }
             DateTime start = TimeStamps[0];
 
             if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 24)
