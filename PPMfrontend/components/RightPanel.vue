@@ -1,26 +1,28 @@
 <template>
-    <div id="innerRight">
-        <div style="display: flex;">
-            <div style="display: inline; vertical-align: sub;">
-                <img src="hu.png" alt="zászló" width="40px" height="20px" style="margin-top: 0.7rem;">
+    <div>
+        <div id="innerRight">
+            <div style="display: flex;">
+                <div style="display: inline; vertical-align: sub;">
+                    <img src="hu.png" alt="zászló" width="40px" height="20px" style="margin-top: 0.7rem;">
+                </div>
+                <h4 style="padding-left: 0.5rem; display: inline; vertical-align: top;">Hungary</h4>
             </div>
-            <h4 style="padding-left: 0.5rem; display: inline; vertical-align: top;">Hungary</h4>
-        </div>
-        <p style="padding: 0;">{{ startTime }} - {{ endTime }}</p>
-        <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
-        <h6>Energia-mix diagram</h6>
-        <div>
-            <client-only>
-                <line-chart
-                    :chart-data = "chartData()"
-                    :chart-options = "chartOptions"
-                    :height = "500"
-                    :width = "500"
-                    chart-id = 'Energiamix'
-                />
-            </client-only>
-        </div>
-    </div>
+            <p style="padding: 0;">{{ startTime }} - {{ endTime }}</p>
+            <!-- <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
+            <h6>Energia-mix diagram</h6> -->
+            <div>
+                <client-only>
+                    <line-chart
+                        :chart-data = "chartData()"
+                        :chart-options = "chartOptions"
+                        :height = "500"
+                        :width = "500"
+                        chart-id = 'Energiamix'
+                    />
+                </client-only>
+            </div>
+        </div> 
+    </div>    
 </template>
 
 <script>
@@ -66,7 +68,7 @@ export default {
                 },
                 scales: {
                     y: {
-                        min: 0,
+                        min: -2500,
                         grid: {
                             lineWidth: 0
                         },
@@ -114,13 +116,22 @@ export default {
                         data: this.getPowerOfPowerPlant('MTR')
                     },
                     {
+                        label: 'Biomassza (ismeretlen erőművekből) [MW]',
+                        backgroundColor: '#3E8172',
+                        borderColor: '#3E8172',
+                        pointRadius: 0,
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('BIO')
+                    },
+                    {
                         label: 'Dunamenti [MW]',
                         backgroundColor: '#e691a5',
                         borderColor: '#e691a5',
                         stack: 'PP',
                         fill: '-1',
                         data: this.getPowerOfPowerPlant('DME')
-                    },
+                    },                    
                     {
                         label: 'Gönyű [MW]',
                         backgroundColor: '#C1536D',
@@ -154,6 +165,32 @@ export default {
                         data: this.getPowerOfPowerPlant('KF')
                     },
                     {
+                        label: 'Ismeretlen gáz [MW]',
+                        backgroundColor: '#C1536D',
+                        borderColor: '#C1536D',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfGAS()
+                    },
+                    {
+                        label: 'Nap (ismeretlen erőművekből) [MW]',
+                        backgroundColor: '#EE8931',
+                        borderColor: '#EE8931',
+                        pointRadius: 0,
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('SOL')
+                    },
+                    {
+                        label: 'Szél (ismeretlen erőművekből) [MW]',
+                        backgroundColor: '#89D0C0',
+                        borderColor: '#89D0C0',
+                        pointRadius: 0,
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('WND')
+                    },
+                    {
                         label: 'Litér [MW]',
                         backgroundColor: '#9D9684',
                         borderColor: '#9D9684',
@@ -176,6 +213,62 @@ export default {
                         stack: 'PP',
                         fill: '-1',
                         data: this.getPowerOfPowerPlant('SAJ')
+                    },
+                    {
+                        label: 'Szlovákia [MW]',
+                        backgroundColor: '#0052B4',
+                        borderColor: '#0052B4',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('SVK')
+                    },
+                    {
+                        label: 'Ausztria [MW]',
+                        backgroundColor: '#D80027',
+                        borderColor: '#D80027',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('AUT')
+                    },
+                    {
+                        label: 'Szlovénia [MW]',
+                        backgroundColor: '#008B1B',
+                        borderColor: '#008B1B',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('SLO')
+                    },
+                    {
+                        label: 'Horvátország [MW]',
+                        backgroundColor: '#171796',
+                        borderColor: '#171796',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('CRO')
+                    },
+                    {
+                        label: 'Szerbia [MW]',
+                        backgroundColor: '#000',
+                        borderColor: '#000',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('SRB')
+                    },
+                    {
+                        label: 'Románia [MW]',
+                        backgroundColor: '#BF9F11',
+                        borderColor: '#BF9F11',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('ROU')
+                    },
+                    {
+                        label: 'Ukrajna [MW]',
+                        backgroundColor: '#FFDA44',
+                        borderColor: '#FFDA44',
+                        stack: 'PP',
+                        fill: '-1',
+                        data: this.getPowerOfPowerPlant('UKR')
                     }
                 ]
             }
@@ -210,7 +303,40 @@ export default {
                     return power.power
                 }
             }
+        },
+
+        getPowerOfGAS() {
+            let gasPPs = [
+                'DME', 'GNY', 'CSP', 'KF', 'KP'
+            ]
+            let power = []
+            for (let i = 0; i < 100; i++) {
+                power.push(0)
+            }
+
+            for (let gasPP of gasPPs) {
+                let array = this.getPowerOfPowerPlant(gasPP)
+                for (let i = 0; i < array.length; i++) {
+                    power[i] += array[i]
+                }
+            }
+
+            let array = this.getPowerOfPowerPlant('GAS')
+
+            let result = []
+            for (let i = 0; i < array.length; i++) {
+                result[i] = array[i] - power[i]
+            }
+
+            return result
         }
     }
 }
 </script>
+
+<style>
+    #innerRight {
+        max-height: calc(100vh - 3.5rem);
+        overflow: auto;
+    }
+</style>

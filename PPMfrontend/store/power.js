@@ -7,7 +7,8 @@ export const state = () => ({
     currentLoad: 0,
     currentLoadDateTime: '',
     loadHistory: [],
-    powerOfPowerPlants: []
+    powerOfPowerPlants: [],
+    selectedBloc: -1
   })
   
   export const getters = {}
@@ -39,6 +40,9 @@ export const state = () => ({
     },
     SET_POWEROFPOWERPLANTS(state, value) {
       state.powerOfPowerPlants = value
+    },
+    SET_SELECTEDBLOC(state, value) {
+      state.selectedBloc = value
     }
   }
   
@@ -68,6 +72,8 @@ export const state = () => ({
     },
     async setPowerOfPowerPlants({commit}, value) {
       await commit('SET_POWEROFPOWERPLANTS', value)
+    },
+    async setSelectedBloc({commit}, value) {
+      await commit('SET_SELECTEDBLOC', value)
     }
-
   }

@@ -90,6 +90,7 @@ namespace PowerPlantMapAPI.Controllers
             b.webpage = PowerPlant.webpage;
             b.Color = PowerPlant.Color;
             b.Address = PowerPlant.Address;
+            b.IsCountry = PowerPlant.IsCountry;
 
             return b;
         }
@@ -107,6 +108,7 @@ namespace PowerPlantMapAPI.Controllers
             PowerPlant.webpage = basics.webpage;
             PowerPlant.Color = basics.Color;
             PowerPlant.Address = basics.Address;
+            PowerPlant.IsCountry = basics.IsCountry;
 
             var parameters = new { PowerPlantID = id };
             List<PowerPlantDetailsDTO> PowerPlantDetails = 

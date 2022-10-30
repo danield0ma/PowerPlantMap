@@ -189,7 +189,16 @@ namespace PowerPlantMapAPI.Services
                         PowerPlantBloc = name,
                         Power = power
                     };
-                    data.Add(current);
+
+                    List<string> codes = new List<string>
+                    {
+                        "B01", "B04", "B16", "B19"
+                    };
+
+                    if (docType == "A73" || (docType == "A75" && codes.Contains(current.PowerPlantBloc)))
+                    {
+                        data.Add(current);
+                    }
                 }
             }
 
@@ -405,12 +414,14 @@ namespace PowerPlantMapAPI.Services
                 string EndTime = EditTime(TimeStamps[1]);
 
                 List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>) await getPPData("A73", StartTime, EndTime);
+                List<PowerDTO> RenewableDataSet = (List<PowerDTO>)await getPPData("A75", StartTime, EndTime);
                 List<PowerDTO> ImportDataSet = (List<PowerDTO>) await getImportData(false, StartTime, EndTime);
                 List<PowerDTO> ExportDataSet = (List<PowerDTO>)await getImportData(true, StartTime, EndTime);
 
-                await saveData(PowerPlantDataSet, start);
-                await saveData(ImportDataSet, start);
-                await saveData(ExportDataSet, start);
+                await saveData(PowerPlantDataSet, start, false);
+                await saveData(RenewableDataSet, start, false);
+                await saveData(ImportDataSet, start, true);
+                await saveData(ExportDataSet, start, false);
             }
             else
             {
@@ -419,19 +430,25 @@ namespace PowerPlantMapAPI.Services
                 string EndTime = EditTime(TimeStamps[1]);
 
                 List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", StartTime, MiddleTime);
+                List<PowerDTO> RenewableDataSet = (List<PowerDTO>)await getPPData("A75", StartTime, MiddleTime);
                 List<PowerDTO> ImportDataSet = (List<PowerDTO>)await getImportData(false, StartTime, MiddleTime);
                 List<PowerDTO> ExportDataSet = (List<PowerDTO>)await getImportData(true, StartTime, MiddleTime);
-                await saveData(PowerPlantDataSet, start);
-                await saveData(ImportDataSet, start);
-                await saveData(ExportDataSet, start);
+                
+                await saveData(PowerPlantDataSet, start, false);
+                await saveData(RenewableDataSet, start, false);
+                await saveData(ImportDataSet, start, true);
+                await saveData(ExportDataSet, start, false);
 
                 start = TimeStamps[1].AddHours(-24);
                 PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", MiddleTime, EndTime);
+                RenewableDataSet = (List<PowerDTO>)await getPPData("A75", MiddleTime, EndTime);
                 ImportDataSet = (List<PowerDTO>)await getImportData(false, MiddleTime, EndTime);
                 ExportDataSet = (List<PowerDTO>)await getImportData(true, MiddleTime, EndTime);
-                await saveData(PowerPlantDataSet, start);
-                await saveData(ImportDataSet, start);
-                await saveData(ExportDataSet, start);
+                
+                await saveData(PowerPlantDataSet, start, false);
+                await saveData(RenewableDataSet, start, false);
+                await saveData(ImportDataSet, start, true);
+                await saveData(ExportDataSet, start, false);
             }
 
             var parameter = new { PPID = "PKS" };
@@ -441,7 +458,7 @@ namespace PowerPlantMapAPI.Services
             return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
         }
 
-        private async Task<bool> saveData(List<PowerDTO> PowerDataSet, DateTime start)
+        private async Task<bool> saveData(List<PowerDTO> PowerDataSet, DateTime start, bool import)
         {
             List<string> generators = (List<string>)await _connection.QueryAsync<string>
                     ("GetGenerators", commandType: CommandType.StoredProcedure);
@@ -450,20 +467,24 @@ namespace PowerPlantMapAPI.Services
             {
                 if (generators.Contains(PowerData.PowerPlantBloc))
                 {
-                    DateTime asd = start.AddMinutes(-15);
+                    DateTime PeriodStart = start.AddMinutes(-15);
                     foreach (int p in PowerData.Power)
                     {
-                        asd = asd.AddMinutes(15);
-                        var par = new { GID = PowerData.PowerPlantBloc, start = asd, end = asd.AddMinutes(15), power = p };
-                        try
+                        PeriodStart = PeriodStart.AddMinutes(15);
+                        if (!import || (import && p != 0))
                         {
-                            await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
+                            var par = new { GID = PowerData.PowerPlantBloc, start = PeriodStart, end = PeriodStart.AddMinutes(15), power = p };
+                            try
+                            {
+                                await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
+                            }
+                            catch (Exception E)
+                            {
+                                System.Diagnostics.Debug.WriteLine(E.Message);
+                                //TODO SQL UPDATE COMMAND kellene!!
+                            }
                         }
-                        catch (Exception E)
-                        {
-                            System.Diagnostics.Debug.WriteLine(E.Message);
-                            //TODO SQL UPDATE COMMAND kellene!!
-                        }
+                        
                     }
                 }
             }

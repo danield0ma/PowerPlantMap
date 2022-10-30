@@ -22,11 +22,11 @@
             <div v-if="blocsNotEnabled">
                 <client-only>
                     <line-chart
-                        :chart-data = "chartData('all')"
-                        :chart-options = "chartOptions"
+                        :chart-data = "chartData('all', false)"
+                        :chart-options = "chartOptions('', content.description + ' termelése')"
                         :height = "300"
                         :width = "500"
-                        chart-id = bloc.blocID
+                        chart-id = 'Teljes'
                     />
                 </client-only>
             </div>
@@ -41,7 +41,50 @@
             </div>
 
             <div v-if="blocsEnabled">
-                <div v-for="bloc in content.blocs" :key="bloc.blocID">
+                <client-only>
+                    <line-chart
+                        :chart-data = "chartData(content.blocs[selectedBloc].blocID, false)"
+                        :chart-options = "chartOptions('', content.blocs[selectedBloc].blocID)"
+                        :height = "300"
+                        :width = "500"
+                        chart-id = 'bloc'
+                    />
+                </client-only>
+                
+                <div class="flexbox" style="padding: 0 5rem; justify-content: space-evenly;">
+                    <div v-for="(bloc, index) in content.blocs" :key="bloc.blocID">
+                        <button class="blocSelectionButton" v-on:click="selectBloc(index)"> {{ /*bloc.blocID[bloc.blocID.length - 1]*/index + 1 }} </button>
+                    </div>
+                </div>
+
+                <div v-if="content.blocs[selectedBloc].generators.length > 1">
+                    <!-- <div v-for="generator in content.blocs[selectedBloc].generators" :key="generator.generatorID">
+                        <p>{{generator.generatorID}}: {{generator.currentPower[0]}}/{{generator.maxCapacity}}MW</p>
+                    </div> -->
+                    <div class="flexbox" style="justify-content: space-around;">
+                        <div>
+                            <line-chart
+                                :chart-data = "chartData(content.blocs[selectedBloc].generators[0].generatorID, true)"
+                                :chart-options = "chartOptions(content.blocs[selectedBloc].generators[0].generatorID, content.blocs[selectedBloc].generators[0].generatorID)"
+                                :height = "150"
+                                :width = "200"
+                                chart-id = 'bloc'
+                            />
+                        </div>
+                        <div>
+                            <line-chart
+                                :chart-data = "chartData(content.blocs[selectedBloc].generators[1].generatorID, true)"
+                                :chart-options = "chartOptions(content.blocs[selectedBloc].generators[1].generatorID, content.blocs[selectedBloc].generators[1].generatorID)"
+                                :height = "150"
+                                :width = "200"
+                                chart-id = 'bloc'
+                            />
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- <div v-for="bloc in content.blocs" :key="bloc.blocID">
                     <div class="flexbox">
                         <h6>{{bloc.blocID}} ({{bloc.blocType}}): {{bloc.currentPower}}/{{bloc.maxBlocCapacity}}MW</h6>
                         <div class="inline" v-if="bloc.generators.length > 1">
@@ -64,7 +107,7 @@
                             <p>{{generator.generatorID}}: {{generator.currentPower[0]}}/{{generator.maxCapacity}}MW</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -76,9 +119,15 @@ import moment from 'moment'
 export default {
     name: 'LeftPanel',
 
-    created() {
-        moment.locale('hu')
-    },
+    // created() {
+    //     moment.locale('hu')
+    // },
+
+    // data() {
+    //     return {
+    //         selectedBloc: 0
+    //     }
+    // },
 
     computed: {
         dataEnd() {
@@ -108,7 +157,12 @@ export default {
             return '#' + this.content.color
         },
 
-        chartOptions() {
+        selectedBloc() {
+            return this.$store.state.power.selectedBloc
+        }
+    },
+    methods: {
+        chartOptions(generatorID, title) {
             return {
                 elements: {
                     line: {
@@ -126,7 +180,8 @@ export default {
                 },
                 plugins: {
                     title: {
-                        display: false
+                        display: true,
+                        text: title
                     },
                     legend: {
                         display: false
@@ -138,7 +193,8 @@ export default {
                 },
                 scales: {
                     y: {
-                        min: 0,
+                        min: this.getMin(),
+                        max: this.getMax(generatorID),
                         grid: {
                             lineWidth: 0
                         },
@@ -151,10 +207,9 @@ export default {
                     }
                 }
             }
-        }
-    },
-    methods: {
-        chartData(blocID) {
+        },
+
+        chartData(blocID, generator) {
             let asd = {
                 labels: this.getDateArray(),
                 datasets: [
@@ -163,7 +218,7 @@ export default {
                         backgroundColor: this.color,
                         borderColor: this.color,
                         fill: {value: 0},
-                        data: this.getPowerArray(blocID)
+                        data: this.getPowerArray(blocID, generator)
                     },
                     {
                         label: 'Max Capacity [MW]',
@@ -209,7 +264,7 @@ export default {
             return resultArray
         },
 
-        getPowerArray(blocID) {
+        getPowerArray(blocID, generator) {
             let choice = false
             if(blocID == 'all') {
                 choice = true
@@ -232,6 +287,19 @@ export default {
                     }
                 }
             }
+
+            if (generator) {
+                for(let bloc of data.blocs) {
+                    for(let generator of bloc.generators) {
+                        if (blocID == generator.generatorID) {
+                            for(let i = 0; i < 97; i++) {
+                                a[i] += generator.currentPower[i]
+                            }
+                        }
+                    }
+                }
+            }
+
             return a
         },
 
@@ -261,9 +329,65 @@ export default {
         async toggleBlocs() {
             if(this.blocsEnabled) {
                 await this.$store.dispatch('power/toggleBlocs', false)
+                await this.$store.dispatch('power/setSelectedBloc', -1)
             } else {
+                await this.$store.dispatch('power/setSelectedBloc', 0)
                 await this.$store.dispatch('power/toggleBlocs', true)
             }
+        },
+
+        getMin() {
+            if(this.content.isCountry) {
+                let array = this.content.blocs[0].generators[0].currentPower
+                //console.log(array)
+                let min = Math.min(...array)
+                return Math.floor(min / 100) * 100
+            } else {
+                return 0
+            }
+        },
+
+        getMax(generatorID) {
+            let selectedBloc = this.$store.state.power.selectedBloc
+            let array = []
+            for (let i = 0; i < 100; i++) {
+                array.push(0)
+            }
+
+            if (selectedBloc == -1) {
+                for (let bloc of this.content.blocs) {
+                    for (let generator of bloc.generators) {
+                        for (let i = 0; i < generator.currentPower.length; i++) {
+                            array[i] += generator.currentPower[i]
+                        }
+                    }
+                }
+            } else {
+                for (let generator of this.content.blocs[selectedBloc].generators) {
+                    if (generatorID == '' || generatorID == generator.generatorID) {
+                        for (let i = 0; i < generator.currentPower.length; i++) {
+                            array[i] += generator.currentPower[i]
+                        }  
+                    }
+                }
+            }
+
+            console.log(array)
+            let sum = 0
+            for (let i = 0; i < 100; i++) {
+                sum += array[i]
+            }
+            if (sum == 0) {
+                return 100
+            }
+
+            let max = Math.max(...array)
+            return Math.ceil(max / 100) * 100
+        },
+
+        async selectBloc(n) {
+            //this.selectedBloc = n
+            await this.$store.dispatch('power/setSelectedBloc', n)
         }
     }
 }
@@ -302,5 +426,19 @@ export default {
         max-height: calc(100vh - 3.5rem);
         padding: 0.5rem 1rem;
         overflow: auto;
+    }
+
+    .blocSelectionButton {
+        height: 30px;
+        width: 30px;
+        border-radius: 15px;
+        border-color: blue;
+        color: white;
+        background-color: blue;
+        margin: 0.75rem 0;
+        align-content: center;
+        display: inline;
+        vertical-align: middle;
+        padding: 0rem 0 1rem 0;
     }
 </style>
