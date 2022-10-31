@@ -134,14 +134,19 @@ namespace PowerPlantMapAPI.Services
 
             apiResponse = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine(apiResponse);
-
-            doc.Load(new StringReader(apiResponse));
-
-            //foreach(XmlNode node in doc.ChildNodes[10])
-            //System.Diagnostics.Debug.WriteLine("Child Nodes count: " + doc.ChildNodes[2].ChildNodes.Count);
-
+            
             List<PowerDTO> data = new List<PowerDTO>();
-            //int sum = 0;
+            
+            try
+            {
+                doc.Load(new StringReader(apiResponse));
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+                return data;
+            }
+
             List<int> sum = new List<int>();
             for (int i = 0; i < 100; i++)
             {

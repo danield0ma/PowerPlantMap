@@ -5,7 +5,7 @@
                 <div style="display: inline; vertical-align: sub;">
                     <img src="hu.png" alt="zászló" width="40px" height="20px" style="margin-top: 0.7rem;">
                 </div>
-                <h4 style="padding-left: 0.5rem; display: inline; vertical-align: top;">Hungary</h4>
+                <h4 style="padding-left: 0.5rem; display: inline; vertical-align: top;">Magyarország</h4>
             </div>
             <p style="padding: 0;">{{ startTime }} - {{ endTime }}</p>
             <!-- <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
@@ -31,11 +31,11 @@ import moment from 'moment'
 export default {
     computed: {
         startTime() {
-            return moment(this.$store.state.power.currentLoadDateTime).add(-24, 'h').format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.powerOfPowerPlants.start).add(15, 'm').format('YYYY.MM.DD HH:mm')
         },
 
         endTime() {
-            return moment(this.$store.state.power.currentLoadDateTime).format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.powerOfPowerPlants.end).format('YYYY.MM.DD HH:mm')
         },
 
         chartOptions() {
@@ -57,7 +57,8 @@ export default {
                 },
                 plugins: {
                     title: {
-                        display: false
+                        display: true,
+                        text: 'Energiamix diagram'
                     },
                     legend: {
                         display: false
@@ -68,7 +69,7 @@ export default {
                 },
                 scales: {
                     y: {
-                        min: -2500,
+                        //min: -2500,
                         grid: {
                             lineWidth: 0
                         },
@@ -89,13 +90,13 @@ export default {
             return {
                 labels: this.getDateArray(),
                 datasets: [
-                    {
-                        label: 'Total System Load [MW]',
-                        backgroundColor: '#777',
-                        borderColor: '#777',
-                        fill: false,
-                        data: this.getLoadArray()
-                    },
+                    // {
+                    //     label: 'Total System Load [MW]',
+                    //     backgroundColor: '#777',
+                    //     borderColor: '#777',
+                    //     fill: false,
+                    //     data: this.getLoadArray()
+                    // },
                     {
                         label: 'Paks [MW]',
                         backgroundColor: '#B7BF50',
@@ -275,13 +276,34 @@ export default {
         },
 
         getDateArray() {
+            console.log('GetDateArray')
+            let start = this.endTime
             let dateArray = []
-            for (const load of this.$store.state.power.loadHistory)
+            dateArray.push(moment(start).format('HH:mm'))
+            for (let i = 0; i < 97; i++)
             {
-                dateArray.push(moment(load.end).format('HH:mm'))
+                start = moment(start).add(15, 'm')
+                dateArray.push(moment(start).format('HH:mm'))
             }
             console.log(dateArray)
             return dateArray
+
+            // let time = moment(this.startTime).toDate()
+            // //console.log(moment(time).format("HH:mm"))
+            
+            // let timeArray = []
+            // let resultArray = []
+            // let previous = time
+            // timeArray.push(time)
+            // resultArray.push(moment(time).format("HH:mm"))
+            // for(let i=1; i<97; i++)
+            // {
+            //     let time = moment(previous).add(15, 'm').toDate()
+            //     timeArray.push(time)
+            //     resultArray.push(moment(time).format("HH:mm"))
+            //     previous = time
+            // }            
+            // return resultArray
         },
 
         getLoadArray() {
@@ -295,7 +317,7 @@ export default {
         },
 
         getPowerOfPowerPlant(PPID) {
-            let powerArray = this.$store.state.power.powerOfPowerPlants
+            let powerArray = this.$store.state.power.powerOfPowerPlants.data
             for (let power of powerArray)
             {
                 if(power.powerPlantBloc == PPID)

@@ -12,10 +12,11 @@
                     />
                 </div>
             </div>
-            <p style="padding: 0;">{{ dataEnd }}</p>
+            <p style="padding: 0;">{{ dataStart }} - {{ dataEnd }}</p>
             <h6>Cím: {{ content.address }}</h6>
+            <h6>GPS-koordináták: {{ content.longitude }}, {{ content.latitude }}</h6>
             <h6>Üzemeltető: {{ content.operatorCompany }}</h6>
-            <h6><a :href=content.webpage target="_blank">Weboldal</a></h6>
+            <h6>Weboldal:  <a :href=content.webpage target="_blank">{{content.webpage}}</a></h6>
             <!-- <a href={{ content.webpage }}>{{ content.webpage }}</a> -->
             <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
 
@@ -134,6 +135,10 @@ export default {
             return moment(this.$store.state.power.content.dataEnd).format('YYYY.MM.DD HH:mm')
         },
 
+        dataStart() {
+            return moment(this.$store.state.power.content.dataStart).format('YYYY.MM.DD HH:mm')
+        },
+
         isLoading() {
             return this.$store.state.power.isLoading
         },
@@ -234,7 +239,7 @@ export default {
 
         getContent() {
             while(this.isLoading) {
-                console.log('getContent')
+                //console.log('getContent')
             }
             return this.$store.state.power.content
         },
@@ -244,10 +249,10 @@ export default {
         },
 
         getDateArray() {
-            moment.locale('hu')
-            console.log(this.$store.state.power.content.dataStart)
+            //moment.locale('hu')
+            //console.log(this.$store.state.power.content.dataStart)
             let time = moment(this.$store.state.power.content.dataStart).add(15, 'm').toDate()
-            console.log(moment(time).format("HH:mm"))
+            //console.log(moment(time).format("HH:mm"))
             
             let timeArray = []
             let resultArray = []
@@ -372,7 +377,7 @@ export default {
                 }
             }
 
-            console.log(array)
+            //console.log(array)
             let sum = 0
             for (let i = 0; i < 100; i++) {
                 sum += array[i]

@@ -9,10 +9,10 @@
         </div>
         <div id="chooseDay">
             <p>Napválasztó</p>
-            <form>
+            <!-- <form> -->
                 <input type="date" v-model="chosenDate">
-                <button :click=this.setDate() class="btn btn-primary" style="margin-left: 0.5rem;">OK</button>
-            </form>
+                <button v-on:click="setDate" class="btn btn-primary" style="margin-left: 0.5rem;">OK</button>
+            <!-- </form> -->
         </div>
         <div id="map"></div>
     </div>
@@ -68,24 +68,33 @@ export default {
 
       defaultTime() {
         let time = moment(Date(Date.now())).format('YYYY-MM-DD')
-        console.log(time)
+        //console.log(time)
         this.chosenDate = time
-        this.$store.dispatch('power/setDate', time)
+        //this.$store.dispatch('power/setDate', time)
         return time
+      },
+
+      getDate() {
+        return this.$store.state.power.date
       }
     },
 
     methods: {
       async getLoad() {
-        const currentLoadResponse = await fetch('https://localhost:7032/API/Power/getCurrentLoad/')
-        const currentLoad = await currentLoadResponse.json()
-        this.$store.dispatch('power/setCurrentLoad', currentLoad)
+        // const currentLoadResponse = await fetch('https://localhost:7032/API/Power/getCurrentLoad/')
+        // const currentLoad = await currentLoadResponse.json()
+        // this.$store.dispatch('power/setCurrentLoad', currentLoad)
 
-        const loadHistoryResponse = await fetch('https://localhost:7032/API/Power/getLoadHistory/')
-        const loadHistory = await loadHistoryResponse.json()
-        this.$store.dispatch('power/setLoadHistory', loadHistory)
-
-        const powerOfPowerPlantsResponse = await fetch('https://localhost:7032/API/Power/getPowerOfPowerPlants/')
+        // const loadHistoryResponse = await fetch('https://localhost:7032/API/Power/getLoadHistory/')
+        // const loadHistory = await loadHistoryResponse.json()
+        // this.$store.dispatch('power/setLoadHistory', loadHistory)
+        
+        let powerOfPowerPlantsResponse
+        if(this.getDate == null) {
+          powerOfPowerPlantsResponse = await fetch('https://localhost:7032/API/Power/getPowerOfPowerPlants')
+        } else {
+          powerOfPowerPlantsResponse = await fetch('https://localhost:7032/API/Power/getPowerOfPowerPlants?date=' + this.getDate)
+        }
         const powerOfPowerPlants = await powerOfPowerPlantsResponse.json()
         this.$store.dispatch('power/setPowerOfPowerPlants', powerOfPowerPlants)
 
@@ -223,21 +232,27 @@ export default {
           await this.$store.dispatch('power/setSelectedBloc', -1)
           await this.$store.dispatch('power/setLeftPanel', true)
 
-          const res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id)
+          let res
+          if(this.getDate == null) {
+            res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id)
+          } else {
+            res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id + '&date=' + this.getDate)
+          }
           const data = await res.json()
-          //console.log(data)
-          //return data
           
           await this.$store.dispatch('power/setLeftContent', data)
           await this.$store.dispatch('power/setLeftPanelLoading', false)
         } catch(error) {
-          console.error(error)
+          //console.error(error)
         }
       },
 
-      setDate() {
-        this.$store.dispatch('power/setDate', this.chosenDate)
-        console.log('DATE: ', this.$store.state.power.date)
+      async setDate() {
+        await this.$store.dispatch('power/setDate', this.chosenDate)
+        console.log('SETDATE: ', this.$store.state.power.date, this.chosenDate)
+        await this.getLoad()
+
+        return 1
       }
     }
   }

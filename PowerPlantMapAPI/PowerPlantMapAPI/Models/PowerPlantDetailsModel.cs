@@ -7,6 +7,8 @@
         public string description { get; set; }
         public string? OperatorCompany { get; set; }
         public string? webpage { get; set; }
+        public double longitude { get; set; }
+        public double latitude { get; set; }
         public int CurrentPower { get; set; }
         public int MaxPower { get; set; }
         public DateTime DataStart { get; set; }

@@ -92,6 +92,8 @@ namespace PowerPlantMapAPI.Controllers
             b.Color = PowerPlant.Color;
             b.Address = PowerPlant.Address;
             b.IsCountry = PowerPlant.IsCountry;
+            b.longitude = PowerPlant.longitude;
+            b.latitude = PowerPlant.latitude;
 
             return b;
         }
@@ -142,6 +144,8 @@ namespace PowerPlantMapAPI.Controllers
             PowerPlant.Color = basics.Color;
             PowerPlant.Address = basics.Address;
             PowerPlant.IsCountry = basics.IsCountry;
+            PowerPlant.longitude = Math.Round(basics.longitude, 4);
+            PowerPlant.latitude = Math.Round(basics.latitude, 4);
 
             var parameters = new { PowerPlantID = id };
             List<PowerPlantDetailsDTO> PowerPlantDetails =
@@ -218,12 +222,16 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IEnumerable<PowerDTO>> GetPowerOfPowerPlants(DateTime? date = null)
+        public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null)
         {
+            PowerOfPowerPlantsModel P = new PowerOfPowerPlantsModel();
+
             List<string> PowerPlants = (List<string>)await _connection.QueryAsync<string>
                     ("GetPowerPlants", commandType: CommandType.StoredProcedure);
 
             List<DateTime> TimeStamps = await CheckDate(date);
+            P.Start = TimeStamps[0];
+            P.End = TimeStamps[1];
 
             if (date != null)
             {
@@ -260,7 +268,8 @@ namespace PowerPlantMapAPI.Controllers
                 PowerOfPPs.Add(Power);
             }
 
-            return PowerOfPPs;
+            P.Data = PowerOfPPs;
+            return P;
         }
 
         private string getTime(int diff)
