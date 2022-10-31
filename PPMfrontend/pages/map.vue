@@ -251,8 +251,9 @@ export default {
         await this.$store.dispatch('power/setDate', this.chosenDate)
         console.log('SETDATE: ', this.$store.state.power.date, this.chosenDate)
         await this.getLoad()
-
-        return 1
+        //dispatchek!!!
+        this.$store.dispatch('power/setLeftPanel', false)
+        //return 1
       }
     }
   }

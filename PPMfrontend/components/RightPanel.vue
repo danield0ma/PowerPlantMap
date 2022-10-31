@@ -31,11 +31,11 @@ import moment from 'moment'
 export default {
     computed: {
         startTime() {
-            return moment(this.$store.state.power.powerOfPowerPlants.start).add(15, 'm').format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.powerOfPowerPlants.start).format('YYYY.MM.DD HH:mm')
         },
 
         endTime() {
-            return moment(this.$store.state.power.powerOfPowerPlants.end).format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.powerOfPowerPlants.end).add(-15, 'm').format('YYYY.MM.DD HH:mm')
         },
 
         chartOptions() {
@@ -276,34 +276,16 @@ export default {
         },
 
         getDateArray() {
-            console.log('GetDateArray')
-            let start = this.endTime
+            let time = this.startTime
             let dateArray = []
-            dateArray.push(moment(start).format('HH:mm'))
+            dateArray.push(moment(time).format('HH:mm'))
             for (let i = 0; i < 97; i++)
             {
-                start = moment(start).add(15, 'm')
-                dateArray.push(moment(start).format('HH:mm'))
+                time = moment(time).add(15, 'm')
+                dateArray.push(moment(time).format('HH:mm'))
             }
             console.log(dateArray)
             return dateArray
-
-            // let time = moment(this.startTime).toDate()
-            // //console.log(moment(time).format("HH:mm"))
-            
-            // let timeArray = []
-            // let resultArray = []
-            // let previous = time
-            // timeArray.push(time)
-            // resultArray.push(moment(time).format("HH:mm"))
-            // for(let i=1; i<97; i++)
-            // {
-            //     let time = moment(previous).add(15, 'm').toDate()
-            //     timeArray.push(time)
-            //     resultArray.push(moment(time).format("HH:mm"))
-            //     previous = time
-            // }            
-            // return resultArray
         },
 
         getLoadArray() {

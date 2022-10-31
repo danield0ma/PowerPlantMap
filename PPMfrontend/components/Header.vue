@@ -5,9 +5,10 @@
         <h4><nuxt-link to="/">PowerPlantMap</nuxt-link></h4>
       </div>
       <ul>
-        <p><nuxt-link to="/svgmap">Svg</nuxt-link></p>
+        <p><nuxt-link to="/">Index</nuxt-link></p>
+        <!-- <p><nuxt-link to="/svgmap">Svg</nuxt-link></p> -->
         <p><nuxt-link to="/map">Map</nuxt-link></p>
-        <p><nuxt-link to="/list">List</nuxt-link></p>
+        <!-- <p><nuxt-link to="/list">List</nuxt-link></p> -->
         <p><nuxt-link to="/about">About</nuxt-link></p>
       </ul>
     </div>    

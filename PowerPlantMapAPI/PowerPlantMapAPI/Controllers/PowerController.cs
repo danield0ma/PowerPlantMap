@@ -125,7 +125,7 @@ namespace PowerPlantMapAPI.Controllers
             System.Diagnostics.Debug.WriteLine("HOSSZA:" + PastActivity.Count);
             if (PastActivity.Count == 0)
             {
-                return await InitData(TimeStamps[0], TimeStamps[1]);
+                return await InitData(TimeStamps[0].AddHours(-2), TimeStamps[1].AddHours(2));
             }
             return "no InitData";
         }
@@ -204,7 +204,7 @@ namespace PowerPlantMapAPI.Controllers
         private async Task<List<int>> GetGeneratorPower(string generator, DateTime start, DateTime end)
         //TODO GeneratorPowerDTO-val térjen vissza, hogy ne a frontenden kelljen az időket hozzáigazítani
         {
-            var parameters = new { GID = generator, start = start, end = end };
+            var parameters = new { GID = generator, start = start, end = end.AddMinutes(15) };
             List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
                 ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
 

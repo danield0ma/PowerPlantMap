@@ -132,7 +132,7 @@ export default {
 
     computed: {
         dataEnd() {
-            return moment(this.$store.state.power.content.dataEnd).format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.content.dataEnd).add(-15, 'm').format('YYYY.MM.DD HH:mm')
         },
 
         dataStart() {
@@ -249,24 +249,33 @@ export default {
         },
 
         getDateArray() {
-            //moment.locale('hu')
-            //console.log(this.$store.state.power.content.dataStart)
-            let time = moment(this.$store.state.power.content.dataStart).add(15, 'm').toDate()
-            //console.log(moment(time).format("HH:mm"))
-            
-            let timeArray = []
-            let resultArray = []
-            let previous = time
-            timeArray.push(time)
-            resultArray.push(moment(time).format("HH:mm"))
-            for(let i=1; i<97; i++)
+            let time = this.content.dataStart
+            let dateArray = []
+            dateArray.push(moment(time).format('HH:mm'))
+            for (let i = 0; i < 97; i++)
             {
-                let time = moment(previous).add(15, 'm').toDate()
-                timeArray.push(time)
-                resultArray.push(moment(time).format("HH:mm"))
-                previous = time
-            }            
-            return resultArray
+                time = moment(time).add(15, 'm')
+                dateArray.push(moment(time).format('HH:mm'))
+            }
+            console.log(dateArray)
+            return dateArray
+            
+            
+            // let time = moment(this.$store.state.power.content.dataStart).add(15, 'm').toDate()
+            
+            // let timeArray = []
+            // let resultArray = []
+            // let previous = time
+            // timeArray.push(time)
+            // resultArray.push(moment(time).format("HH:mm"))
+            // for(let i=1; i<97; i++)
+            // {
+            //     let time = moment(previous).add(15, 'm').toDate()
+            //     timeArray.push(time)
+            //     resultArray.push(moment(time).format("HH:mm"))
+            //     previous = time
+            // }            
+            // return resultArray
         },
 
         getPowerArray(blocID, generator) {

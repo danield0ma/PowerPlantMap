@@ -313,6 +313,10 @@ namespace PowerPlantMapAPI.Services
                         {
                             if (j == 5)
                             {
+                                if (periodStart.Substring(10, 2) == "00")
+                                {
+                                    n = 4;
+                                }
                                 if (periodStart.Substring(10, 2) == "15")
                                 {
                                     n = 3;
