@@ -2,10 +2,10 @@
     <div class="outerDiv">
       <div id="innerDiv">
         <nuxt-link to="/"><img src="electricity.png" width="30px"></nuxt-link>
-        <h4><nuxt-link to="/">PowerPlantMap</nuxt-link></h4>
+        <h4 style="margin: 0 0 0.1rem 0.75rem;"><nuxt-link to="/">PowerPlantMap</nuxt-link></h4>
       </div>
       <ul>
-        <p><nuxt-link to="/">Index</nuxt-link></p>
+        <!-- <p><nuxt-link to="/">Index</nuxt-link></p> -->
         <!-- <p><nuxt-link to="/svgmap">Svg</nuxt-link></p> -->
         <p><nuxt-link to="/map">Map</nuxt-link></p>
         <!-- <p><nuxt-link to="/list">List</nuxt-link></p> -->

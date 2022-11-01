@@ -9,10 +9,8 @@
         </div>
         <div id="chooseDay">
             <p>Napválasztó</p>
-            <!-- <form> -->
                 <input type="date" v-model="chosenDate">
                 <button v-on:click="setDate" class="btn btn-primary" style="margin-left: 0.5rem;">OK</button>
-            <!-- </form> -->
         </div>
         <div id="map"></div>
     </div>
@@ -107,7 +105,7 @@ export default {
           accessToken: this.accessToken,
           container: 'map',
           style: 'mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy',
-          center: [19.4, 47],
+          center: [19.7, 47.15],
           zoom: 6.75,
           maxZoom: 9,
           minZoom: 5

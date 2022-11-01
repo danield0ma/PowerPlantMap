@@ -35,9 +35,17 @@
             <div class="flexbox" v-if="content.blocs.length > 1">
                 <h4>Blokkok</h4>
                 <div class="inline">
-                    <font-awesome-icon icon="fa-solid fa-xmark fa-xs" 
+                    <div v-if="blocsEnabled">
+                        <font-awesome-icon icon="fa-solid fa-minus fa-xl" 
                             class="faicon" v-on:click="toggleBlocs"
-                    />
+                        /> 
+                    </div>
+                    <div v-else>
+                        <font-awesome-icon icon="fa-solid fa-plus fa-xl" 
+                            class="faicon" v-on:click="toggleBlocs" style="color: green;"
+                        />  
+                    </div>
+                    
                 </div>
             </div>
 
@@ -186,7 +194,12 @@ export default {
                 plugins: {
                     title: {
                         display: true,
-                        text: title
+                        text: title,
+                        labels: {
+                            font: {
+                                size: 20
+                            }
+                        }
                     },
                     legend: {
                         display: false

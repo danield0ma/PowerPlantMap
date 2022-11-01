@@ -14,11 +14,11 @@ namespace PowerPlantMapAPI
                 options.AddDefaultPolicy(
                     policy =>
                     {
-                        policy.WithOrigins("https://localhost:3000")
-                               .AllowCredentials()
+                        policy//.WithOrigins("http://localhost:3000")
+                               //.AllowCredentials()
                                .AllowAnyHeader()
-                               .AllowAnyMethod();
-                               //.AllowAnyOrigin();
+                               .AllowAnyMethod()
+                               .AllowAnyOrigin();
                     });
             });
 
