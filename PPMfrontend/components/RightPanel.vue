@@ -35,7 +35,7 @@ export default {
         },
 
         endTime() {
-            return moment(this.$store.state.power.powerOfPowerPlants.end).add(-15, 'm').format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.powerOfPowerPlants.end)./*add(-15, 'm').*/format('YYYY.MM.DD HH:mm')
         },
 
         chartOptions() {

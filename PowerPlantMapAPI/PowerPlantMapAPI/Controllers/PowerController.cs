@@ -123,7 +123,7 @@ namespace PowerPlantMapAPI.Controllers
             List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
             ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
             System.Diagnostics.Debug.WriteLine("HOSSZA:" + PastActivity.Count);
-            if (PastActivity.Count == 0)
+            if (PastActivity.Count < 10)
             {
                 return await InitData(TimeStamps[0].AddHours(-2), TimeStamps[1].AddHours(2));
             }

@@ -140,7 +140,7 @@ export default {
 
     computed: {
         dataEnd() {
-            return moment(this.$store.state.power.content.dataEnd).add(-15, 'm').format('YYYY.MM.DD HH:mm')
+            return moment(this.$store.state.power.content.dataEnd)./*add(-15, 'm').*/format('YYYY.MM.DD HH:mm')
         },
 
         dataStart() {

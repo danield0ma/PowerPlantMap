@@ -79,19 +79,11 @@ export default {
 
     methods: {
       async getLoad() {
-        // const currentLoadResponse = await fetch('https://localhost:7032/API/Power/getCurrentLoad/')
-        // const currentLoad = await currentLoadResponse.json()
-        // this.$store.dispatch('power/setCurrentLoad', currentLoad)
-
-        // const loadHistoryResponse = await fetch('https://localhost:7032/API/Power/getLoadHistory/')
-        // const loadHistory = await loadHistoryResponse.json()
-        // this.$store.dispatch('power/setLoadHistory', loadHistory)
-        
         let powerOfPowerPlantsResponse
         if(this.getDate == null) {
-          powerOfPowerPlantsResponse = await fetch('https://localhost:7032/API/Power/getPowerOfPowerPlants')
+          powerOfPowerPlantsResponse = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getPowerOfPowerPlants')
         } else {
-          powerOfPowerPlantsResponse = await fetch('https://localhost:7032/API/Power/getPowerOfPowerPlants?date=' + this.getDate)
+          powerOfPowerPlantsResponse = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getPowerOfPowerPlants?date=' + this.getDate)
         }
         const powerOfPowerPlants = await powerOfPowerPlantsResponse.json()
         this.$store.dispatch('power/setPowerOfPowerPlants', powerOfPowerPlants)
@@ -207,7 +199,7 @@ export default {
       },
 
       async getPowerPlantBasics() {
-        const res = await fetch('https://localhost:7032/API/Power/getPowerPlantBasics/')
+        const res = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getPowerPlantBasics/')
         const f = await res.json()
         
         const data = {
@@ -232,9 +224,9 @@ export default {
 
           let res
           if(this.getDate == null) {
-            res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id)
+            res = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getDetailsOfPowerPlant?id=' + id)
           } else {
-            res = await fetch('https://localhost:7032/API/Power/getDetailsOfPowerPlant?id=' + id + '&date=' + this.getDate)
+            res = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getDetailsOfPowerPlant?id=' + id + '&date=' + this.getDate)
           }
           const data = await res.json()
           
