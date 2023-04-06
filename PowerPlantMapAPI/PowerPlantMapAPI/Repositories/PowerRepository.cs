@@ -24,6 +24,15 @@ namespace PowerPlantMapAPI.Repositories
             return PowerPlants;
         }
 
+        public async Task<List<PowerPlantDataDTO>> QueryBasicsOfPowerPlant(string id)
+        {
+            var parameters = new { id = id };
+            List<PowerPlantDataDTO> PP = (List<PowerPlantDataDTO>)await
+                _connection.QueryAsync<PowerPlantDataDTO>
+                ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
+            return PP;
+        }
+
         public async Task<List<PowerPlantDetailsDTO>> QueryPowerPlantDetails(string id)
         {
             var parameters = new { PowerPlantID = id };
@@ -32,15 +41,6 @@ namespace PowerPlantMapAPI.Repositories
                 QueryAsync<PowerPlantDetailsDTO>("GetPowerPlantDetails",
                     parameters, commandType: CommandType.StoredProcedure);
             return PowerPlantDetails;
-        }
-
-        public async Task<List<PowerPlantDataDTO>> QueryBasicsOfPowerPlant(string id)
-        {
-            var parameters = new { id = id };
-            List<PowerPlantDataDTO> PP = (List<PowerPlantDataDTO>) await
-                _connection.QueryAsync<PowerPlantDataDTO>
-                ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
-            return PP;
         }
 
         public async Task<List<PastActivityModel>> QueryPastActivity(string generator, DateTime start, DateTime end)
@@ -79,6 +79,20 @@ namespace PowerPlantMapAPI.Repositories
             List<string> generators = (List<string>)await _connection.QueryAsync<string>
                 ("GetGenerators", commandType: CommandType.StoredProcedure);
             return generators;
+        }
+
+        public async Task InsertData(string GID, DateTime start, int power)
+        {
+            var par = new { GID = GID, start = start, end = start.AddMinutes(15), power = power };
+            try
+            {
+                await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
+            }
+            catch (Exception E)
+            {
+                System.Diagnostics.Debug.WriteLine(E.Message);
+                //TODO SQL UPDATE COMMAND kellene!!
+            }
         }
     }
 }

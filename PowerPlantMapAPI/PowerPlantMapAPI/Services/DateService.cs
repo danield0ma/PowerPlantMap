@@ -11,7 +11,7 @@ namespace PowerPlantMapAPI.Services
             _repository = repository;
         }
 
-        public async Task<List<DateTime>> CheckDate(DateTime? date)
+        public async Task<List<DateTime>> CheckDate(DateTime? date = null)
         {
             List<DateTime> TimeStamps = new List<DateTime>();
             if (date == null)
@@ -101,6 +101,15 @@ namespace PowerPlantMapAPI.Services
             }
 
             return new List<DateTime> { start, end };
+        }
+
+        public DateTime TransformTime(string time)
+        {
+            DateTime t = new DateTime(Int32.Parse(time.Substring(0, 4)),
+                Int32.Parse(time.Substring(5, 2)), Int32.Parse(time.Substring(8, 2)),
+                Int32.Parse(time.Substring(11, 2)), Int32.Parse(time.Substring(14, 2)), 00);
+
+            return t;
         }
     }
 }
