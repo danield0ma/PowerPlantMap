@@ -1,7 +1,5 @@
 ﻿using Dapper;
-using Microsoft.Extensions.Configuration;
 using PowerPlantMapAPI.Models;
-using PowerPlantMapAPI.Models.DTO;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -13,34 +11,30 @@ namespace PowerPlantMapAPI.Repositories
 
         public PowerRepository(IConfiguration configuration)
         {
-            _connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+            _connection = new SqlConnection(configuration.GetConnectionString("Local"));
             _connection.Open();
         }
 
-        public async Task<List<PowerPlantDataDTO>> QueryPowerPlantBasics()
+        public async Task<List<PowerPlantDataModel>> QueryPowerPlantBasics()
         {
-            List<PowerPlantDataDTO> PowerPlants = (List<PowerPlantDataDTO>) await
-                _connection.QueryAsync<PowerPlantDataDTO>("[PowerPlantBasics]", CommandType.StoredProcedure);
-            return PowerPlants;
+            return (List<PowerPlantDataModel>)await
+                _connection.QueryAsync<PowerPlantDataModel>("[PowerPlantBasics]", CommandType.StoredProcedure);
         }
 
-        public async Task<List<PowerPlantDataDTO>> QueryBasicsOfPowerPlant(string id)
+        public async Task<PowerPlantDataModel> QueryBasicsOfPowerPlant(string id)
         {
             var parameters = new { id = id };
-            List<PowerPlantDataDTO> PP = (List<PowerPlantDataDTO>)await
-                _connection.QueryAsync<PowerPlantDataDTO>
+            List<PowerPlantDataModel> PP = (List<PowerPlantDataModel>) await _connection.QueryAsync<PowerPlantDataModel>
                 ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
-            return PP;
+            return PP[0];
         }
 
-        public async Task<List<PowerPlantDetailsDTO>> QueryPowerPlantDetails(string id)
+        public async Task<List<PowerPlantDetailsModel>> QueryPowerPlantDetails(string id)
         {
             var parameters = new { PowerPlantID = id };
-            List<PowerPlantDetailsDTO> PowerPlantDetails =
-                (List<PowerPlantDetailsDTO>)await _connection.
-                QueryAsync<PowerPlantDetailsDTO>("GetPowerPlantDetails",
-                    parameters, commandType: CommandType.StoredProcedure);
-            return PowerPlantDetails;
+            return (List<PowerPlantDetailsModel>)await _connection.
+                QueryAsync<PowerPlantDetailsModel>("GetPowerPlantDetails",
+                parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<List<PastActivityModel>> QueryPastActivity(string generator, DateTime start, DateTime end)

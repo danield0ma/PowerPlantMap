@@ -20,19 +20,19 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<IEnumerable<FeatureModel>>> getPowerPlantBasics()
+        public async Task<ActionResult<IEnumerable<FeatureDTO>>> getPowerPlantBasics()
         {
             return await _powerService.getPowerPlantBasics();
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<PowerPlantDetailsModel>> getDetailsOfPowerPlant(string id, DateTime? date = null)
+        public async Task<ActionResult<PowerPlantDetailsDTO>> getDetailsOfPowerPlant(string id, DateTime? date = null)
         {
             return await _powerService.getDetailsOfPowerPlant(id, date);
         }
 
         [HttpGet("[action]")]
-        public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null)
+        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null)
         {
             return await _powerService.GetPowerOfPowerPlants();
         }

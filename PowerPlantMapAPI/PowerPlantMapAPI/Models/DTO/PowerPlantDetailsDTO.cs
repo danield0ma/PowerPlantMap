@@ -2,11 +2,20 @@
 {
     public class PowerPlantDetailsDTO
     {
-        public string? BlocId { get; set; }
-        public string? BlocType { get; set; }
-        public int MaxBlocCapacity { get; set; }
-        public int ComissionDate { get; set; }
-        public string GeneratorID { get; set; }
-        public int MaxCapacity { get; set; }
+        public string? PowerPlantID { get; set; }
+        public string? name { get; set; }
+        public string description { get; set; }
+        public string? OperatorCompany { get; set; }
+        public string? webpage { get; set; }
+        public double longitude { get; set; }
+        public double latitude { get; set; }
+        public int CurrentPower { get; set; }
+        public int MaxPower { get; set; }
+        public DateTime DataStart { get; set; }
+        public DateTime DataEnd { get; set; }
+        public string? Color { get; set; }
+        public string? Address { get; set; }
+        public bool IsCountry { get; set; }
+        public List<BlocDTO> Blocs { get; set; }
     }
 }

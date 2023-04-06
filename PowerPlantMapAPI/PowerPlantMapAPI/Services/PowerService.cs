@@ -2,7 +2,6 @@
 using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Models.DTO;
 using PowerPlantMapAPI.Repositories;
-using System.Data.SqlClient;
 using System.Xml;
 
 namespace PowerPlantMapAPI.Services
@@ -18,25 +17,24 @@ namespace PowerPlantMapAPI.Services
             _repository = repository;
         }
 
-        public async Task<ActionResult<IEnumerable<FeatureModel>>> getPowerPlantBasics()
+        public async Task<ActionResult<IEnumerable<FeatureDTO>>> getPowerPlantBasics()
         {
-            List<PowerPlantDataDTO> PowerPlants = await _repository.QueryPowerPlantBasics();
+            List<PowerPlantDataModel> PowerPlants = await _repository.QueryPowerPlantBasics();
 
-            List <FeatureModel> PowerPlantBasics = new List<FeatureModel>();
+            List <FeatureDTO> PowerPlantBasics = new List<FeatureDTO>();
 
             foreach (var PowerPlant in PowerPlants)
             {
-                FeatureModel feature = new FeatureModel();
-                feature.Type = "Feature";
+                FeatureDTO feature = new FeatureDTO();
 
-                FeaturePropertyModelDTO properties = new FeaturePropertyModelDTO();
+                FeaturePropertyDTO properties = new FeaturePropertyDTO();
                 properties.id = PowerPlant.PowerPlantID;
                 properties.name = PowerPlant.name;
                 properties.description = PowerPlant.description;
                 properties.img = PowerPlant.image;
                 feature.properties = properties;
 
-                FeatureGeometryModelDTO geometry = new FeatureGeometryModelDTO();
+                FeatureGeometryDTO geometry = new FeatureGeometryDTO();
                 geometry.type = "Point";
                 List<float> coordinates = new List<float>();
                 coordinates.Add(PowerPlant.latitude);
@@ -50,43 +48,28 @@ namespace PowerPlantMapAPI.Services
             return PowerPlantBasics;
         }
 
-        public async Task<BasicsOfPowerPlantDTO> GetBasicsOfPowerPlant(string id)
+        public async Task<PowerPlantDataModel> GetBasicsOfPowerPlant(string id)
         {
-            List<PowerPlantDataDTO> PP = await _repository.QueryBasicsOfPowerPlant(id);
-
-            PowerPlantDataDTO PowerPlant = PP[0];
-            BasicsOfPowerPlantDTO b = new BasicsOfPowerPlantDTO();
-            b.id = PowerPlant.PowerPlantID;
-            b.name = PowerPlant.name;
-            b.description = PowerPlant.description;
-            b.OperatorCompany = PowerPlant.OperatorCompany;
-            b.webpage = PowerPlant.webpage;
-            b.Color = PowerPlant.Color;
-            b.Address = PowerPlant.Address;
-            b.IsCountry = PowerPlant.IsCountry;
-            b.longitude = PowerPlant.longitude;
-            b.latitude = PowerPlant.latitude;
-
-            return b;
+            return await _repository.QueryBasicsOfPowerPlant(id);
         }
 
-        public async Task<ActionResult<PowerPlantDetailsModel>> getDetailsOfPowerPlant(string id, DateTime? date = null)
+        public async Task<ActionResult<PowerPlantDetailsDTO>> getDetailsOfPowerPlant(string id, DateTime? date = null)
         {
-            PowerPlantDetailsModel PowerPlant = new PowerPlantDetailsModel();
+            PowerPlantDetailsDTO PowerPlant = new PowerPlantDetailsDTO();
             PowerPlant.PowerPlantID = id;
-            BasicsOfPowerPlantDTO basics = await GetBasicsOfPowerPlant(id);
+            PowerPlantDataModel PP = await GetBasicsOfPowerPlant(id);
 
-            PowerPlant.name = basics.name;
-            PowerPlant.description = basics.description;
-            PowerPlant.OperatorCompany = basics.OperatorCompany;
-            PowerPlant.webpage = basics.webpage;
-            PowerPlant.Color = basics.Color;
-            PowerPlant.Address = basics.Address;
-            PowerPlant.IsCountry = basics.IsCountry;
-            PowerPlant.longitude = Math.Round(basics.longitude, 4);
-            PowerPlant.latitude = Math.Round(basics.latitude, 4);
+            PowerPlant.name = PP.name;
+            PowerPlant.description = PP.description;
+            PowerPlant.OperatorCompany = PP.OperatorCompany;
+            PowerPlant.webpage = PP.webpage;
+            PowerPlant.Color = PP.color;
+            PowerPlant.Address = PP.address;
+            PowerPlant.IsCountry = PP.IsCountry;
+            PowerPlant.longitude = Math.Round(PP.longitude, 4);
+            PowerPlant.latitude = Math.Round(PP.latitude, 4);
 
-            List<PowerPlantDetailsDTO> PowerPlantDetails = await _repository.QueryPowerPlantDetails(id);
+            List<PowerPlantDetailsModel> PowerPlantDetails = await _repository.QueryPowerPlantDetails(id);
 
             List <DateTime> TimeStamps = await _dateService.CheckDate(date);
             
@@ -100,20 +83,20 @@ namespace PowerPlantMapAPI.Services
             PowerPlant.DataEnd = TimeStamps[1];
 
             int PPMaxPower = 0, PPCurrentPower = 0;
-            List<BlocModel> Blocs = new List<BlocModel>();
+            List<BlocDTO> Blocs = new List<BlocDTO>();
             for (int i = 0; i < PowerPlantDetails.Count; i += 0)
             {
-                BlocModel Bloc = new BlocModel();
+                BlocDTO Bloc = new BlocDTO();
                 Bloc.BlocID = PowerPlantDetails[i].BlocId;
                 Bloc.BlocType = PowerPlantDetails[i].BlocType;
                 Bloc.MaxBlocCapacity = PowerPlantDetails[i].MaxBlocCapacity;
                 Bloc.ComissionDate = PowerPlantDetails[i].ComissionDate;
 
-                List<GeneratorModel> Generators = new List<GeneratorModel>();
+                List<GeneratorDTO> Generators = new List<GeneratorDTO>();
                 int CurrentPower = 0, MaxPower = 0;
                 while (i < PowerPlantDetails.Count && PowerPlantDetails[i].BlocId == Bloc.BlocID)
                 {
-                    GeneratorModel Generator = new GeneratorModel();
+                    GeneratorDTO Generator = new GeneratorDTO();
                     Generator.GeneratorID = PowerPlantDetails[i].GeneratorID;
                     Generator.MaxCapacity = PowerPlantDetails[i].MaxCapacity;
                     Generator.CurrentPower = await GetGeneratorPower(Generator.GeneratorID, TimeStamps[0], TimeStamps[1]);
@@ -130,20 +113,22 @@ namespace PowerPlantMapAPI.Services
                 PPCurrentPower += CurrentPower;
                 PPMaxPower += MaxPower;
             }
+
             PowerPlant.Blocs = Blocs;
             PowerPlant.CurrentPower = PPCurrentPower;
             PowerPlant.MaxPower = PPMaxPower;
+
             return PowerPlant;
         }
 
-        public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null)
+        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null)
         {
-            PowerOfPowerPlantsModel P = new PowerOfPowerPlantsModel();
+            PowerOfPowerPlantsDTO PowerOfPowerPlants = new PowerOfPowerPlantsDTO();
             List<string> PowerPlants = await _repository.QueryPowerPlants();
 
             List<DateTime> TimeStamps = await _dateService.CheckDate(date);
-            P.Start = TimeStamps[0];
-            P.End = TimeStamps[1];
+            PowerOfPowerPlants.Start = TimeStamps[0];
+            PowerOfPowerPlants.End = TimeStamps[1];
 
             if (date != null)
             {
@@ -151,35 +136,39 @@ namespace PowerPlantMapAPI.Services
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
-            List<PowerDTO> PowerOfPPs = new List<PowerDTO>();
+            List<PowerOfPowerPlantDTO> PowerOfPP = new List<PowerOfPowerPlantDTO>();
 
             foreach (string PowerPlant in PowerPlants)
             {
-                PowerDTO Power = new PowerDTO();
-                Power.PowerPlantBloc = PowerPlant;
-                Power.Power = new List<int>();
+                PowerOfPowerPlantDTO PowerOfPowerPlant = new PowerOfPowerPlantDTO();
+                PowerOfPowerPlant.PowerPlantName = PowerPlant;
+                List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
 
                 for (int i = 0; i < 97; i++)
                 {
-                    Power.Power.Add(0);
+                    PowerStampDTO PowerStamp = new PowerStampDTO();
+                    PowerStamp.Start = PowerOfPowerPlants.Start.AddMinutes(i * 15);
+                    PowerStamp.Power = 0;
+                    PowerStamps.Add(PowerStamp);
                 }
 
                 List<string> Generators = await _repository.QueryGeneratorsOfPowerPlant(PowerPlant);
 
                 foreach (string Generator in Generators)
                 {
-                    List<int> Gen = await GetGeneratorPower(Generator, TimeStamps[0], TimeStamps[1]);
+                    List<int> GeneratorPowers = await GetGeneratorPower(Generator, TimeStamps[0], TimeStamps[1]);
                     for (int i = 0; i < 97; i++)
                     {
-                        Power.Power[i] += Gen[i];
+                        PowerStamps[i].Power += GeneratorPowers[i];
                     }
                 }
 
-                PowerOfPPs.Add(Power);
+                PowerOfPowerPlant.PowerStamps = PowerStamps;
+                PowerOfPP.Add(PowerOfPowerPlant);
             }
 
-            P.Data = PowerOfPPs;
-            return P;
+            PowerOfPowerPlants.Data = PowerOfPP;
+            return PowerOfPowerPlants;
         }
 
         public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
@@ -201,10 +190,10 @@ namespace PowerPlantMapAPI.Services
                 string StartTime = _dateService.EditTime(TimeStamps[0]);
                 string EndTime = _dateService.EditTime(TimeStamps[1]);
 
-                List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", StartTime, EndTime);
-                List<PowerDTO> RenewableDataSet = (List<PowerDTO>)await getPPData("A75", StartTime, EndTime);
-                List<PowerDTO> ImportDataSet = (List<PowerDTO>)await getImportData(false, StartTime, EndTime);
-                List<PowerDTO> ExportDataSet = (List<PowerDTO>)await getImportData(true, StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, StartTime, EndTime);
 
                 await saveData(PowerPlantDataSet, start, false);
                 await saveData(RenewableDataSet, start, false);
@@ -217,10 +206,10 @@ namespace PowerPlantMapAPI.Services
                 string MiddleTime = _dateService.EditTime(TimeStamps[1].AddHours(-24));
                 string EndTime = _dateService.EditTime(TimeStamps[1]);
 
-                List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", StartTime, MiddleTime);
-                List<PowerDTO> RenewableDataSet = (List<PowerDTO>)await getPPData("A75", StartTime, MiddleTime);
-                List<PowerDTO> ImportDataSet = (List<PowerDTO>)await getImportData(false, StartTime, MiddleTime);
-                List<PowerDTO> ExportDataSet = (List<PowerDTO>)await getImportData(true, StartTime, MiddleTime);
+                List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", StartTime, MiddleTime);
+                List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", StartTime, MiddleTime);
+                List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, StartTime, MiddleTime);
+                List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, StartTime, MiddleTime);
 
                 await saveData(PowerPlantDataSet, start, false);
                 await saveData(RenewableDataSet, start, false);
@@ -228,10 +217,10 @@ namespace PowerPlantMapAPI.Services
                 await saveData(ExportDataSet, start, false);
 
                 start = TimeStamps[1].AddHours(-24);
-                PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", MiddleTime, EndTime);
-                RenewableDataSet = (List<PowerDTO>)await getPPData("A75", MiddleTime, EndTime);
-                ImportDataSet = (List<PowerDTO>)await getImportData(false, MiddleTime, EndTime);
-                ExportDataSet = (List<PowerDTO>)await getImportData(true, MiddleTime, EndTime);
+                PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", MiddleTime, EndTime);
+                RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", MiddleTime, EndTime);
+                ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, MiddleTime, EndTime);
+                ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, MiddleTime, EndTime);
 
                 await saveData(PowerPlantDataSet, start, false);
                 await saveData(RenewableDataSet, start, false);
@@ -277,7 +266,7 @@ namespace PowerPlantMapAPI.Services
             return loadHistory;
         }
 
-        private async Task<IEnumerable<PowerDTO>> getPPData(string docType, string periodStart, string periodEnd)
+        private async Task<IEnumerable<PowerOfPowerPlantDTO>> getPPData(string docType, string periodStart, string periodEnd)
         {
             string documentType = docType;
             string processType = "A16";
@@ -303,7 +292,7 @@ namespace PowerPlantMapAPI.Services
             apiResponse = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine(apiResponse);
             
-            List<PowerDTO> data = new List<PowerDTO>();
+            List<PowerOfPowerPlantDTO> data = new List<PowerOfPowerPlantDTO>();
             
             try
             {
@@ -357,10 +346,19 @@ namespace PowerPlantMapAPI.Services
                         sum[(j - 5) / 2] += p;
                     }
 
-                    PowerDTO current = new PowerDTO()
+                    List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
+                    foreach (int p in power)
                     {
-                        PowerPlantBloc = name,
-                        Power = power
+                        PowerStampDTO PowerStamp = new PowerStampDTO();
+                        PowerStamp.Power = p;
+                        PowerStamp.Start = DateTime.Now;
+                        PowerStamps.Add(PowerStamp);
+                    }
+
+                    PowerOfPowerPlantDTO current = new PowerOfPowerPlantDTO()
+                    {
+                        PowerPlantName = name,
+                        PowerStamps = PowerStamps
                     };
 
                     List<string> codes = new List<string>
@@ -368,7 +366,7 @@ namespace PowerPlantMapAPI.Services
                         "B01", "B04", "B16", "B19"
                     };
 
-                    if (docType == "A73" || (docType == "A75" && codes.Contains(current.PowerPlantBloc)))
+                    if (docType == "A73" || (docType == "A75" && codes.Contains(current.PowerPlantName)))
                     {
                         data.Add(current);
                     }
@@ -379,7 +377,7 @@ namespace PowerPlantMapAPI.Services
             return data;
         }
 
-        private async Task<IEnumerable<PowerDTO>> getImportData(bool export, string periodStart, string periodEnd)
+        private async Task<IEnumerable<PowerOfPowerPlantDTO>> getImportData(bool export, string periodStart, string periodEnd)
         {
             string documentType = "A11";
             string in_Domain = "10YHU-MAVIR----U";
@@ -393,7 +391,7 @@ namespace PowerPlantMapAPI.Services
                 "10Y1001C--00003F"
             };
 
-            List<PowerDTO> data = new List<PowerDTO>();
+            List<PowerOfPowerPlantDTO> data = new List<PowerOfPowerPlantDTO>();
 
             List<int> sum = new List<int>();
             for (int i = 0; i < 100; i++)
@@ -465,9 +463,10 @@ namespace PowerPlantMapAPI.Services
                 {
                     XmlNode Period = TimeSeries.ChildNodes[13];
 
-                    List<int> power = new List<int>();
+                    List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
                     for (int j = 5; j < Period.ChildNodes.Count; j += 2)
                     {
+                        PowerStampDTO PowerStamp = new PowerStampDTO();
                         int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
 
                         if(export)
@@ -520,17 +519,20 @@ namespace PowerPlantMapAPI.Services
                             }
                         }
 
+                        PowerStamp.Start = DateTime.Now;
+                        PowerStamp.Power = p;
+                        
                         for (int i = 0; i < n; i++)
                         {
-                            power.Add(p);
+                            PowerStamps.Add(PowerStamp);
                             sum[(j - 5) / 2 + i] += p;
                         }
                     }
 
-                    PowerDTO current = new PowerDTO()
+                    PowerOfPowerPlantDTO current = new PowerOfPowerPlantDTO()
                     {
-                        PowerPlantBloc = CountryCode,
-                        Power = power
+                        PowerPlantName = CountryCode,
+                        PowerStamps = PowerStamps
                     };
 
                     data.Add(current);
@@ -541,21 +543,21 @@ namespace PowerPlantMapAPI.Services
             return data;
         }
 
-        private async Task<bool> saveData(List<PowerDTO> PowerDataSet, DateTime start, bool import)
+        private async Task<bool> saveData(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime start, bool import)
         {
             List<string> generators = await _repository.QueryGenerators();
 
-            foreach (PowerDTO PowerData in PowerDataSet)
+            foreach (PowerOfPowerPlantDTO PowerData in PowerDataSet)
             {
-                if (generators.Contains(PowerData.PowerPlantBloc))
+                if (generators.Contains(PowerData.PowerPlantName))
                 {
                     DateTime PeriodStart = start.AddMinutes(-15);
-                    foreach (int p in PowerData.Power)
+                    foreach (PowerStampDTO PowerStamp in PowerData.PowerStamps)
                     {
                         PeriodStart = PeriodStart.AddMinutes(15);
-                        if (!import || (import && p != 0))
+                        if (!import || (import && PowerStamp.Power != 0))
                         {
-                            await _repository.InsertData(PowerData.PowerPlantBloc, PeriodStart, p);
+                            await _repository.InsertData(PowerData.PowerPlantName, PeriodStart, PowerStamp.Power);
                         }
                         
                     }
