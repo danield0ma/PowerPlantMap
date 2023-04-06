@@ -1,3 +1,4 @@
+using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI
@@ -23,6 +24,7 @@ namespace PowerPlantMapAPI
             });
 
             builder.Services.AddScoped<IPowerService, PowerService>();
+            builder.Services.AddScoped<IPowerRepository, PowerRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

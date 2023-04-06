@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Models.DTO;
+using PowerPlantMapAPI.Repositories;
 using System.Data;
 using System.Data.SqlClient;
 using System.Xml;
@@ -11,10 +12,13 @@ namespace PowerPlantMapAPI.Services
     public class PowerService : IPowerService
     {
         private readonly SqlConnection _connection;
-        public PowerService(IConfiguration configuration)
+        private readonly IPowerRepository _repository;
+        
+        public PowerService(IConfiguration configuration, IPowerRepository repository)
         {
             _connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
             _connection.Open();
+            _repository = repository;
         }
 
         private async Task<XmlNode> APIquery(string periodStart, string periodEnd)
@@ -59,9 +63,9 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<ActionResult<IEnumerable<FeatureModel>>> getPowerPlantBasics()
         {
-            List<PowerPlantDataDTO> PowerPlants = (List<PowerPlantDataDTO>)await
-                _connection.QueryAsync<PowerPlantDataDTO>("[PowerPlantBasics]", CommandType.StoredProcedure);
-            List<FeatureModel> PowerPlantBasics = new List<FeatureModel>();
+            List<PowerPlantDataDTO> PowerPlants = await _repository.QueryPowerPlantBasics();
+
+            List <FeatureModel> PowerPlantBasics = new List<FeatureModel>();
 
             foreach (var PowerPlant in PowerPlants)
             {
@@ -105,13 +109,9 @@ namespace PowerPlantMapAPI.Services
             PowerPlant.longitude = Math.Round(basics.longitude, 4);
             PowerPlant.latitude = Math.Round(basics.latitude, 4);
 
-            var parameters = new { PowerPlantID = id };
-            List<PowerPlantDetailsDTO> PowerPlantDetails =
-                (List<PowerPlantDetailsDTO>)await _connection.
-                QueryAsync<PowerPlantDetailsDTO>("GetPowerPlantDetails",
-                    parameters, commandType: CommandType.StoredProcedure);
+            List<PowerPlantDetailsDTO> PowerPlantDetails = await _repository.QueryPowerPlantDetails(id);
 
-            List<DateTime> TimeStamps = await CheckDate(date);
+            List <DateTime> TimeStamps = await CheckDate(date);
             if (date != null)
             {
                 string msg = await CheckData(TimeStamps);
@@ -199,10 +199,7 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<BasicsOfPowerPlantDTO> GetBasicsOfPowerPlant(string id)
         {
-            var parameters = new { id = id };
-            List<PowerPlantDataDTO> PP = (List<PowerPlantDataDTO>)await
-                _connection.QueryAsync<PowerPlantDataDTO>
-                ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
+            List<PowerPlantDataDTO> PP = await _repository.QueryBasicsOfPowerPlant(id);
 
             PowerPlantDataDTO PowerPlant = PP[0];
             BasicsOfPowerPlantDTO b = new BasicsOfPowerPlantDTO();
@@ -223,9 +220,7 @@ namespace PowerPlantMapAPI.Services
         public async Task<List<int>> GetGeneratorPower(string generator, DateTime start, DateTime end)
         //TODO GeneratorPowerDTO-val térjen vissza, hogy ne a frontenden kelljen az időket hozzáigazítani
         {
-            var parameters = new { GID = generator, start = start, end = end.AddMinutes(15) };
-            List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
-                ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
+            List<PastActivityModel> PastActivity = await _repository.QueryPastActivity(generator, start, end);
 
             List<int> power = new List<int>();
             foreach (var Activity in PastActivity)
@@ -243,11 +238,9 @@ namespace PowerPlantMapAPI.Services
         public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null)
         {
             PowerOfPowerPlantsModel P = new PowerOfPowerPlantsModel();
+            List<string> PowerPlants = await _repository.QueryPowerPlants();
 
-            List<string> PowerPlants = (List<string>)await _connection.QueryAsync<string>
-                    ("GetPowerPlants", commandType: CommandType.StoredProcedure);
-
-            List<DateTime> TimeStamps = await CheckDate(date);
+            List <DateTime> TimeStamps = await CheckDate(date);
             P.Start = TimeStamps[0];
             P.End = TimeStamps[1];
 
@@ -270,9 +263,7 @@ namespace PowerPlantMapAPI.Services
                     Power.Power.Add(0);
                 }
 
-                var parameters = new { PPID = PowerPlant };
-                List<string> Generators = (List<string>)await _connection.QueryAsync<string>
-                    ("GetGeneratorsOfPowerPlant", parameters, commandType: CommandType.StoredProcedure);
+                List<string> Generators = await _repository.QueryGeneratorsOfPowerPlant(PowerPlant);
 
                 foreach (string Generator in Generators)
                 {
@@ -311,10 +302,8 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<string> CheckData(List<DateTime> TimeStamps)
         {
-            var parameters = new { GID = "PA_gép1", start = TimeStamps[0], end = TimeStamps[1] };
-            List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
-            ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
-            System.Diagnostics.Debug.WriteLine("HOSSZA:" + PastActivity.Count);
+            List<PastActivityModel> PastActivity = await _repository.QueryPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
+
             if (PastActivity.Count < 10)
             {
                 return await InitData(TimeStamps[0].AddHours(-2), TimeStamps[1].AddHours(2));
@@ -618,9 +607,7 @@ namespace PowerPlantMapAPI.Services
             DateTime end = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
             DateTime start;
 
-            var parameter = new { PPID = "PKS" };
-            List<DateTime> LastData = (List<DateTime>)await _connection.QueryAsync<DateTime>
-                ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
+            List<DateTime> LastData = await _repository.QueryLastDataTime();
 
             if (!initData)
             {
@@ -718,17 +705,17 @@ namespace PowerPlantMapAPI.Services
                 await saveData(ExportDataSet, start, false);
             }
 
-            var parameter = new { PPID = "PKS" };
-            List<DateTime> LastData = (List<DateTime>)await _connection.QueryAsync<DateTime>
-                ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
+            //var parameter = new { PPID = "PKS" };
+            //List<DateTime> LastData = (List<DateTime>)await _connection.QueryAsync<DateTime>
+            //    ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
+            List<DateTime> LastData = await _repository.QueryLastDataTime();
 
             return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
         }
 
         private async Task<bool> saveData(List<PowerDTO> PowerDataSet, DateTime start, bool import)
         {
-            List<string> generators = (List<string>)await _connection.QueryAsync<string>
-                    ("GetGenerators", commandType: CommandType.StoredProcedure);
+            List<string> generators = await _repository.QueryGenerators();
 
             foreach (PowerDTO PowerData in PowerDataSet)
             {
