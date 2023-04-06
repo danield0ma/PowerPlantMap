@@ -13,11 +13,7 @@ namespace PowerPlantMapAPI.Services
         Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null);
         Task<BasicsOfPowerPlantDTO> GetBasicsOfPowerPlant(string id);
         Task<List<int>> GetGeneratorPower(string generator, DateTime start, DateTime end);
-        Task<List<DateTime>> CheckDate(DateTime? date);
         Task<string> CheckData(List<DateTime> TimeStamps);
-        string getTime(int diff);
-        string EditTime(DateTime start);
-        Task<List<DateTime>> GetStartAndEnd(bool initData);
         Task<IEnumerable<PowerDTO>> getPPData(string docType, string periodStart, string periodEnd);
         Task<IEnumerable<PowerDTO>> getImportData(bool export, string periodStart, string periodEnd);
         Task<string> InitData(DateTime? periodStart, DateTime? periodEnd);

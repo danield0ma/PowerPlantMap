@@ -12,6 +12,7 @@ namespace PowerPlantMapAPI.Services
     public class PowerService : IPowerService
     {
         private readonly SqlConnection _connection;
+        private readonly IDateService _dateService;
         private readonly IPowerRepository _repository;
         
         public PowerService(IConfiguration configuration, IPowerRepository repository)
@@ -111,7 +112,7 @@ namespace PowerPlantMapAPI.Services
 
             List<PowerPlantDetailsDTO> PowerPlantDetails = await _repository.QueryPowerPlantDetails(id);
 
-            List <DateTime> TimeStamps = await CheckDate(date);
+            List <DateTime> TimeStamps = await _dateService.CheckDate(date);
             if (date != null)
             {
                 string msg = await CheckData(TimeStamps);
@@ -181,7 +182,7 @@ namespace PowerPlantMapAPI.Services
         
         public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(DateTime periodStart, DateTime periodEnd)
         {
-            XmlNode Period = await APIquery(EditTime(periodStart), EditTime(periodEnd));
+            XmlNode Period = await APIquery(_dateService.EditTime(periodStart), _dateService.EditTime(periodEnd));
 
             List<CurrentLoadDTO> loadHistory = new List<CurrentLoadDTO>();
 
@@ -240,7 +241,7 @@ namespace PowerPlantMapAPI.Services
             PowerOfPowerPlantsModel P = new PowerOfPowerPlantsModel();
             List<string> PowerPlants = await _repository.QueryPowerPlants();
 
-            List <DateTime> TimeStamps = await CheckDate(date);
+            List <DateTime> TimeStamps = await _dateService.CheckDate(date);
             P.Start = TimeStamps[0];
             P.End = TimeStamps[1];
 
@@ -281,25 +282,6 @@ namespace PowerPlantMapAPI.Services
             return P;
         }
 
-        public async Task<List<DateTime>> CheckDate(DateTime? date)
-        {
-            List<DateTime> TimeStamps = new List<DateTime>();
-            if (date == null)
-            {
-                TimeStamps = await GetStartAndEnd(false);
-            }
-            else
-            {
-                DateTime Start = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0);
-                date = date.Value.AddDays(1);
-                DateTime End = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0);
-                TimeStamps.Add(Start);
-                TimeStamps.Add(End);
-            }
-
-            return TimeStamps;
-        }
-
         public async Task<string> CheckData(List<DateTime> TimeStamps)
         {
             List<PastActivityModel> PastActivity = await _repository.QueryPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
@@ -309,32 +291,6 @@ namespace PowerPlantMapAPI.Services
                 return await InitData(TimeStamps[0].AddHours(-2), TimeStamps[1].AddHours(2));
             }
             return "no InitData";
-        }
-
-        public string getTime(int diff)
-        {
-            string now = Convert.ToString(DateTime.Now.Year);
-            if (DateTime.Now.Month < 10) { now += "0"; }
-            now += Convert.ToString(DateTime.Now.Month);
-            if (DateTime.Now.Day < 10) { now += "0"; }
-            now += Convert.ToString(DateTime.Now.Day);
-            if (DateTime.Now.Hour - diff < 10) { now += "0"; }
-            now += Convert.ToString(DateTime.Now.Hour - diff) + "00";
-            return now;
-        }
-
-        public string EditTime(DateTime start)
-        {
-            string StartTime = Convert.ToString(start.Year);
-            if (start.Month < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Month);
-            if (start.Day < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Day);
-            if (start.Hour < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Hour);
-            if (start.Minute < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Minute);
-            return StartTime;
         }
 
         public async Task<IEnumerable<PowerDTO>> getPPData(string docType, string periodStart, string periodEnd)
@@ -601,59 +557,12 @@ namespace PowerPlantMapAPI.Services
             return data;
         }
 
-        public async Task<List<DateTime>> GetStartAndEnd(bool initData)
-        {
-            DateTime now = DateTime.Now;
-            DateTime end = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-            DateTime start;
-
-            List<DateTime> LastData = await _repository.QueryLastDataTime();
-
-            if (!initData)
-            {
-                //TODO túl régi adat esetén nincs elérhető adat kiírása...
-                end = LastData[0];
-                start = end.AddDays(-1).AddMinutes(-15);
-            }
-            else
-            {
-                if (now.Minute < 15)
-                {
-                    end = end.AddHours(now.Hour - 1);
-                    end = end.AddMinutes(45);
-                }
-                else if (now.Minute < 30)
-                {
-                    end = end.AddHours((int)now.Hour);
-                    end = end.AddMinutes(0);
-                }
-                else if (now.Minute < 45)
-                {
-                    end = end.AddHours(now.Hour);
-                    end = end.AddMinutes(15);
-                }
-                else
-                {
-                    end = end.AddHours(now.Hour);
-                    end = end.AddMinutes(30);
-                }
-                start = end.AddHours(-30);
-
-                if (LastData[0] > start)
-                {
-                    start = LastData[0];
-                }
-            }
-
-            return new List<DateTime> { start, end };
-        }
-
         public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
         {
             List<DateTime> TimeStamps = new List<DateTime>();
             if (periodStart == null && periodEnd == null)
             {
-                TimeStamps = await GetStartAndEnd(true);
+                TimeStamps = await _dateService.GetStartAndEnd(true);
             }
             else
             {
@@ -664,8 +573,8 @@ namespace PowerPlantMapAPI.Services
 
             if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 24)
             {
-                string StartTime = EditTime(TimeStamps[0]);
-                string EndTime = EditTime(TimeStamps[1]);
+                string StartTime = _dateService.EditTime(TimeStamps[0]);
+                string EndTime = _dateService.EditTime(TimeStamps[1]);
 
                 List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>) await getPPData("A73", StartTime, EndTime);
                 List<PowerDTO> RenewableDataSet = (List<PowerDTO>)await getPPData("A75", StartTime, EndTime);
@@ -679,9 +588,9 @@ namespace PowerPlantMapAPI.Services
             }
             else
             {
-                string StartTime = EditTime(TimeStamps[0]);
-                string MiddleTime = EditTime(TimeStamps[1].AddHours(-24));
-                string EndTime = EditTime(TimeStamps[1]);
+                string StartTime = _dateService.EditTime(TimeStamps[0]);
+                string MiddleTime = _dateService.EditTime(TimeStamps[1].AddHours(-24));
+                string EndTime = _dateService.EditTime(TimeStamps[1]);
 
                 List<PowerDTO> PowerPlantDataSet = (List<PowerDTO>)await getPPData("A73", StartTime, MiddleTime);
                 List<PowerDTO> RenewableDataSet = (List<PowerDTO>)await getPPData("A75", StartTime, MiddleTime);

@@ -24,6 +24,7 @@ namespace PowerPlantMapAPI
             });
 
             builder.Services.AddScoped<IPowerService, PowerService>();
+            builder.Services.AddScoped<IDateService, DateService>();
             builder.Services.AddScoped<IPowerRepository, PowerRepository>();
 
             builder.Services.AddControllers();

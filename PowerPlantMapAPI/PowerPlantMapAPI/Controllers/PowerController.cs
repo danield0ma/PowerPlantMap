@@ -11,68 +11,70 @@ namespace PowerPlantMapAPI.Controllers
     [ApiController]
     public class PowerController : ControllerBase
     {
-        private readonly IPowerService _service;
-        public PowerController(IConfiguration configuration, IPowerService powerService)
+        private readonly IPowerService _powerService;
+        private readonly IDateService _dateService;
+        public PowerController(IConfiguration configuration, IPowerService powerService, IDateService dateService)
         {
-            _service = powerService;
+            _powerService = powerService;
+            _dateService = dateService;
         }
 
         [HttpGet("[action]")]
         public async Task<CurrentLoadDTO> GetCurrentLoad()
         {
-            List<DateTime> startend = await _service.GetStartAndEnd(false);
-            CurrentLoadDTO apiResponse = await _service.GetCurrentLoad(_service.EditTime(startend[0]), _service.EditTime(startend[1]));
+            List<DateTime> startend = await _dateService.GetStartAndEnd(false);
+            CurrentLoadDTO apiResponse = await _powerService.GetCurrentLoad(_dateService.EditTime(startend[0]), _dateService.EditTime(startend[1]));
             return apiResponse;
         }
 
         [HttpGet("[action]")]
         public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory()
         {
-            List<DateTime> startend = await _service.GetStartAndEnd(false);
-            return await _service.GetLoadHistory(startend[0], startend[1]);
+            List<DateTime> startend = await _dateService.GetStartAndEnd(false);
+            return await _powerService.GetLoadHistory(startend[0], startend[1]);
         }
 
         [HttpGet("[action]")]
         public async Task<ActionResult<IEnumerable<FeatureModel>>> getPowerPlantBasics()
         {
-            return await _service.getPowerPlantBasics();
+            return await _powerService.getPowerPlantBasics();
         }
 
         [HttpGet("[action]")]
         public async Task<ActionResult<PowerPlantDetailsModel>> getDetailsOfPowerPlant(string id, DateTime? date = null)
         {
-            return await _service.getDetailsOfPowerPlant(id, date);
+            return await _powerService.getDetailsOfPowerPlant(id, date);
         }
 
         [HttpGet("[action]")]
         public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null)
         {
-            return await _service.GetPowerOfPowerPlants();
+            return await _powerService.GetPowerOfPowerPlants();
         }
 
         [HttpGet("[action]")]
         public async Task<string> InitData(DateTime? start = null, DateTime? end = null)
         {
-            return await _service.InitData(start, end);
+            return await _powerService.InitData(start, end);
         }
 
         [HttpGet("[action]")]
         public async Task<IEnumerable<PowerDTO>> GetPsrTypeData(string documentType)
         {
             //A73 - generation unit, A75 - generation type
-            List<DateTime> TimeStamps = await _service.GetStartAndEnd(true);
-            string StartTime = _service.EditTime(TimeStamps[0]);
-            string EndTime = _service.EditTime(TimeStamps[1]);
-            return await _service.getPPData(documentType, StartTime, EndTime);
+            List<DateTime> TimeStamps = await _dateService.GetStartAndEnd(true);
+            string StartTime = _dateService.EditTime(TimeStamps[0]);
+            string EndTime = _dateService.EditTime(TimeStamps[1]);
+            return await _powerService.getPPData(documentType, StartTime, EndTime);
         }
 
         [HttpGet("[action]")]
         public async Task<IEnumerable<PowerDTO>> GetImportData(bool export = false)
         {
-            List<DateTime> TimeStamps = await _service.GetStartAndEnd(true);
-            string StartTime = _service.EditTime(TimeStamps[0]);
-            string EndTime = _service.EditTime(TimeStamps[1]);
-            return await _service.getImportData(export, StartTime, EndTime);
+            List<DateTime> TimeStamps = await _dateService.GetStartAndEnd(true);
+            string StartTime = _dateService.EditTime(TimeStamps[0]);
+            string EndTime = _dateService.EditTime(TimeStamps[1]);
+            return await _powerService.getImportData(export, StartTime, EndTime);
         }
     }
 }
