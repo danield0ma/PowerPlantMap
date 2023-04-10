@@ -13,7 +13,7 @@ namespace PowerPlantMapAPI.Controllers
     {
         private readonly IPowerService _powerService;
         private readonly IDateService _dateService;
-        public PowerController(IConfiguration configuration, IPowerService powerService, IDateService dateService)
+        public PowerController(IPowerService powerService, IDateService dateService)
         {
             _powerService = powerService;
             _dateService = dateService;
