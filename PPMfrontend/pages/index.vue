@@ -23,7 +23,7 @@ import RightPanel from '../components/RightPanel.vue'
 import moment from 'moment'
 
 export default {
-    name: 'MapView',
+   name: 'MapView',
     data() {
       return {
         accessToken: 'pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q',

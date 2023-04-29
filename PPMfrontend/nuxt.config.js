@@ -29,11 +29,18 @@ export default {
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
+  //DEPRECATED
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // '@nuxtjs/style-resources',
     '@nuxtjs/fontawesome',
     // '@nuxtjs/moment'
+  ],
+
+  // Modules: https://go.nuxtjs.dev/config-modules
+  modules: [
+    // https://go.nuxtjs.dev/bootstrap
+    'bootstrap-vue/nuxt'
   ],
 
   fontawesome: {
@@ -42,12 +49,6 @@ export default {
       brands: true
     }
   },
-
-  // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [
-    // https://go.nuxtjs.dev/bootstrap
-    'bootstrap-vue/nuxt',
-  ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
