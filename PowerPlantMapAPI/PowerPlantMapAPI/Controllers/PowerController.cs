@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Models.DTO;
 using PowerPlantMapAPI.Services;
 
@@ -17,6 +16,12 @@ namespace PowerPlantMapAPI.Controllers
         {
             _powerService = powerService;
             _dateService = dateService;
+        }
+
+        [HttpGet("[action]")]
+        public ActionResult<String> Test()
+        {
+            return Ok("Test");
         }
 
         [HttpGet("[action]")]

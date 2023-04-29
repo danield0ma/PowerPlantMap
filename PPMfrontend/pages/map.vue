@@ -81,9 +81,9 @@ export default {
       async getLoad() {
         let powerOfPowerPlantsResponse
         if(this.getDate == null) {
-          powerOfPowerPlantsResponse = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getPowerOfPowerPlants')
+          powerOfPowerPlantsResponse = await fetch('http://powerplantmap.tech:5000/API/Power/getPowerOfPowerPlants')
         } else {
-          powerOfPowerPlantsResponse = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getPowerOfPowerPlants?date=' + this.getDate)
+          powerOfPowerPlantsResponse = await fetch('http://powerplantmap.tech:5000/API/Power/getPowerOfPowerPlants?date=' + this.getDate)
         }
         const powerOfPowerPlants = await powerOfPowerPlantsResponse.json()
         this.$store.dispatch('power/setPowerOfPowerPlants', powerOfPowerPlants)
@@ -199,7 +199,7 @@ export default {
       },
 
       async getPowerPlantBasics() {
-        const res = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getPowerPlantBasics/')
+        const res = await fetch('http://powerplantmap.tech:5000/API/Power/getPowerPlantBasics/')
         const f = await res.json()
         
         const data = {
@@ -224,9 +224,9 @@ export default {
 
           let res
           if(this.getDate == null) {
-            res = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getDetailsOfPowerPlant?id=' + id)
+            res = await fetch('http://powerplantmap.tech:5000/API/Power/getDetailsOfPowerPlant?id=' + id)
           } else {
-            res = await fetch('http://teszt.sth.sze.hu:8080/API/Power/getDetailsOfPowerPlant?id=' + id + '&date=' + this.getDate)
+            res = await fetch('http://powerplantmap.tech:5000/API/Power/getDetailsOfPowerPlant?id=' + id + '&date=' + this.getDate)
           }
           const data = await res.json()
           

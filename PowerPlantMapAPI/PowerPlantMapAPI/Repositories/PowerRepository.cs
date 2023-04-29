@@ -11,7 +11,7 @@ namespace PowerPlantMapAPI.Repositories
 
         public PowerRepository(IConfiguration configuration)
         {
-            _connection = new SqlConnection(configuration.GetConnectionString("Local"));
+            _connection = new SqlConnection(configuration.GetConnectionString("PPM.Tech"));
             _connection.Open();
         }
 
