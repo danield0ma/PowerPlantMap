@@ -39,7 +39,7 @@ namespace PowerPlantMapAPI.Controllers
         [HttpGet("[action]")]
         public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null)
         {
-            return await _powerService.GetPowerOfPowerPlants();
+            return await _powerService.GetPowerOfPowerPlants(date);
         }
 
         [HttpGet("[action]")]

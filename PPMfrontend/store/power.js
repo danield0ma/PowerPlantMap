@@ -11,9 +11,9 @@ export const state = () => ({
     powerOfPowerPlants: [],
     selectedBloc: -1
 })
-  
+
 export const getters = {}
-  
+
 export const mutations = {
     SET_DATE(state, value) {
         state.date = value
@@ -49,37 +49,37 @@ export const mutations = {
         state.selectedBloc = value
     }
 }
-  
+
 export const actions = {
-    async setDate({commit}, value) {
+    async setDate({ commit }, value) {
         await commit('SET_DATE', value)
     },
-    async setLeftPanel({commit}, value) {
+    async setLeftPanel({ commit }, value) {
         await commit('SET_LEFT', value)
     },
-    async setLeftContent({commit}, content) {
+    async setLeftContent({ commit }, content) {
         await commit('SET_CONTENT', content)
     },
-    async setLeftPanelLoading({commit}, value) {
+    async setLeftPanelLoading({ commit }, value) {
         await commit('SET_LOADING', value)
     },
-    async setRightLoading({commit}, value) {
+    async setRightLoading({ commit }, value) {
         await commit('SET_RIGHTLOADING', value)
     },
-    async toggleBlocs({commit}, value) {
+    async toggleBlocs({ commit }, value) {
         await commit('TOGGLE_BLOCS', value)
     },
-    async setCurrentLoad({commit}, value) {
+    async setCurrentLoad({ commit }, value) {
         await commit('SET_CURRENTLOAD', value.currentLoad)
         await commit('SET_CURRENTLOADDATETIME', value.end)
     },
-    async setLoadHistory({commit}, value) {
+    async setLoadHistory({ commit }, value) {
         await commit('SET_LOADHISTORY', value)
     },
-    async setPowerOfPowerPlants({commit}, value) {
+    async setPowerOfPowerPlants({ commit }, value) {
         await commit('SET_POWEROFPOWERPLANTS', value)
     },
-    async setSelectedBloc({commit}, value) {
+    async setSelectedBloc({ commit }, value) {
         await commit('SET_SELECTEDBLOC', value)
     }
 }
