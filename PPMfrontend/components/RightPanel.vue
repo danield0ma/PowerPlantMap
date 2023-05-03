@@ -284,7 +284,6 @@ export default {
                 time = moment(time).add(15, 'm')
                 dateArray.push(moment(time).format('HH:mm'))
             }
-            console.log(dateArray)
             return dateArray
         },
 
@@ -302,9 +301,15 @@ export default {
             let powerArray = this.$store.state.power.powerOfPowerPlants.data
             for (let power of powerArray)
             {
-                if(power.powerPlantBloc == PPID)
+                if(power.powerPlantName == PPID)
                 {
-                    return power.power
+                    //return power.powerStamps
+                    let powerData = []
+                    for (let powerStamp of power.powerStamps)
+                    {
+                        powerData.push(powerStamp.power)
+                    }
+                    return powerData
                 }
             }
         },
@@ -325,13 +330,13 @@ export default {
                 }
             }
 
-            let array = this.getPowerOfPowerPlant('GAS')
+            let GASarray = this.getPowerOfPowerPlant('GAS')
 
             let result = []
-            for (let i = 0; i < array.length; i++) {
-                result[i] = array[i] - power[i]
+            for (let i = 0; i < GASarray.length; i++) {
+                result[i] = GASarray[i] - power[i]
             }
-
+            
             return result
         }
     }

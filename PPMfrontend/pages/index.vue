@@ -66,7 +66,6 @@ export default {
 
       defaultTime() {
         let time = moment(Date(Date.now())).format('YYYY-MM-DD')
-        //console.log(time)
         this.chosenDate = time
         //this.$store.dispatch('power/setDate', time)
         return time

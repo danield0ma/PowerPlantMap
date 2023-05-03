@@ -251,9 +251,6 @@ export default {
         },
 
         getContent() {
-            while(this.isLoading) {
-                //console.log('getContent')
-            }
             return this.$store.state.power.content
         },
 
@@ -270,9 +267,8 @@ export default {
                 time = moment(time).add(15, 'm')
                 dateArray.push(moment(time).format('HH:mm'))
             }
-            console.log(dateArray)
-            return dateArray
-            
+
+            return dateArray            
             
             // let time = moment(this.$store.state.power.content.dataStart).add(15, 'm').toDate()
             
@@ -366,7 +362,6 @@ export default {
         getMin() {
             if(this.content.isCountry) {
                 let array = this.content.blocs[0].generators[0].currentPower
-                //console.log(array)
                 let min = Math.min(...array)
                 return Math.floor(min / 100) * 100
             } else {
@@ -399,7 +394,6 @@ export default {
                 }
             }
 
-            //console.log(array)
             let sum = 0
             for (let i = 0; i < 100; i++) {
                 sum += array[i]

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div v-if="isMap">
-      <Header id="head" />
-      <Nuxt id="body" />
-    </div>
+    <!-- <div v-if="isMap"> -->
+    <Header id="head" />
+    <Nuxt id="body" />
+    <!-- </div>
     <div v-else>
       <Header />
       <Nuxt />
-    </div>
+    </div> -->
     <!-- <Header id="head" />
     <Nuxt id="body" v-show="isMap" />
     <Nuxt v-show="notMap" /> -->
