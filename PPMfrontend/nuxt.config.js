@@ -1,4 +1,14 @@
+import path from 'path'
+import fs from 'fs'
+
 export default {
+  server: {
+    https: {
+      key: fs.readFileSync(path.resolve('/etc/letsencrypt/live/powerplantmap.tech', 'privkey.pem')),
+      cert: fs.readFileSync(path.resolve('/etc/letsencrypt/live/powerplantmap.tech', 'fullchain.pem'))
+    }
+  },
+  
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'PowerPlantMap',

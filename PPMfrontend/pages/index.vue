@@ -88,11 +88,11 @@ export default {
       let powerOfPowerPlantsResponse;
       if (this.getDate == null) {
         powerOfPowerPlantsResponse = await fetch(
-          "http://powerplantmap.tech:5000/API/Power/getPowerOfPowerPlants"
+          "https://powerplantmap.tech:5001/API/Power/getPowerOfPowerPlants"
         );
       } else {
         powerOfPowerPlantsResponse = await fetch(
-          "http://powerplantmap.tech:5000/API/Power/getPowerOfPowerPlants?date=" +
+          "https://powerplantmap.tech:5001/API/Power/getPowerOfPowerPlants?date=" +
             this.getDate
         );
       }
@@ -151,7 +151,7 @@ export default {
 
     async getPowerPlantBasics() {
       const res = await fetch(
-        "http://powerplantmap.tech:5000/API/Power/getPowerPlantBasics/"
+        "https://powerplantmap.tech:5001/API/Power/getPowerPlantBasics/"
       );
       const f = await res.json();
 
@@ -178,12 +178,12 @@ export default {
         let res;
         if (this.getDate == null) {
           res = await fetch(
-            "http://powerplantmap.tech:5000/API/Power/getDetailsOfPowerPlant?id=" +
+            "https://powerplantmap.tech:5001/API/Power/getDetailsOfPowerPlant?id=" +
               id
           );
         } else {
           res = await fetch(
-            "http://powerplantmap.tech:5000/API/Power/getDetailsOfPowerPlant?id=" +
+            "https://powerplantmap.tech:5001/API/Power/getDetailsOfPowerPlant?id=" +
               id +
               "&date=" +
               this.getDate
