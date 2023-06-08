@@ -27,13 +27,13 @@ namespace PowerPlantMapAPI.Controllers
         [HttpGet("[action]")]
         public async Task<ActionResult<IEnumerable<FeatureDTO>>> getPowerPlantBasics()
         {
-            return await _powerService.getPowerPlantBasics();
+            return await _powerService.GetPowerPlantBasics();
         }
 
         [HttpGet("[action]")]
         public async Task<ActionResult<PowerPlantDetailsDTO>> getDetailsOfPowerPlant(string id, DateTime? date = null)
         {
-            return await _powerService.getDetailsOfPowerPlant(id, date);
+            return await _powerService.GetDetailsOfPowerPlant(id, date);
         }
 
         [HttpGet("[action]")]
@@ -48,19 +48,19 @@ namespace PowerPlantMapAPI.Controllers
             return await _powerService.InitData(start, end);
         }
 
-        [HttpGet("[action]")]
-        public async Task<CurrentLoadDTO> GetCurrentLoad()
-        {
-            List<DateTime> startend = await _dateService.GetStartAndEnd(false);
-            CurrentLoadDTO apiResponse = await _powerService.GetCurrentLoad(_dateService.EditTime(startend[0]), _dateService.EditTime(startend[1]));
-            return apiResponse;
-        }
+        //[HttpGet("[action]")]
+        //public async Task<CurrentLoadDTO> GetCurrentLoad()
+        //{
+        //    List<DateTime> startend = await _dateService.GetLastDataTime();
+        //    CurrentLoadDTO apiResponse = await _powerService.GetCurrentLoad(_dateService.EditTime(startend[0]), _dateService.EditTime(startend[1]));
+        //    return apiResponse;
+        //}
 
-        [HttpGet("[action]")]
-        public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory()
-        {
-            List<DateTime> startend = await _dateService.GetStartAndEnd(false);
-            return await _powerService.GetLoadHistory(startend[0], startend[1]);
-        }
+        //[HttpGet("[action]")]
+        //public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory()
+        //{
+        //    List<DateTime> startend = await _dateService.GetLastDataTime();
+        //    return await _powerService.GetLoadHistory(startend[0], startend[1]);
+        //}
     }
 }

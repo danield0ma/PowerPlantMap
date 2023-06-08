@@ -17,7 +17,7 @@ namespace PowerPlantMapAPI.Services
             _repository = repository;
         }
 
-        public async Task<ActionResult<IEnumerable<FeatureDTO>>> getPowerPlantBasics()
+        public async Task<ActionResult<IEnumerable<FeatureDTO>>> GetPowerPlantBasics()
         {
             List<PowerPlantDataModel> PowerPlants = await _repository.QueryPowerPlantBasics();
 
@@ -53,7 +53,7 @@ namespace PowerPlantMapAPI.Services
             return await _repository.QueryBasicsOfPowerPlant(id);
         }
 
-        public async Task<ActionResult<PowerPlantDetailsDTO>> getDetailsOfPowerPlant(string id, DateTime? date = null)
+        public async Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string id, DateTime? date = null)
         {
             PowerPlantDetailsDTO PowerPlant = new PowerPlantDetailsDTO();
             PowerPlant.PowerPlantID = id;
@@ -174,16 +174,16 @@ namespace PowerPlantMapAPI.Services
         public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
         {
             List<DateTime> TimeStamps = new List<DateTime>();
-            if (periodStart == null && periodEnd == null)
-            {
-                TimeStamps = await _dateService.GetStartAndEnd(true);
-            }
-            else
+            
+            if (periodStart is DateTime && periodEnd is DateTime)
             {
                 TimeStamps.Add(periodStart.Value);
                 TimeStamps.Add(periodEnd.Value);
             }
-            DateTime start = TimeStamps[0];
+            else
+            {
+                TimeStamps = await _dateService.GetInitDataTimeInterval();
+            }
 
             if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 24)
             {
@@ -195,114 +195,130 @@ namespace PowerPlantMapAPI.Services
                 List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, StartTime, EndTime);
                 List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, StartTime, EndTime);
 
-                await saveData(PowerPlantDataSet, start, false);
-                await saveData(RenewableDataSet, start, false);
-                await saveData(ImportDataSet, start, true);
-                await saveData(ExportDataSet, start, false);
+                await saveData(PowerPlantDataSet, TimeStamps[0], false);
+                await saveData(RenewableDataSet, TimeStamps[0], false);
+                await saveData(ImportDataSet, TimeStamps[0], true);
+                await saveData(ExportDataSet, TimeStamps[0], false);
+            }
+            else if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 48)
+            {
+                //string StartTime = _dateService.EditTime(TimeStamps[0]);
+                //string MiddleTime = _dateService.EditTime(TimeStamps[1].AddHours(-24));
+                //string EndTime = _dateService.EditTime(TimeStamps[1]);
+
+                string Response = await InitData(TimeStamps[0], TimeStamps[0].AddHours(24));
+                //System.Diagnostics.Debug.WriteLine("InitData double call: ", Response);
+                Response = await InitData(TimeStamps[0].AddHours(24), TimeStamps[1]);
+                //System.Diagnostics.Debug.WriteLine("InitData double call: ", Response);
+
+                //List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", StartTime, MiddleTime);
+                //List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", StartTime, MiddleTime);
+                //List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, StartTime, MiddleTime);
+                //List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, StartTime, MiddleTime);
+
+                //await saveData(PowerPlantDataSet, TimeStamps[0], false);
+                //await saveData(RenewableDataSet, TimeStamps[0], false);
+                //await saveData(ImportDataSet, TimeStamps[0], true);
+                //await saveData(ExportDataSet, TimeStamps[0], false);
+
+                //DateTime start = TimeStamps[1].AddHours(-24);
+                //PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", MiddleTime, EndTime);
+                //RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", MiddleTime, EndTime);
+                //ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, MiddleTime, EndTime);
+                //ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, MiddleTime, EndTime);
+
+                //await saveData(PowerPlantDataSet, start, false);
+                //await saveData(RenewableDataSet, start, false);
+                //await saveData(ImportDataSet, start, true);
+                //await saveData(ExportDataSet, start, false);
             }
             else
             {
-                string StartTime = _dateService.EditTime(TimeStamps[0]);
-                string MiddleTime = _dateService.EditTime(TimeStamps[1].AddHours(-24));
-                string EndTime = _dateService.EditTime(TimeStamps[1]);
-
-                List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", StartTime, MiddleTime);
-                List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", StartTime, MiddleTime);
-                List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, StartTime, MiddleTime);
-                List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, StartTime, MiddleTime);
-
-                await saveData(PowerPlantDataSet, start, false);
-                await saveData(RenewableDataSet, start, false);
-                await saveData(ImportDataSet, start, true);
-                await saveData(ExportDataSet, start, false);
-
-                start = TimeStamps[1].AddHours(-24);
-                PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", MiddleTime, EndTime);
-                RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", MiddleTime, EndTime);
-                ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, MiddleTime, EndTime);
-                ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, MiddleTime, EndTime);
-
-                await saveData(PowerPlantDataSet, start, false);
-                await saveData(RenewableDataSet, start, false);
-                await saveData(ImportDataSet, start, true);
-                await saveData(ExportDataSet, start, false);
+                throw new NotImplementedException("Time interval is larger than 48 hours.");
             }
 
-            //var parameter = new { PPID = "PKS" };
-            //List<DateTime> LastData = (List<DateTime>)await _connection.QueryAsync<DateTime>
-            //    ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
             List<DateTime> LastData = await _repository.QueryLastDataTime();
-
             return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
         }
 
-        public async Task<CurrentLoadDTO> GetCurrentLoad(string periodStart, string periodEnd)
-        {
-            XmlNode Period = await APIquery(periodStart, periodEnd);
+        //public async Task<CurrentLoadDTO> GetCurrentLoad(string periodStart, string periodEnd)
+        //{
+        //    XmlNode Period = await APIquery(periodStart, periodEnd);
 
-            CurrentLoadDTO load = new CurrentLoadDTO();
+        //    CurrentLoadDTO load = new CurrentLoadDTO();
 
-            load.end = _dateService.TransformTime(Period.ChildNodes[1].ChildNodes[3].InnerXml);
-            load.CurrentLoad = Int32.Parse(Period.ChildNodes[Period.ChildNodes.Count - 2].ChildNodes[3].InnerXml);
+        //    load.end = _dateService.TransformTime(Period.ChildNodes[1].ChildNodes[3].InnerXml);
+        //    load.CurrentLoad = Int32.Parse(Period.ChildNodes[Period.ChildNodes.Count - 2].ChildNodes[3].InnerXml);
 
-            return load;
-        }
+        //    return load;
+        //}
 
-        public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(DateTime periodStart, DateTime periodEnd)
-        {
-            XmlNode Period = await APIquery(_dateService.EditTime(periodStart), _dateService.EditTime(periodEnd));
+        //public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(DateTime periodStart, DateTime periodEnd)
+        //{
+        //    XmlNode Period = await APIquery(_dateService.EditTime(periodStart), _dateService.EditTime(periodEnd));
 
-            List<CurrentLoadDTO> loadHistory = new List<CurrentLoadDTO>();
+        //    List<CurrentLoadDTO> loadHistory = new List<CurrentLoadDTO>();
 
-            for (int i = 5; i < Period.ChildNodes.Count; i += 2)
-            {
-                CurrentLoadDTO load = new CurrentLoadDTO();
-                load.CurrentLoad = Int32.Parse(Period.ChildNodes[i].ChildNodes[3].InnerXml);
-                periodStart = periodStart.AddMinutes(15);
-                load.end = periodStart;
-                loadHistory.Add(load);
-            }
+        //    for (int i = 5; i < Period.ChildNodes.Count; i += 2)
+        //    {
+        //        CurrentLoadDTO load = new CurrentLoadDTO();
+        //        load.CurrentLoad = Int32.Parse(Period.ChildNodes[i].ChildNodes[3].InnerXml);
+        //        periodStart = periodStart.AddMinutes(15);
+        //        load.end = periodStart;
+        //        loadHistory.Add(load);
+        //    }
 
-            return loadHistory;
-        }
+        //    return loadHistory;
+        //}
 
         private async Task<IEnumerable<PowerOfPowerPlantDTO>> getPPData(string docType, string periodStart, string periodEnd)
         {
-            string documentType = docType;
-            string processType = "A16";
-            string in_Domain = "10YHU-MAVIR----U";
-            string url = "https://web-api.tp.entsoe.eu/api";
-            string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
-
-            string query = url + "?securityToken=" + securityToken +
-                           "&documentType=" + documentType +
-                           "&processType=" + processType +
-                           "&in_Domain=" + in_Domain +
-                           "&periodStart=" + periodStart +
-                           "&periodEnd=" + periodEnd;
-
-            var httpClient = new HttpClient();
-
-            string apiResponse = "";
-            var response = await httpClient.GetAsync(query);
-
-            XmlDocument doc = new XmlDocument();
-            doc.PreserveWhitespace = true;
-
-            apiResponse = await response.Content.ReadAsStringAsync();
-            System.Diagnostics.Debug.WriteLine(apiResponse);
-            
             List<PowerOfPowerPlantDTO> data = new List<PowerOfPowerPlantDTO>();
-            
+
+            XmlDocument doc;
             try
             {
-                doc.Load(new StringReader(apiResponse));
+                doc = await APIquery(docType, periodStart, periodEnd);
             }
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e);
                 return data;
             }
+
+            //string documentType = docType;
+            //string processType = "A16";
+            //string in_Domain = "10YHU-MAVIR----U";
+            //string url = "https://web-api.tp.entsoe.eu/api";
+            //string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
+
+            //string query = url + "?securityToken=" + securityToken +
+            //               "&documentType=" + documentType +
+            //               "&processType=" + processType +
+            //               "&in_Domain=" + in_Domain +
+            //               "&periodStart=" + periodStart +
+            //               "&periodEnd=" + periodEnd;
+
+            //var httpClient = new HttpClient();
+
+            //string apiResponse = "";
+            //var response = await httpClient.GetAsync(query);
+
+            //XmlDocument doc = new XmlDocument();
+            //doc.PreserveWhitespace = true;
+
+            //apiResponse = await response.Content.ReadAsStringAsync();
+            ////System.Diagnostics.Debug.WriteLine(apiResponse);
+
+            //try
+            //{
+            //    doc.Load(new StringReader(apiResponse));
+            //}
+            //catch (Exception e)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(e);
+            //    return data;
+            //}
 
             List<int> sum = new List<int>();
             for (int i = 0; i < 100; i++)
@@ -386,8 +402,12 @@ namespace PowerPlantMapAPI.Services
 
             List<string> NeighbourCountries = new List<string>
             {
-                "10YSK-SEPS-----K", "10YAT-APG------L", "10YSI-ELES-----O",
-                "10YHR-HEP------M", "10YCS-SERBIATSOV", "10YRO-TEL------P",
+                "10YSK-SEPS-----K",
+                "10YAT-APG------L",
+                "10YSI-ELES-----O",
+                "10YHR-HEP------M",
+                "10YCS-SERBIATSOV",
+                "10YRO-TEL------P",
                 "10Y1001C--00003F"
             };
 
@@ -413,7 +433,10 @@ namespace PowerPlantMapAPI.Services
 
                 List<string> problematic = new List<String>
                 {
-                    "10YSK-SEPS-----K", "10YHR-HEP------M", "10YCS-SERBIATSOV", "10Y1001C--00003F"
+                    "10YSK-SEPS-----K",
+                    "10YHR-HEP------M",
+                    "10YCS-SERBIATSOV",
+                    "10Y1001C--00003F"
                 };
 
                 //if (CountryCode == "10YSK-SEPS-----K" || CountryCode == "10YHR-HEP------M" || CountryCode == "10YCS-SERBIATSOV" || CountryCode == "10Y1001C--00003F")
@@ -543,6 +566,42 @@ namespace PowerPlantMapAPI.Services
             return data;
         }
 
+        private async Task<XmlDocument> APIquery(string DocumentType, string periodStart, string periodEnd)
+        {
+            string ProcessType = "A16";
+            string InDomain = "10YHU-MAVIR----U";
+
+            string BaseURL = "https://web-api.tp.entsoe.eu/api";
+            string SecurityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
+
+
+            string Query = BaseURL + "?securityToken=" + SecurityToken +
+                                     "&documentType=" + DocumentType +
+                                     "&processType=" + ProcessType +
+                                     "&outBiddingZone_Domain=" + InDomain +
+                                     "&periodStart=" + periodStart +
+                                     "&periodEnd=" + periodEnd;
+
+            var HttpClient = new HttpClient();
+
+            var Response = await HttpClient.GetAsync(Query);
+            string APIResponse = await Response.Content.ReadAsStringAsync();
+
+            XmlDocument Doc = new XmlDocument();
+            Doc.PreserveWhitespace = true;
+
+            try
+            {
+                Doc.Load(new StringReader(APIResponse));
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+            }
+
+            return Doc;
+        }
+
         private async Task<bool> saveData(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime start, bool import)
         {
             List<string> generators = await _repository.QueryGenerators();
@@ -593,46 +652,6 @@ namespace PowerPlantMapAPI.Services
                 return await InitData(TimeStamps[0].AddHours(-2), TimeStamps[1].AddHours(2));
             }
             return "no InitData";
-        }
-
-        private async Task<XmlNode> APIquery(string periodStart, string periodEnd)
-        {
-            string documentType = "A65";
-            string processType = "A16";
-            string in_Domain = "10YHU-MAVIR----U";
-
-            string url = "https://web-api.tp.entsoe.eu/api";
-            string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
-
-
-            string query = url + "?securityToken=" + securityToken +
-                           "&documentType=" + documentType +
-                           "&processType=" + processType +
-                           "&outBiddingZone_Domain=" + in_Domain +
-                           "&periodStart=" + periodStart +
-                           "&periodEnd=" + periodEnd;
-
-            var httpClient = new HttpClient();
-
-            string apiResponse = "";
-            var response = await httpClient.GetAsync(query);
-
-            apiResponse = await response.Content.ReadAsStringAsync();
-
-            XmlDocument doc = new XmlDocument();
-            doc.PreserveWhitespace = true;
-
-            doc.Load(new StringReader(apiResponse));
-
-            //System.Diagnostics.Debug.WriteLine(doc.ChildNodes[0].ChildNodes.Count);
-            //System.Diagnostics.Debug.WriteLine(doc.ChildNodes[1].ChildNodes.Count);
-            //System.Diagnostics.Debug.WriteLine(doc.ChildNodes[2].ChildNodes.Count);
-
-            System.Diagnostics.Debug.WriteLine(doc.ChildNodes[2].ChildNodes[19].ChildNodes[3].InnerXml);
-
-            XmlNode Period = doc.ChildNodes[2].ChildNodes[21].ChildNodes[13];
-
-            return Period;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace PowerPlantMapAPI.Services
             List<DateTime> TimeStamps = new List<DateTime>();
             if (date == null)
             {
-                TimeStamps = await GetStartAndEnd(false);
+                TimeStamps = await GetLastDataTime();
             }
             else
             {
@@ -56,49 +56,46 @@ namespace PowerPlantMapAPI.Services
             return StartTime;
         }
 
-        public async Task<List<DateTime>> GetStartAndEnd(bool initData)
+        public async Task<List<DateTime>> GetInitDataTimeInterval()
         {
-            DateTime now = DateTime.Now;
-            DateTime end = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-            DateTime start;
+            DateTime end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
+            DateTime start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
 
-            List<DateTime> LastData = await _repository.QueryLastDataTime();
-
-            if (!initData)
+            if (DateTime.Now.Minute < 15)
             {
-                //TODO túl régi adat esetén nincs elérhető adat kiírása...
-                end = LastData[0];
-                start = end.AddDays(-1).AddMinutes(-15);
+                end = end.AddHours(-1);
+                end = end.AddMinutes(45);
+            }
+            else if (DateTime.Now.Minute < 30)
+            {
+                end = end.AddMinutes(0);
+            }
+            else if (DateTime.Now.Minute < 45)
+            {
+                end = end.AddMinutes(15);
             }
             else
             {
-                if (now.Minute < 15)
-                {
-                    end = end.AddHours(now.Hour - 1);
-                    end = end.AddMinutes(45);
-                }
-                else if (now.Minute < 30)
-                {
-                    end = end.AddHours((int)now.Hour);
-                    end = end.AddMinutes(0);
-                }
-                else if (now.Minute < 45)
-                {
-                    end = end.AddHours(now.Hour);
-                    end = end.AddMinutes(15);
-                }
-                else
-                {
-                    end = end.AddHours(now.Hour);
-                    end = end.AddMinutes(30);
-                }
-                start = end.AddHours(-30);
-
-                if (LastData[0] > start)
-                {
-                    start = LastData[0];
-                }
+                end = end.AddMinutes(30);
             }
+            //start = end.AddHours(-30);
+
+            List<DateTime> LastData = await _repository.QueryLastDataTime();
+            if (LastData[0] > start)
+            {
+                start = LastData[0];
+            }
+
+            return new List<DateTime> { start, end };
+        }
+
+        public async Task<List<DateTime>> GetLastDataTime()
+        {
+            List<DateTime> LastData = await _repository.QueryLastDataTime();
+
+            //TODO túl régi adat esetén nincs elérhető adat kiírása...
+            DateTime end = LastData[0];
+            DateTime start = end.AddDays(-1).AddMinutes(-15);
 
             return new List<DateTime> { start, end };
         }

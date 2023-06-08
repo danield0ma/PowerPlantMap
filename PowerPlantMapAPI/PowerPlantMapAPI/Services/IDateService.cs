@@ -5,7 +5,8 @@
         Task<List<DateTime>> CheckDate(DateTime? date = null);
         string getTime(int diff);
         string EditTime(DateTime start);
-        Task<List<DateTime>> GetStartAndEnd(bool initData);
+        Task<List<DateTime>> GetInitDataTimeInterval();
+        Task<List<DateTime>> GetLastDataTime();
         DateTime TransformTime(string time);
     }
 }
