@@ -3,6 +3,7 @@ using Microsoft.VisualBasic;
 using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Models.DTO;
 using PowerPlantMapAPI.Repositories;
+using PowerPlantMapAPI.Helpers;
 using System.Collections.Generic;
 using System.Xml;
 
@@ -12,11 +13,13 @@ namespace PowerPlantMapAPI.Services
     {
         private readonly IDateService _dateService;
         private readonly IPowerRepository _repository;
+        private readonly IPowerHelper _powerHelper;
 
-        public PowerService(IDateService dateService, IPowerRepository repository)
+        public PowerService(IDateService dateService, IPowerRepository repository, IPowerHelper powerHelper)
         {
             _dateService = dateService;
             _repository = repository;
+            _powerHelper = powerHelper;
         }
 
         public async Task<ActionResult<IEnumerable<FeatureDTO>>> GetPowerPlantBasics()
@@ -100,7 +103,7 @@ namespace PowerPlantMapAPI.Services
                     GeneratorDTO Generator = new GeneratorDTO();
                     Generator.GeneratorID = PowerPlantDetails[i].GeneratorID;
                     Generator.MaxCapacity = PowerPlantDetails[i].MaxCapacity;
-                    Generator.PastPower = await GetGeneratorPower(Generator.GeneratorID, PowerPlant.DataStart, PowerPlant.DataEnd);
+                    Generator.PastPower = await _powerHelper.GetGeneratorPower(Generator.GeneratorID, PowerPlant.DataStart, PowerPlant.DataEnd);
                     Generators.Add(Generator);
                     CurrentPower += Generator.PastPower[Generator.PastPower.Count - 1].Power;
                     MaxPower += Generator.MaxCapacity;
@@ -126,7 +129,7 @@ namespace PowerPlantMapAPI.Services
         {
             List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
             int NumberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(TimeStamps[0], TimeStamps[1]);
-            List<PowerStampDTO> PowerStamps = await GetPowerStampsListOfPowerPlant(Id, NumberOfDataPoints, TimeStamps);
+            List<PowerStampDTO> PowerStamps = await _powerHelper.GetPowerStampsListOfPowerPlant(Id, NumberOfDataPoints, TimeStamps);
             return PowerStamps;
         }
 
@@ -153,7 +156,7 @@ namespace PowerPlantMapAPI.Services
             {
                 PowerOfPowerPlantDTO PowerOfPowerPlant = new PowerOfPowerPlantDTO();
                 PowerOfPowerPlant.PowerPlantName = PowerPlant;
-                PowerOfPowerPlant.PowerStamps = await GetPowerStampsListOfPowerPlant(PowerPlant, NumberOfDataPoints, TimeStamps);
+                PowerOfPowerPlant.PowerStamps = await _powerHelper.GetPowerStampsListOfPowerPlant(PowerPlant, NumberOfDataPoints, TimeStamps);
                 Data.Add(PowerOfPowerPlant);
             }
 
@@ -615,28 +618,6 @@ namespace PowerPlantMapAPI.Services
             return true;
         }
 
-        private async Task<List<GeneratorPowerDTO>> GetGeneratorPower(string generator, DateTime start, DateTime end)
-        {
-            List<PastActivityModel> PastActivity = await _repository.QueryPastActivity(generator, start, end);
-
-            List<GeneratorPowerDTO> PastPowerOfGenerator = new List<GeneratorPowerDTO>();
-            foreach (var Activity in PastActivity)
-            {
-                GeneratorPowerDTO GeneratorPower = new GeneratorPowerDTO();
-                GeneratorPower.TimePoint = Activity.PeriodStart;
-                GeneratorPower.Power = Activity.ActualPower;
-                PastPowerOfGenerator.Add(GeneratorPower);
-            }
-
-            int NumberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(start, end);
-
-            for (int i = PastPowerOfGenerator.Count; i < NumberOfDataPoints; i++)
-            {
-                PastPowerOfGenerator.Add(new GeneratorPowerDTO());
-            }
-            return PastPowerOfGenerator;
-        }
-
         private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(List<DateTime> TimeStamps)
         {
             List<PastActivityModel> PastActivity = await _repository.QueryPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
@@ -647,84 +628,5 @@ namespace PowerPlantMapAPI.Services
             }
             return "no InitData";
         }
-
-        private async Task<List<PowerStampDTO>> GetPowerStampsListOfPowerPlant(string Id, int NumberOfDataPoints, List<DateTime> TimeStamps)
-        {
-            List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
-            for (int i = 0; i < NumberOfDataPoints; i++)
-            {
-                PowerStampDTO PowerStamp = new PowerStampDTO();
-                PowerStamp.Start = TimeStamps[0].AddMinutes(i * 15);
-                PowerStamp.Power = 0;
-                PowerStamps.Add(PowerStamp);
-            }
-
-            List<string> Generators = await _repository.QueryGeneratorsOfPowerPlant(Id);
-            foreach (string Generator in Generators)
-            {
-                List<GeneratorPowerDTO> GeneratorPowers = await GetGeneratorPower(Generator, TimeStamps[0], TimeStamps[1]);
-                foreach (GeneratorPowerDTO GeneratorPower in GeneratorPowers)
-                {
-                    List<PowerStampDTO> Matches = (List<PowerStampDTO>)PowerStamps.Where(x => x.Start == GeneratorPower.TimePoint).ToList();
-                    foreach (PowerStampDTO Match in Matches)
-                    {
-                        Match.Power += GeneratorPower.Power;
-                    }
-                }
-            }
-            return PowerStamps;
-        }
     }
 }
-
-//'Biomass': 'B01',
-//'Coal': 'B02',
-//'Natural Gas': 'B04',
-//'Hard Coal': 'B05',
-//'Hydro': 'B11',
-//'Hydro Water Reservoir': 'B12',
-//'Nuclear': 'B14',
-//'Solar': 'B16',
-//'Wind': 'B18',
-//'Onshore Wind': 'B19'
-
-//'Albania': '10YAL-KESH-----5',
-//'Austria': '10YAT-APG------L',
-//'Belarus': 'BY',
-//'Belgium': '10YBE----------2',
-//'Bosnia': '10YBA-JPCC-----D',
-//'Bulgaria': '10YCA-BULGARIA-R',
-//'Croatia': '10YHR-HEP------M',
-//'Cyprus': '10YCY-1001A0003J',
-//'Czech': '10YCZ-CEPS-----N',
-//'Denmark': '10Y1001A1001A65H',
-//'Estonia': '10Y1001A1001A39I',
-//'Finland': '10YFI-1--------U',
-//'France': '10YFR-RTE------C',
-//#'Germany': '10Y1001A1001A82H',
-//'Germany': '10Y1001A1001A83F',
-//'Greece': '10YGR-HTSO-----Y',
-//'Hungary': '10YHU-MAVIR----U',
-//'Iceland': 'IS',
-//'Ireland': '10Y1001A1001A59C',
-//'Italy': '10YIT-GRTN-----B',
-//'Latvia': '10YLV-1001A00074',
-//'Lithuania': '10YLT-1001A0008Q',
-//'Louxembourg': '10YLU-CEGEDEL-NQ',
-//'Malta': '10Y1001A1001A93C',
-//'Moldova': '10Y1001A1001A990',
-//'Montenegro': '10YCS-CG-TSO---S',
-//'Netherlands': '10YNL----------L',
-//'Norway': '10YNO-0--------C',
-//'Poland': '10YPL-AREA-----S',
-//'Portugal': '10YPT-REN------W',
-//'Romania': '10YRO-TEL------P',
-//'Serbia': '10YCS-SERBIATSOV',
-//'Slovakia': '10YSK-SEPS-----K',
-//'Slovenia': '10YSI-ELES-----O',
-//'Spain': '10YES-REE------0',
-//'Sweden': '10YSE-1--------K',
-//'Switzerland': '10YCH-SWISSGRIDZ',
-//'Turkey': 'TR',
-//'UK': 'GB',
-//'Ukraine': '10Y1001C--00003F'
