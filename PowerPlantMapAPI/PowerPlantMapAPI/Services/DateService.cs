@@ -91,13 +91,13 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<List<DateTime>> GetLastDataTime()
         {
-            List<DateTime> LastData = await _repository.QueryLastDataTime();
+            List<DateTime> LastDataTime = await _repository.QueryLastDataTime();
 
             //TODO túl régi adat esetén nincs elérhető adat kiírása...
-            DateTime end = LastData[0];
-            DateTime start = end.AddDays(-1).AddMinutes(-15);
+            DateTime End = LastDataTime[0];
+            DateTime Start = End.AddDays(-1)/*.AddMinutes(-15)*/;
 
-            return new List<DateTime> { start, end };
+            return new List<DateTime> { Start, End };
         }
 
         public DateTime TransformTime(string time)

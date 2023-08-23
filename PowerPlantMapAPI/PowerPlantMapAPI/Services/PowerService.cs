@@ -100,9 +100,9 @@ namespace PowerPlantMapAPI.Services
                     GeneratorDTO Generator = new GeneratorDTO();
                     Generator.GeneratorID = PowerPlantDetails[i].GeneratorID;
                     Generator.MaxCapacity = PowerPlantDetails[i].MaxCapacity;
-                    Generator.CurrentPower = await GetGeneratorPower(Generator.GeneratorID, TimeStamps[0], TimeStamps[1]);
+                    Generator.PastPower = await GetGeneratorPower(Generator.GeneratorID, TimeStamps[0], TimeStamps[1]);
                     Generators.Add(Generator);
-                    CurrentPower += Generator.CurrentPower[0];
+                    CurrentPower += Generator.PastPower[0].Power;
                     MaxPower += Generator.MaxCapacity;
                     i++;
                 }
@@ -122,42 +122,39 @@ namespace PowerPlantMapAPI.Services
             return PowerPlant;
         }
 
-        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null, DateTime? Start = null, DateTime? End = null)
+        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
         {
             PowerOfPowerPlantsDTO PowerOfPowerPlants = new PowerOfPowerPlantsDTO();
             List<string> PowerPlants = await _repository.QueryPowerPlants();
 
-            List<DateTime> TimeStamps = await _dateService.CheckDate(date);
+            List<DateTime> TimeStamps = await _dateService.CheckDate(Date);
             PowerOfPowerPlants.Start = TimeStamps[0];
             PowerOfPowerPlants.End = TimeStamps[1];
 
-            if (Start != null && End != null)
+            if (Date == null && Start != null && End != null)
             {
                 PowerOfPowerPlants.Start = (DateTime)Start;
                 PowerOfPowerPlants.End = (DateTime)End;
             }
 
-            if (date != null)
+            if (Date != null)
             {
                 string msg = await CheckData(TimeStamps);
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
-            Console.WriteLine(PowerOfPowerPlants.Start);
-            Console.WriteLine(PowerOfPowerPlants.End);
-
             int NumberOfDataPoints = _dateService.CalculateTheNumberOIntervals(PowerOfPowerPlants.Start, PowerOfPowerPlants.End);
-            System.Diagnostics.Debug.WriteLine(NumberOfDataPoints);
 
-            List<PowerOfPowerPlantDTO> PowerOfPP = new List<PowerOfPowerPlantDTO>();
+            List<PowerOfPowerPlantDTO> Data = new List<PowerOfPowerPlantDTO>();
 
             foreach (string PowerPlant in PowerPlants)
             {
                 PowerOfPowerPlantDTO PowerOfPowerPlant = new PowerOfPowerPlantDTO();
                 PowerOfPowerPlant.PowerPlantName = PowerPlant;
+
                 List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
 
-                for (int i = 0; i <= NumberOfDataPoints; i++)
+                for (int i = 0; i < NumberOfDataPoints; i++)
                 {
                     PowerStampDTO PowerStamp = new PowerStampDTO();
                     PowerStamp.Start = PowerOfPowerPlants.Start.AddMinutes(i * 15);
@@ -169,18 +166,22 @@ namespace PowerPlantMapAPI.Services
 
                 foreach (string Generator in Generators)
                 {
-                    List<int> GeneratorPowers = await GetGeneratorPower(Generator, PowerOfPowerPlants.Start, PowerOfPowerPlants.End);
-                    for (int i = 0; i < GeneratorPowers.Count; i++)
+                    List<GeneratorPowerDTO> GeneratorPowers = await GetGeneratorPower(Generator, PowerOfPowerPlants.Start, PowerOfPowerPlants.End);
+                    foreach(GeneratorPowerDTO GeneratorPower in GeneratorPowers)
                     {
-                        PowerStamps[i].Power += GeneratorPowers[i];
+                        List<PowerStampDTO> Matches = (List<PowerStampDTO>)PowerStamps.Where(x => x.Start == GeneratorPower.TimePoint).ToList();
+                        foreach (PowerStampDTO Match in Matches)
+                        {
+                            Match.Power += GeneratorPower.Power;
+                        }
                     }
                 }
 
                 PowerOfPowerPlant.PowerStamps = PowerStamps;
-                PowerOfPP.Add(PowerOfPowerPlant);
+                Data.Add(PowerOfPowerPlant);
             }
 
-            PowerOfPowerPlants.Data = PowerOfPP;
+            PowerOfPowerPlants.Data = Data;
             return PowerOfPowerPlants;
         }
 
@@ -638,24 +639,27 @@ namespace PowerPlantMapAPI.Services
             return true;
         }
 
-        private async Task<List<int>> GetGeneratorPower(string generator, DateTime start, DateTime end)
-        //TODO GeneratorPowerDTO-val térjen vissza, hogy ne a frontenden kelljen az időket hozzáigazítani
+        private async Task<List<GeneratorPowerDTO>> GetGeneratorPower(string generator, DateTime start, DateTime end)
+        //TODO GeneratorPowerDTO-val térjen vissza, hogy ne a frontenden kelljen az időket hozzáigazítani és az utolsót már hagyja ki
         {
             List<PastActivityModel> PastActivity = await _repository.QueryPastActivity(generator, start, end);
 
-            List<int> power = new List<int>();
+            List<GeneratorPowerDTO> PastPowerOfGenerator = new List<GeneratorPowerDTO>();
             foreach (var Activity in PastActivity)
             {
-                power.Add(Activity.ActualPower);
+                GeneratorPowerDTO GeneratorPower = new GeneratorPowerDTO();
+                GeneratorPower.TimePoint = Activity.PeriodStart;
+                GeneratorPower.Power = Activity.ActualPower;
+                PastPowerOfGenerator.Add(GeneratorPower);
             }
 
             int NumberOfDataPoints = _dateService.CalculateTheNumberOIntervals(start, end);
 
-            for (int i = power.Count; i < NumberOfDataPoints; i++)
+            for (int i = PastPowerOfGenerator.Count; i < NumberOfDataPoints; i++)
             {
-                power.Add(0);
+                PastPowerOfGenerator.Add(new GeneratorPowerDTO());
             }
-            return power;
+            return PastPowerOfGenerator;
         }
 
         private async Task<string> CheckData(List<DateTime> TimeStamps)

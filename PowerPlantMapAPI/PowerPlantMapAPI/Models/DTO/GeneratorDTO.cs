@@ -4,6 +4,6 @@
     {
         public string GeneratorID { get; set; }
         public int MaxCapacity { get; set; }
-        public List<int> CurrentPower { get; set; }
+        public List<GeneratorPowerDTO> PastPower { get; set; }
     }
 }

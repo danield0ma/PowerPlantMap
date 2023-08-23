@@ -39,7 +39,7 @@ namespace PowerPlantMapAPI.Repositories
 
         public async Task<List<PastActivityModel>> QueryPastActivity(string generator, DateTime start, DateTime end)
         {
-            var parameters = new { GID = generator, start = start, end = end.AddMinutes(15) };
+            var parameters = new { GID = generator, start = start, end = end };
             List<PastActivityModel> PastActivity = (List<PastActivityModel>)await _connection.QueryAsync<PastActivityModel>
                 ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
             return PastActivity;
