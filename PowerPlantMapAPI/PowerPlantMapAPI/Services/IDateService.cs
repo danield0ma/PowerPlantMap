@@ -8,5 +8,6 @@
         Task<List<DateTime>> GetInitDataTimeInterval();
         Task<List<DateTime>> GetLastDataTime();
         DateTime TransformTime(string time);
+        int CalculateTheNumberOIntervals(DateTime Start, DateTime End);
     }
 }

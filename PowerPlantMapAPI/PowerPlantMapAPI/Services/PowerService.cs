@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Models.DTO;
 using PowerPlantMapAPI.Repositories;
@@ -10,7 +11,7 @@ namespace PowerPlantMapAPI.Services
     {
         private readonly IDateService _dateService;
         private readonly IPowerRepository _repository;
-        
+
         public PowerService(IDateService dateService, IPowerRepository repository)
         {
             _dateService = dateService;
@@ -21,7 +22,7 @@ namespace PowerPlantMapAPI.Services
         {
             List<PowerPlantDataModel> PowerPlants = await _repository.QueryPowerPlantBasics();
 
-            List <FeatureDTO> PowerPlantBasics = new List<FeatureDTO>();
+            List<FeatureDTO> PowerPlantBasics = new List<FeatureDTO>();
 
             foreach (var PowerPlant in PowerPlants)
             {
@@ -71,8 +72,8 @@ namespace PowerPlantMapAPI.Services
 
             List<PowerPlantDetailsModel> PowerPlantDetails = await _repository.QueryPowerPlantDetails(id);
 
-            List <DateTime> TimeStamps = await _dateService.CheckDate(date);
-            
+            List<DateTime> TimeStamps = await _dateService.CheckDate(date);
+
             if (date != null)
             {
                 string msg = await CheckData(TimeStamps);
@@ -121,7 +122,7 @@ namespace PowerPlantMapAPI.Services
             return PowerPlant;
         }
 
-        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null)
+        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null, DateTime? Start = null, DateTime? End = null)
         {
             PowerOfPowerPlantsDTO PowerOfPowerPlants = new PowerOfPowerPlantsDTO();
             List<string> PowerPlants = await _repository.QueryPowerPlants();
@@ -130,11 +131,23 @@ namespace PowerPlantMapAPI.Services
             PowerOfPowerPlants.Start = TimeStamps[0];
             PowerOfPowerPlants.End = TimeStamps[1];
 
+            if (Start != null && End != null)
+            {
+                PowerOfPowerPlants.Start = (DateTime)Start;
+                PowerOfPowerPlants.End = (DateTime)End;
+            }
+
             if (date != null)
             {
                 string msg = await CheckData(TimeStamps);
                 System.Diagnostics.Debug.WriteLine(msg);
             }
+
+            Console.WriteLine(PowerOfPowerPlants.Start);
+            Console.WriteLine(PowerOfPowerPlants.End);
+
+            int NumberOfDataPoints = _dateService.CalculateTheNumberOIntervals(PowerOfPowerPlants.Start, PowerOfPowerPlants.End);
+            System.Diagnostics.Debug.WriteLine(NumberOfDataPoints);
 
             List<PowerOfPowerPlantDTO> PowerOfPP = new List<PowerOfPowerPlantDTO>();
 
@@ -144,7 +157,7 @@ namespace PowerPlantMapAPI.Services
                 PowerOfPowerPlant.PowerPlantName = PowerPlant;
                 List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
 
-                for (int i = 0; i < 97; i++)
+                for (int i = 0; i <= NumberOfDataPoints; i++)
                 {
                     PowerStampDTO PowerStamp = new PowerStampDTO();
                     PowerStamp.Start = PowerOfPowerPlants.Start.AddMinutes(i * 15);
@@ -156,8 +169,8 @@ namespace PowerPlantMapAPI.Services
 
                 foreach (string Generator in Generators)
                 {
-                    List<int> GeneratorPowers = await GetGeneratorPower(Generator, TimeStamps[0], TimeStamps[1]);
-                    for (int i = 0; i < 97; i++)
+                    List<int> GeneratorPowers = await GetGeneratorPower(Generator, PowerOfPowerPlants.Start, PowerOfPowerPlants.End);
+                    for (int i = 0; i < GeneratorPowers.Count; i++)
                     {
                         PowerStamps[i].Power += GeneratorPowers[i];
                     }
@@ -174,7 +187,7 @@ namespace PowerPlantMapAPI.Services
         public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
         {
             List<DateTime> TimeStamps = new List<DateTime>();
-            
+
             if (periodStart is DateTime && periodEnd is DateTime)
             {
                 TimeStamps.Add(periodStart.Value);
@@ -481,7 +494,7 @@ namespace PowerPlantMapAPI.Services
                     System.Diagnostics.Debug.WriteLine(e);
                     ChildNodeCount = 0;
                 }
-                
+
                 if (ChildNodeCount != 0)
                 {
                     XmlNode Period = TimeSeries.ChildNodes[13];
@@ -492,7 +505,7 @@ namespace PowerPlantMapAPI.Services
                         PowerStampDTO PowerStamp = new PowerStampDTO();
                         int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
 
-                        if(export)
+                        if (export)
                         {
                             p *= -1;
                         }
@@ -519,7 +532,7 @@ namespace PowerPlantMapAPI.Services
                                     n = 1;
                                 }
                             }
-                            
+
                             else if (j == Period.ChildNodes.Count - 1)
                             {
                                 if (periodEnd.Substring(10, 2) == "15")
@@ -544,7 +557,7 @@ namespace PowerPlantMapAPI.Services
 
                         PowerStamp.Start = DateTime.Now;
                         PowerStamp.Power = p;
-                        
+
                         for (int i = 0; i < n; i++)
                         {
                             PowerStamps.Add(PowerStamp);
@@ -618,7 +631,7 @@ namespace PowerPlantMapAPI.Services
                         {
                             await _repository.InsertData(PowerData.PowerPlantName, PeriodStart, PowerStamp.Power);
                         }
-                        
+
                     }
                 }
             }
@@ -636,7 +649,9 @@ namespace PowerPlantMapAPI.Services
                 power.Add(Activity.ActualPower);
             }
 
-            for (int i = power.Count; i < 97; i++)
+            int NumberOfDataPoints = _dateService.CalculateTheNumberOIntervals(start, end);
+
+            for (int i = power.Count; i < NumberOfDataPoints; i++)
             {
                 power.Add(0);
             }
@@ -667,43 +682,43 @@ namespace PowerPlantMapAPI.Services
 //'Wind': 'B18',
 //'Onshore Wind': 'B19'
 
-          //'Albania': '10YAL-KESH-----5',
-          //'Austria': '10YAT-APG------L',
-          //'Belarus': 'BY',
-          //'Belgium': '10YBE----------2',
-          //'Bosnia': '10YBA-JPCC-----D',
-          //'Bulgaria': '10YCA-BULGARIA-R',
-          //'Croatia': '10YHR-HEP------M',
-          //'Cyprus': '10YCY-1001A0003J',
-          //'Czech': '10YCZ-CEPS-----N',
-          //'Denmark': '10Y1001A1001A65H',
-          //'Estonia': '10Y1001A1001A39I',
-          //'Finland': '10YFI-1--------U',
-          //'France': '10YFR-RTE------C',
-          //#'Germany': '10Y1001A1001A82H',
-          //'Germany': '10Y1001A1001A83F',
-          //'Greece': '10YGR-HTSO-----Y',
-          //'Hungary': '10YHU-MAVIR----U',
-          //'Iceland': 'IS',
-          //'Ireland': '10Y1001A1001A59C',
-          //'Italy': '10YIT-GRTN-----B',
-          //'Latvia': '10YLV-1001A00074',
-          //'Lithuania': '10YLT-1001A0008Q',
-          //'Louxembourg': '10YLU-CEGEDEL-NQ',
-          //'Malta': '10Y1001A1001A93C',
-          //'Moldova': '10Y1001A1001A990',
-          //'Montenegro': '10YCS-CG-TSO---S',
-          //'Netherlands': '10YNL----------L',
-          //'Norway': '10YNO-0--------C',
-          //'Poland': '10YPL-AREA-----S',
-          //'Portugal': '10YPT-REN------W',
-          //'Romania': '10YRO-TEL------P',
-          //'Serbia': '10YCS-SERBIATSOV',
-          //'Slovakia': '10YSK-SEPS-----K',
-          //'Slovenia': '10YSI-ELES-----O',
-          //'Spain': '10YES-REE------0',
-          //'Sweden': '10YSE-1--------K',
-          //'Switzerland': '10YCH-SWISSGRIDZ',
-          //'Turkey': 'TR',
-          //'UK': 'GB',
-          //'Ukraine': '10Y1001C--00003F'
+//'Albania': '10YAL-KESH-----5',
+//'Austria': '10YAT-APG------L',
+//'Belarus': 'BY',
+//'Belgium': '10YBE----------2',
+//'Bosnia': '10YBA-JPCC-----D',
+//'Bulgaria': '10YCA-BULGARIA-R',
+//'Croatia': '10YHR-HEP------M',
+//'Cyprus': '10YCY-1001A0003J',
+//'Czech': '10YCZ-CEPS-----N',
+//'Denmark': '10Y1001A1001A65H',
+//'Estonia': '10Y1001A1001A39I',
+//'Finland': '10YFI-1--------U',
+//'France': '10YFR-RTE------C',
+//#'Germany': '10Y1001A1001A82H',
+//'Germany': '10Y1001A1001A83F',
+//'Greece': '10YGR-HTSO-----Y',
+//'Hungary': '10YHU-MAVIR----U',
+//'Iceland': 'IS',
+//'Ireland': '10Y1001A1001A59C',
+//'Italy': '10YIT-GRTN-----B',
+//'Latvia': '10YLV-1001A00074',
+//'Lithuania': '10YLT-1001A0008Q',
+//'Louxembourg': '10YLU-CEGEDEL-NQ',
+//'Malta': '10Y1001A1001A93C',
+//'Moldova': '10Y1001A1001A990',
+//'Montenegro': '10YCS-CG-TSO---S',
+//'Netherlands': '10YNL----------L',
+//'Norway': '10YNO-0--------C',
+//'Poland': '10YPL-AREA-----S',
+//'Portugal': '10YPT-REN------W',
+//'Romania': '10YRO-TEL------P',
+//'Serbia': '10YCS-SERBIATSOV',
+//'Slovakia': '10YSK-SEPS-----K',
+//'Slovenia': '10YSI-ELES-----O',
+//'Spain': '10YES-REE------0',
+//'Sweden': '10YSE-1--------K',
+//'Switzerland': '10YCH-SWISSGRIDZ',
+//'Turkey': 'TR',
+//'UK': 'GB',
+//'Ukraine': '10Y1001C--00003F'

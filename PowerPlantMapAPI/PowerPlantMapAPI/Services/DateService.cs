@@ -5,7 +5,7 @@ namespace PowerPlantMapAPI.Services
     public class DateService : IDateService
     {
         private readonly IPowerRepository _repository;
-        
+
         public DateService(IPowerRepository repository)
         {
             _repository = repository;
@@ -107,6 +107,13 @@ namespace PowerPlantMapAPI.Services
                 Int32.Parse(time.Substring(11, 2)), Int32.Parse(time.Substring(14, 2)), 00);
 
             return t;
+        }
+
+        public int CalculateTheNumberOIntervals(DateTime Start, DateTime End)
+        {
+            TimeSpan Period = End - Start;
+            int NumberOfDataPoints = (int)Period.TotalMinutes / 15;
+            return NumberOfDataPoints;
         }
     }
 }
