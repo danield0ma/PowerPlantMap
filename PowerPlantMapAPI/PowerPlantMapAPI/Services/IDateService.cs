@@ -2,7 +2,7 @@
 {
     public interface IDateService
     {
-        Task<List<DateTime>> CheckDate(DateTime? date = null);
+        Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? date = null, DateTime? Start = null, DateTime? End = null);
         string getTime(int diff);
         string EditTime(DateTime start);
         Task<List<DateTime>> GetInitDataTimeInterval();

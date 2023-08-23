@@ -8,8 +8,9 @@ namespace PowerPlantMapAPI.Services
     {
         Task<ActionResult<IEnumerable<FeatureDTO>>> GetPowerPlantBasics();
         Task<PowerPlantDataModel> GetBasicsOfPowerPlant(string id);
-        Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string id, DateTime? date = null);
-        Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null, DateTime? Start = null, DateTime? End = null);
+        Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null);
+        //Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlant(string Id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null);
+        Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? Date = null, DateTime? Start = null, DateTime? End = null);
         Task<string> InitData(DateTime? periodStart, DateTime? periodEnd);
     }
 }

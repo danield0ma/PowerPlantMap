@@ -54,38 +54,37 @@ namespace PowerPlantMapAPI.Services
             return await _repository.QueryBasicsOfPowerPlant(id);
         }
 
-        public async Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string id, DateTime? date = null)
+        public async Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string Id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
         {
             PowerPlantDetailsDTO PowerPlant = new PowerPlantDetailsDTO();
-            PowerPlant.PowerPlantID = id;
-            PowerPlantDataModel PP = await GetBasicsOfPowerPlant(id);
+            PowerPlant.PowerPlantID = Id;
+            PowerPlantDataModel BasicsOfPowerPlant = await GetBasicsOfPowerPlant(Id);
 
-            PowerPlant.name = PP.name;
-            PowerPlant.description = PP.description;
-            PowerPlant.OperatorCompany = PP.OperatorCompany;
-            PowerPlant.webpage = PP.webpage;
-            PowerPlant.Color = PP.color;
-            PowerPlant.Address = PP.address;
-            PowerPlant.IsCountry = PP.IsCountry;
-            PowerPlant.longitude = Math.Round(PP.longitude, 4);
-            PowerPlant.latitude = Math.Round(PP.latitude, 4);
+            PowerPlant.name = BasicsOfPowerPlant.name;
+            PowerPlant.description = BasicsOfPowerPlant.description;
+            PowerPlant.OperatorCompany = BasicsOfPowerPlant.OperatorCompany;
+            PowerPlant.webpage = BasicsOfPowerPlant.webpage;
+            PowerPlant.Color = BasicsOfPowerPlant.color;
+            PowerPlant.Address = BasicsOfPowerPlant.address;
+            PowerPlant.IsCountry = BasicsOfPowerPlant.IsCountry;
+            PowerPlant.longitude = Math.Round(BasicsOfPowerPlant.longitude, 4);
+            PowerPlant.latitude = Math.Round(BasicsOfPowerPlant.latitude, 4);
 
-            List<PowerPlantDetailsModel> PowerPlantDetails = await _repository.QueryPowerPlantDetails(id);
+            List<PowerPlantDetailsModel> PowerPlantDetails = await _repository.QueryPowerPlantDetails(Id);
 
-            List<DateTime> TimeStamps = await _dateService.CheckDate(date);
-
-            if (date != null)
+            List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
+            PowerPlant.DataStart = TimeStamps[0];
+            PowerPlant.DataEnd = TimeStamps[1];
+            
+            if (Date != null)
             {
-                string msg = await CheckData(TimeStamps);
+                string msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(TimeStamps);
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
-            PowerPlant.DataStart = TimeStamps[0];
-            PowerPlant.DataEnd = TimeStamps[1];
-
-            int PPMaxPower = 0, PPCurrentPower = 0;
+            int PPMaxPower = 0, PPCurrentPower = 0, i = 0;
             List<BlocDTO> Blocs = new List<BlocDTO>();
-            for (int i = 0; i < PowerPlantDetails.Count; i += 0)
+            while (i < PowerPlantDetails.Count)
             {
                 BlocDTO Bloc = new BlocDTO();
                 Bloc.BlocID = PowerPlantDetails[i].BlocId;
@@ -100,9 +99,9 @@ namespace PowerPlantMapAPI.Services
                     GeneratorDTO Generator = new GeneratorDTO();
                     Generator.GeneratorID = PowerPlantDetails[i].GeneratorID;
                     Generator.MaxCapacity = PowerPlantDetails[i].MaxCapacity;
-                    Generator.PastPower = await GetGeneratorPower(Generator.GeneratorID, TimeStamps[0], TimeStamps[1]);
+                    Generator.PastPower = await GetGeneratorPower(Generator.GeneratorID, PowerPlant.DataStart, PowerPlant.DataEnd);
                     Generators.Add(Generator);
-                    CurrentPower += Generator.PastPower[0].Power;
+                    CurrentPower += Generator.PastPower[Generator.PastPower.Count - 1].Power;
                     MaxPower += Generator.MaxCapacity;
                     i++;
                 }
@@ -122,24 +121,26 @@ namespace PowerPlantMapAPI.Services
             return PowerPlant;
         }
 
+        //TODO: GetPowerOfPowerPlant method
+
         public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
         {
             PowerOfPowerPlantsDTO PowerOfPowerPlants = new PowerOfPowerPlantsDTO();
             List<string> PowerPlants = await _repository.QueryPowerPlants();
 
-            List<DateTime> TimeStamps = await _dateService.CheckDate(Date);
+            List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
             PowerOfPowerPlants.Start = TimeStamps[0];
             PowerOfPowerPlants.End = TimeStamps[1];
 
-            if (Date == null && Start != null && End != null)
-            {
-                PowerOfPowerPlants.Start = (DateTime)Start;
-                PowerOfPowerPlants.End = (DateTime)End;
-            }
+            //if (Date == null && Start != null && End != null)
+            //{
+            //    PowerOfPowerPlants.Start = (DateTime)Start;
+            //    PowerOfPowerPlants.End = (DateTime)End;
+            //}
 
             if (Date != null)
             {
-                string msg = await CheckData(TimeStamps);
+                string msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(TimeStamps);
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
@@ -662,7 +663,7 @@ namespace PowerPlantMapAPI.Services
             return PastPowerOfGenerator;
         }
 
-        private async Task<string> CheckData(List<DateTime> TimeStamps)
+        private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(List<DateTime> TimeStamps)
         {
             List<PastActivityModel> PastActivity = await _repository.QueryPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
 

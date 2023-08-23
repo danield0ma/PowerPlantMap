@@ -11,20 +11,24 @@ namespace PowerPlantMapAPI.Services
             _repository = repository;
         }
 
-        public async Task<List<DateTime>> CheckDate(DateTime? date = null)
+        public async Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
         {
             List<DateTime> TimeStamps = new List<DateTime>();
-            if (date == null)
+
+            if (Date != null)
             {
-                TimeStamps = await GetLastDataTime();
+                TimeStamps.Add(new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0));
+                Date = Date.Value.AddDays(1);
+                TimeStamps.Add(new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0));
+            }
+            else if (Start != null && End != null)
+            {
+                TimeStamps.Add((DateTime)Start);
+                TimeStamps.Add((DateTime)End);
             }
             else
             {
-                DateTime Start = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0);
-                date = date.Value.AddDays(1);
-                DateTime End = new DateTime(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0);
-                TimeStamps.Add(Start);
-                TimeStamps.Add(End);
+                TimeStamps = await GetLastDataTime();
             }
 
             return TimeStamps;
