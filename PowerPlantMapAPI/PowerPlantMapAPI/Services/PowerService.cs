@@ -122,6 +122,28 @@ namespace PowerPlantMapAPI.Services
         }
 
         //TODO: GetPowerOfPowerPlant method
+        public async Task<IEnumerable<PowerStampDTO>> GetPowerOfPowerPlant(string Id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
+        {
+            List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
+            int NumberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(TimeStamps[0], TimeStamps[1]);
+            List<PowerStampDTO> PowerStamps = GeneratePowerStampsList(NumberOfDataPoints, TimeStamps[0]);
+            
+            List<string> Generators = await _repository.QueryGeneratorsOfPowerPlant(Id);
+            foreach (string Generator in Generators)
+            {
+                List<GeneratorPowerDTO> GeneratorPowers = await GetGeneratorPower(Generator, TimeStamps[0], TimeStamps[1]);
+                foreach (GeneratorPowerDTO GeneratorPower in GeneratorPowers)
+                {
+                    List<PowerStampDTO> Matches = (List<PowerStampDTO>)PowerStamps.Where(x => x.Start == GeneratorPower.TimePoint).ToList();
+                    foreach (PowerStampDTO Match in Matches)
+                    {
+                        Match.Power += GeneratorPower.Power;
+                    }
+                }
+            }
+
+            return PowerStamps;
+        }
 
         public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
         {
@@ -132,19 +154,13 @@ namespace PowerPlantMapAPI.Services
             PowerOfPowerPlants.Start = TimeStamps[0];
             PowerOfPowerPlants.End = TimeStamps[1];
 
-            //if (Date == null && Start != null && End != null)
-            //{
-            //    PowerOfPowerPlants.Start = (DateTime)Start;
-            //    PowerOfPowerPlants.End = (DateTime)End;
-            //}
-
             if (Date != null)
             {
                 string msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(TimeStamps);
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
-            int NumberOfDataPoints = _dateService.CalculateTheNumberOIntervals(PowerOfPowerPlants.Start, PowerOfPowerPlants.End);
+            int NumberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(PowerOfPowerPlants.Start, PowerOfPowerPlants.End);
 
             List<PowerOfPowerPlantDTO> Data = new List<PowerOfPowerPlantDTO>();
 
@@ -153,16 +169,7 @@ namespace PowerPlantMapAPI.Services
                 PowerOfPowerPlantDTO PowerOfPowerPlant = new PowerOfPowerPlantDTO();
                 PowerOfPowerPlant.PowerPlantName = PowerPlant;
 
-                List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
-
-                for (int i = 0; i < NumberOfDataPoints; i++)
-                {
-                    PowerStampDTO PowerStamp = new PowerStampDTO();
-                    PowerStamp.Start = PowerOfPowerPlants.Start.AddMinutes(i * 15);
-                    PowerStamp.Power = 0;
-                    PowerStamps.Add(PowerStamp);
-                }
-
+                List<PowerStampDTO> PowerStamps = GeneratePowerStampsList(NumberOfDataPoints, PowerOfPowerPlants.Start);
                 List<string> Generators = await _repository.QueryGeneratorsOfPowerPlant(PowerPlant);
 
                 foreach (string Generator in Generators)
@@ -654,7 +661,7 @@ namespace PowerPlantMapAPI.Services
                 PastPowerOfGenerator.Add(GeneratorPower);
             }
 
-            int NumberOfDataPoints = _dateService.CalculateTheNumberOIntervals(start, end);
+            int NumberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(start, end);
 
             for (int i = PastPowerOfGenerator.Count; i < NumberOfDataPoints; i++)
             {
@@ -672,6 +679,19 @@ namespace PowerPlantMapAPI.Services
                 return await InitData(TimeStamps[0].AddHours(-2), TimeStamps[1].AddHours(2));
             }
             return "no InitData";
+        }
+
+        private List<PowerStampDTO> GeneratePowerStampsList(int NumberOfDataPoints, DateTime Start)
+        {
+            List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
+            for (int i = 0; i < NumberOfDataPoints; i++)
+            {
+                PowerStampDTO PowerStamp = new PowerStampDTO();
+                PowerStamp.Start = Start.AddMinutes(i * 15);
+                PowerStamp.Power = 0;
+                PowerStamps.Add(PowerStamp);
+            }
+            return PowerStamps;
         }
     }
 }

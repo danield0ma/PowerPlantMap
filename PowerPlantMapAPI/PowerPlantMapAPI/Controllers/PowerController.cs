@@ -36,11 +36,11 @@ namespace PowerPlantMapAPI.Controllers
             return await _powerService.GetDetailsOfPowerPlant(Id, Date, Start, End);
         }
 
-        //[HttpGet("[action]")]
-        //public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlant(string Id,  DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
-        //{
-        //    return await _powerService.GetPowerOfPowerPlant(Id, Date, Start, End);
-        //}
+        [HttpGet("[action]")]
+        public async Task<IEnumerable<PowerStampDTO>> GetPowerOfPowerPlant(string Id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
+        {
+            return await _powerService.GetPowerOfPowerPlant(Id, Date, Start, End);
+        }
 
         [HttpGet("[action]")]
         public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)

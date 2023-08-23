@@ -113,7 +113,7 @@ namespace PowerPlantMapAPI.Services
             return t;
         }
 
-        public int CalculateTheNumberOIntervals(DateTime Start, DateTime End)
+        public int CalculateTheNumberOfIntervals(DateTime Start, DateTime End)
         {
             TimeSpan Period = End - Start;
             int NumberOfDataPoints = (int)Period.TotalMinutes / 15;
