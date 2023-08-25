@@ -79,7 +79,7 @@ namespace PowerPlantMapAPI.Services
             List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
             PowerPlant.DataStart = TimeStamps[0];
             PowerPlant.DataEnd = TimeStamps[1];
-            
+
             if (Date != null)
             {
                 string msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(TimeStamps);
@@ -565,34 +565,52 @@ namespace PowerPlantMapAPI.Services
             string InDomain = "10YHU-MAVIR----U";
 
             string BaseURL = "https://web-api.tp.entsoe.eu/api";
-            string SecurityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
 
-
-            string Query = BaseURL + "?securityToken=" + SecurityToken +
-                                     "&documentType=" + DocumentType +
-                                     "&processType=" + ProcessType +
-                                     "&outBiddingZone_Domain=" + InDomain +
-                                     "&periodStart=" + periodStart +
-                                     "&periodEnd=" + periodEnd;
-
-            var HttpClient = new HttpClient();
-
-            var Response = await HttpClient.GetAsync(Query);
-            string APIResponse = await Response.Content.ReadAsStringAsync();
-
-            XmlDocument Doc = new XmlDocument();
-            Doc.PreserveWhitespace = true;
-
+            string SecurityToken = "";
             try
             {
-                Doc.Load(new StringReader(APIResponse));
+                using (var sr = new StreamReader("key.txt"))
+                {
+                    SecurityToken = sr.ReadToEnd();
+                }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
-                System.Diagnostics.Debug.WriteLine(e);
+                Console.WriteLine(e.Message);
             }
 
-            return Doc;
+            if (SecurityToken != "")
+            {
+                string Query = BaseURL + "?securityToken=" + SecurityToken +
+                                         "&documentType=" + DocumentType +
+                                         "&processType=" + ProcessType +
+                                         "&outBiddingZone_Domain=" + InDomain +
+                                         "&periodStart=" + periodStart +
+                                         "&periodEnd=" + periodEnd;
+
+                var HttpClient = new HttpClient();
+
+                var Response = await HttpClient.GetAsync(Query);
+                string APIResponse = await Response.Content.ReadAsStringAsync();
+
+                XmlDocument Doc = new XmlDocument();
+                Doc.PreserveWhitespace = true;
+
+                try
+                {
+                    Doc.Load(new StringReader(APIResponse));
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine(e);
+                }
+                
+                return Doc;
+            }
+            else
+            {
+                throw new FileNotFoundException("Hiányzik az API kulcsot tartalmazó file");
+            }
         }
 
         private async Task<bool> saveData(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime start, bool import)
