@@ -12,19 +12,19 @@ namespace PowerPlantMapAPI.Services
     public class PowerService : IPowerService
     {
         private readonly IDateService _dateService;
-        private readonly IPowerRepository _repository;
+        private readonly IPowerRepository _powerRepository;
         private readonly IPowerHelper _powerHelper;
 
         public PowerService(IDateService dateService, IPowerRepository repository, IPowerHelper powerHelper)
         {
             _dateService = dateService;
-            _repository = repository;
+            _powerRepository = repository;
             _powerHelper = powerHelper;
         }
 
         public async Task<ActionResult<IEnumerable<FeatureDTO>>> GetPowerPlantBasics()
         {
-            List<PowerPlantDataModel> PowerPlants = await _repository.QueryPowerPlantBasics();
+            List<PowerPlantDataModel> PowerPlants = await _powerRepository.QueryPowerPlantBasics();
 
             List<FeatureDTO> PowerPlantBasics = new List<FeatureDTO>();
 
@@ -55,7 +55,7 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<PowerPlantDataModel> GetBasicsOfPowerPlant(string id)
         {
-            return await _repository.QueryBasicsOfPowerPlant(id);
+            return await _powerRepository.QueryBasicsOfPowerPlant(id);
         }
 
         public async Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string Id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
@@ -74,7 +74,7 @@ namespace PowerPlantMapAPI.Services
             PowerPlant.longitude = Math.Round(BasicsOfPowerPlant.longitude, 4);
             PowerPlant.latitude = Math.Round(BasicsOfPowerPlant.latitude, 4);
 
-            List<PowerPlantDetailsModel> PowerPlantDetails = await _repository.QueryPowerPlantDetails(Id);
+            List<PowerPlantDetailsModel> PowerPlantDetails = await _powerRepository.QueryPowerPlantDetails(Id);
 
             List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
             PowerPlant.DataStart = TimeStamps[0];
@@ -136,7 +136,7 @@ namespace PowerPlantMapAPI.Services
         public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
         {
             PowerOfPowerPlantsDTO PowerOfPowerPlants = new PowerOfPowerPlantsDTO();
-            List<string> PowerPlants = await _repository.QueryPowerPlants();
+            List<string> PowerPlants = await _powerRepository.QueryPowerPlants();
 
             List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
             PowerOfPowerPlants.Start = TimeStamps[0];
@@ -182,15 +182,15 @@ namespace PowerPlantMapAPI.Services
                 string StartTime = _dateService.EditTime(TimeStamps[0]);
                 string EndTime = _dateService.EditTime(TimeStamps[1]);
 
-                List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", StartTime, EndTime);
-                List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", StartTime, EndTime);
-                List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, StartTime, EndTime);
-                List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await GetPPData("A73", StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await GetPPData("A75", StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await GetImportData(false, StartTime, EndTime);
+                List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await GetImportData(true, StartTime, EndTime);
 
-                await saveData(PowerPlantDataSet, TimeStamps[0], false);
-                await saveData(RenewableDataSet, TimeStamps[0], false);
-                await saveData(ImportDataSet, TimeStamps[0], true);
-                await saveData(ExportDataSet, TimeStamps[0], false);
+                await SaveQueriedDataToDb(PowerPlantDataSet, TimeStamps[0], false);
+                await SaveQueriedDataToDb(RenewableDataSet, TimeStamps[0], false);
+                await SaveQueriedDataToDb(ImportDataSet, TimeStamps[0], true);
+                await SaveQueriedDataToDb(ExportDataSet, TimeStamps[0], false);
             }
             else// if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 48)
             {
@@ -215,91 +215,51 @@ namespace PowerPlantMapAPI.Services
             //    throw new NotImplementedException("Time interval is larger than 48 hours.");
             //}
 
-            List<DateTime> LastData = await _repository.QueryLastDataTime();
+            List<DateTime> LastData = await _powerRepository.QueryLastDataTime();
             return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
         }
 
-        private async Task<IEnumerable<PowerOfPowerPlantDTO>> getPPData(string docType, string periodStart, string periodEnd)
+        private async Task<IEnumerable<PowerOfPowerPlantDTO>> GetPPData(string DocType, string PeriodStart, string PeriodEnd)
         {
-            List<PowerOfPowerPlantDTO> data = new List<PowerOfPowerPlantDTO>();
-
-            XmlDocument doc;
+            List<PowerOfPowerPlantDTO> PPData = new List<PowerOfPowerPlantDTO>();
+            XmlDocument Document;
             try
             {
-                doc = await _powerHelper.APIquery(docType, periodStart, periodEnd);
+                Document = await _powerHelper.APIquery(DocType, PeriodStart, PeriodEnd);
             }
-            catch (Exception e)
+            catch (Exception Exception)
             {
-                System.Diagnostics.Debug.WriteLine(e);
-                return data;
+                Console.WriteLine(Exception);
+                return PPData;
             }
+            List<int> Sum = Enumerable.Repeat(0, 100).ToList();
 
-            //string documentType = docType;
-            //string processType = "A16";
-            //string in_Domain = "10YHU-MAVIR----U";
-            //string url = "https://web-api.tp.entsoe.eu/api";
-            //string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
-
-            //string query = url + "?securityToken=" + securityToken +
-            //               "&documentType=" + documentType +
-            //               "&processType=" + processType +
-            //               "&in_Domain=" + in_Domain +
-            //               "&periodStart=" + periodStart +
-            //               "&periodEnd=" + periodEnd;
-
-            //var httpClient = new HttpClient();
-
-            //string apiResponse = "";
-            //var response = await httpClient.GetAsync(query);
-
-            //XmlDocument doc = new XmlDocument();
-            //doc.PreserveWhitespace = true;
-
-            //apiResponse = await response.Content.ReadAsStringAsync();
-            ////System.Diagnostics.Debug.WriteLine(apiResponse);
-
-            //try
-            //{
-            //    doc.Load(new StringReader(apiResponse));
-            //}
-            //catch (Exception e)
-            //{
-            //    System.Diagnostics.Debug.WriteLine(e);
-            //    return data;
-            //}
-
-            List<int> sum = new List<int>();
-            for (int i = 0; i < 100; i++)
+            for (int i = 20; i < Document.ChildNodes[2].ChildNodes.Count; i++)
             {
-                sum.Add(0);
-            }
+                XmlNode Node = Document.ChildNodes[2].ChildNodes[i];
 
-            for (int i = 20; i < doc.ChildNodes[2].ChildNodes.Count; i++)
-            {
-                XmlNode node = doc.ChildNodes[2].ChildNodes[i];
-
-                if (node.ChildNodes.Count != 0)
+                if (Node.ChildNodes.Count != 0)
                 {
-                    XmlNode MktPSRType = node.ChildNodes[15];
-                    if (docType == "A75")
+                    XmlNode MktPSRType = Node.ChildNodes[15];
+                    if (DocType == "A75")
                     {
-                        MktPSRType = node.ChildNodes[13];
+                        MktPSRType = Node.ChildNodes[13];
                     }
 
                     string name = "";
-                    if (docType == "A73")
+                    if (DocType == "A73")
                     {
                         name = MktPSRType.ChildNodes[3].ChildNodes[3].InnerXml;
                     }
-                    else if (docType == "A75")
+                    else if (DocType == "A75")
                     {
                         name = MktPSRType.ChildNodes[1].InnerXml;
                     }
 
-                    XmlNode Period = node.ChildNodes[15];
-                    if (docType == "A73")
+                    XmlNode Period = Node.ChildNodes[15];
+                    if (DocType == "A73")
                     {
-                        Period = node.ChildNodes[17];
+                        Period = Node.ChildNodes[17];
                     }
 
                     List<int> power = new List<int>();
@@ -307,7 +267,7 @@ namespace PowerPlantMapAPI.Services
                     {
                         int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
                         power.Add(p);
-                        sum[(j - 5) / 2] += p;
+                        Sum[(j - 5) / 2] += p;
                     }
 
                     List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
@@ -330,24 +290,19 @@ namespace PowerPlantMapAPI.Services
                         "B01", "B04", "B16", "B19"
                     };
 
-                    if (docType == "A73" || (docType == "A75" && codes.Contains(current.PowerPlantName)))
+                    if (DocType == "A73" || (DocType == "A75" && codes.Contains(current.PowerPlantName)))
                     {
-                        data.Add(current);
+                        PPData.Add(current);
                     }
                 }
             }
 
             //data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
-            return data;
+            return PPData;
         }
 
-        private async Task<IEnumerable<PowerOfPowerPlantDTO>> getImportData(bool export, string periodStart, string periodEnd)
+        private async Task<IEnumerable<PowerOfPowerPlantDTO>> GetImportData(bool Export, string PeriodStart, string PeriodEnd)
         {
-            string documentType = "A11";
-            string in_Domain = "10YHU-MAVIR----U";
-            string url = "https://web-api.tp.entsoe.eu/api";
-            string securityToken = "a5fb8873-ad26-4972-a5f4-62e2e069f782";
-
             List<string> NeighbourCountries = new List<string>
             {
                 "10YSK-SEPS-----K",
@@ -359,27 +314,12 @@ namespace PowerPlantMapAPI.Services
                 "10Y1001C--00003F"
             };
 
-            List<PowerOfPowerPlantDTO> data = new List<PowerOfPowerPlantDTO>();
-
-            List<int> sum = new List<int>();
-            for (int i = 0; i < 100; i++)
-            {
-                sum.Add(0);
-            }
+            List<PowerOfPowerPlantDTO> PPData = new List<PowerOfPowerPlantDTO>();
+            List<int> Sum = Enumerable.Repeat(0, 100).ToList();
 
             foreach (string CountryCode in NeighbourCountries)
             {
-                string CC = CountryCode;
-                if (export)
-                {
-                    in_Domain = CountryCode;
-                    CC = "10YHU-MAVIR----U";
-                }
-
-                string end = periodEnd;
-                string start = periodStart;
-
-                List<string> problematic = new List<String>
+                List<string> problematic = new List<string>
                 {
                     "10YSK-SEPS-----K",
                     "10YHR-HEP------M",
@@ -387,36 +327,25 @@ namespace PowerPlantMapAPI.Services
                     "10Y1001C--00003F"
                 };
 
-                //if (CountryCode == "10YSK-SEPS-----K" || CountryCode == "10YHR-HEP------M" || CountryCode == "10YCS-SERBIATSOV" || CountryCode == "10Y1001C--00003F")
                 if (problematic.Contains(CountryCode))
                 {
-                    start = periodStart.Remove(10);
-                    start += "00";
-                    end = periodEnd.Remove(10);
-                    end += "00";
+                    PeriodStart = PeriodStart.Remove(10);
+                    PeriodStart += "00";
+                    PeriodStart = PeriodStart.Remove(10);
+                    PeriodStart += "00";
                 }
 
-                string query = url + "?securityToken=" + securityToken +
-                                       "&documentType=" + documentType +
-                                       "&in_Domain=" + in_Domain +
-                                       "&out_Domain=" + CC +
-                                       "&periodStart=" + start +
-                                       "&periodEnd=" + end;
+                XmlDocument Document;
+                if (Export)
+                {
+                    Document = await _powerHelper.APIquery("A11", PeriodStart, PeriodEnd, "10YHU-MAVIR----U", CountryCode);
+                }
+                else
+                {
+                    Document = await _powerHelper.APIquery("A11", PeriodStart, PeriodEnd, CountryCode, "10YHU-MAVIR----U");
+                }
 
-                var httpClient = new HttpClient();
-
-                string apiResponse = "";
-                var response = await httpClient.GetAsync(query);
-
-                XmlDocument doc = new XmlDocument();
-                doc.PreserveWhitespace = true;
-
-                apiResponse = await response.Content.ReadAsStringAsync();
-                System.Diagnostics.Debug.WriteLine(apiResponse);
-
-                doc.Load(new StringReader(apiResponse));
-
-                XmlNode TimeSeries = doc.ChildNodes[2].ChildNodes[19];
+                XmlNode TimeSeries = Document.ChildNodes[2].ChildNodes[19];
                 System.Diagnostics.Debug.Write(TimeSeries);
 
                 int ChildNodeCount;
@@ -440,7 +369,7 @@ namespace PowerPlantMapAPI.Services
                         PowerStampDTO PowerStamp = new PowerStampDTO();
                         int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
 
-                        if (export)
+                        if (Export)
                         {
                             p *= -1;
                         }
@@ -450,19 +379,19 @@ namespace PowerPlantMapAPI.Services
                         {
                             if (j == 5)
                             {
-                                if (periodStart.Substring(10, 2) == "00")
+                                if (PeriodStart.Substring(10, 2) == "00")
                                 {
                                     n = 4;
                                 }
-                                if (periodStart.Substring(10, 2) == "15")
+                                if (PeriodStart.Substring(10, 2) == "15")
                                 {
                                     n = 3;
                                 }
-                                else if (periodStart.Substring(10, 2) == "30")
+                                else if (PeriodStart.Substring(10, 2) == "30")
                                 {
                                     n = 2;
                                 }
-                                else if (periodStart.Substring(10, 2) == "45")
+                                else if (PeriodStart.Substring(10, 2) == "45")
                                 {
                                     n = 1;
                                 }
@@ -470,15 +399,15 @@ namespace PowerPlantMapAPI.Services
 
                             else if (j == Period.ChildNodes.Count - 1)
                             {
-                                if (periodEnd.Substring(10, 2) == "15")
+                                if (PeriodEnd.Substring(10, 2) == "15")
                                 {
                                     n = 1;
                                 }
-                                if (periodEnd.Substring(10, 2) == "30")
+                                if (PeriodEnd.Substring(10, 2) == "30")
                                 {
                                     n = 2;
                                 }
-                                if (periodEnd.Substring(10, 2) == "45")
+                                if (PeriodEnd.Substring(10, 2) == "45")
                                 {
                                     n = 3;
                                 }
@@ -496,7 +425,7 @@ namespace PowerPlantMapAPI.Services
                         for (int i = 0; i < n; i++)
                         {
                             PowerStamps.Add(PowerStamp);
-                            sum[(j - 5) / 2 + i] += p;
+                            Sum[(j - 5) / 2 + i] += p;
                         }
                     }
 
@@ -506,31 +435,31 @@ namespace PowerPlantMapAPI.Services
                         PowerStamps = PowerStamps
                     };
 
-                    data.Add(current);
+                    PPData.Add(current);
                 }
             }
 
             //data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodStart+ ", " + periodEnd, Power = sum });
-            return data;
+            return PPData;
         }
 
-        private async Task<bool> saveData(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime start, bool import)
+        private async Task<bool> SaveQueriedDataToDb(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime Start, bool Import)
         {
-            List<string> generators = await _repository.QueryGenerators();
+            List<string> Generators = await _powerRepository.QueryGenerators();
 
             foreach (PowerOfPowerPlantDTO PowerData in PowerDataSet)
             {
-                if (generators.Contains(PowerData.PowerPlantName))
+                if (PowerData.PowerPlantName != null && Generators.Contains(PowerData.PowerPlantName))
                 {
-                    DateTime PeriodStart = start.AddMinutes(-15);
+                    DateTime PeriodStart = Start.AddMinutes(-15);
                     foreach (PowerStampDTO PowerStamp in PowerData.PowerStamps)
                     {
                         PeriodStart = PeriodStart.AddMinutes(15);
-                        if (!import || (import && PowerStamp.Power != 0))
+                        if (!Import || (Import && PowerStamp.Power != 0))
+                        //TODO mi ez a feltétel?
                         {
-                            await _repository.InsertData(PowerData.PowerPlantName, PeriodStart, PowerStamp.Power);
+                            await _powerRepository.InsertData(PowerData.PowerPlantName, PeriodStart, PowerStamp.Power);
                         }
-
                     }
                 }
             }
@@ -539,7 +468,7 @@ namespace PowerPlantMapAPI.Services
 
         private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(List<DateTime> TimeStamps)
         {
-            List<PastActivityModel> PastActivity = await _repository.QueryPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
+            List<PastActivityModel> PastActivity = await _powerRepository.QueryPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
 
             if (PastActivity.Count < 10)
             {

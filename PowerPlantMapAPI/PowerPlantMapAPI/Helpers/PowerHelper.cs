@@ -3,6 +3,7 @@ using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
 using System.Xml;
+using System;
 
 namespace PowerPlantMapAPI.Helpers
 {
@@ -17,32 +18,37 @@ namespace PowerPlantMapAPI.Helpers
             _repository = repository;
         }
 
-        public async Task<XmlDocument> APIquery(string DocumentType, string PeriodStart, string PeriodEnd)
+        public async Task<XmlDocument> APIquery(string DocumentType, string PeriodStart, string PeriodEnd, string? InDomain = null, string? OutDomain = null)
         {
             string ProcessType = "A16";
-            string InDomain = "10YHU-MAVIR----U";
+            if (InDomain == null)
+            {
+                InDomain = "10YHU-MAVIR----U";
+            }
             string BaseURL = "https://web-api.tp.entsoe.eu/api";
-            string SecurityToken = "";
-            try
-            {
-                using (var StreamReader = new StreamReader("key.txt"))
-                {
-                    SecurityToken = StreamReader.ReadToEnd();
-                }
-            }
-            catch (IOException Exception)
-            {
-                Console.WriteLine(Exception.Message);
-            }
+            string SecurityToken = GetAPIToken();
 
             if (SecurityToken != "")
             {
-                string QueryString = BaseURL + "?securityToken=" + SecurityToken +
-                                                "&documentType=" + DocumentType +
-                                                "&processType=" + ProcessType +
-                                                "&outBiddingZone_Domain=" + InDomain +
-                                                "&periodStart=" + PeriodStart +
-                                                "&periodEnd=" + PeriodEnd;
+                string QueryString = "";
+                if (DocumentType == "A11")
+                {
+                    QueryString = BaseURL + "?securityToken=" + SecurityToken +
+                                       "&documentType=" + DocumentType +
+                                       "&in_Domain=" + InDomain +
+                                       "&out_Domain=" + OutDomain +
+                                       "&periodStart=" + PeriodStart +
+                                       "&periodEnd=" + PeriodEnd;
+                }
+                else
+                {
+                    QueryString = BaseURL + "?securityToken=" + SecurityToken +
+                                            "&documentType=" + DocumentType +
+                                            "&processType=" + ProcessType +
+                                            "&outBiddingZone_Domain=" + InDomain +
+                                            "&periodStart=" + PeriodStart +
+                                            "&periodEnd=" + PeriodEnd;
+                }
 
                 var HttpClient = new HttpClient();
                 var Response = await HttpClient.GetAsync(QueryString);
@@ -53,6 +59,7 @@ namespace PowerPlantMapAPI.Helpers
                 try
                 {
                     Document.Load(new StringReader(APIResponse));
+                    Document.Save("XMLData/" + QueryString + ".xml");
                 }
                 catch (Exception Exception)
                 {
@@ -114,6 +121,23 @@ namespace PowerPlantMapAPI.Helpers
                 }
             }
             return PowerStamps;
+        }
+
+        private string GetAPIToken()
+        {
+            string SecurityToken = "";
+            try
+            {
+                using (var StreamReader = new StreamReader("key.txt"))
+                {
+                    SecurityToken = StreamReader.ReadToEnd();
+                }
+            }
+            catch (IOException Exception)
+            {
+                Console.WriteLine(Exception.Message);
+            }
+            return SecurityToken;
         }
     }
 }
