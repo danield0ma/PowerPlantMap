@@ -271,7 +271,7 @@ namespace PowerPlantMapAPI.Services
             XmlDocument doc;
             try
             {
-                doc = await APIquery(docType, periodStart, periodEnd);
+                doc = await _powerHelper.APIquery(docType, periodStart, periodEnd);
             }
             catch (Exception e)
             {
@@ -557,60 +557,6 @@ namespace PowerPlantMapAPI.Services
 
             //data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodStart+ ", " + periodEnd, Power = sum });
             return data;
-        }
-
-        private async Task<XmlDocument> APIquery(string DocumentType, string periodStart, string periodEnd)
-        {
-            string ProcessType = "A16";
-            string InDomain = "10YHU-MAVIR----U";
-
-            string BaseURL = "https://web-api.tp.entsoe.eu/api";
-
-            string SecurityToken = "";
-            try
-            {
-                using (var sr = new StreamReader("key.txt"))
-                {
-                    SecurityToken = sr.ReadToEnd();
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-
-            if (SecurityToken != "")
-            {
-                string Query = BaseURL + "?securityToken=" + SecurityToken +
-                                         "&documentType=" + DocumentType +
-                                         "&processType=" + ProcessType +
-                                         "&outBiddingZone_Domain=" + InDomain +
-                                         "&periodStart=" + periodStart +
-                                         "&periodEnd=" + periodEnd;
-
-                var HttpClient = new HttpClient();
-
-                var Response = await HttpClient.GetAsync(Query);
-                string APIResponse = await Response.Content.ReadAsStringAsync();
-
-                XmlDocument Doc = new XmlDocument();
-                Doc.PreserveWhitespace = true;
-
-                try
-                {
-                    Doc.Load(new StringReader(APIResponse));
-                }
-                catch (Exception e)
-                {
-                    System.Diagnostics.Debug.WriteLine(e);
-                }
-                
-                return Doc;
-            }
-            else
-            {
-                throw new FileNotFoundException("Hiányzik az API kulcsot tartalmazó file");
-            }
         }
 
         private async Task<bool> saveData(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime start, bool import)

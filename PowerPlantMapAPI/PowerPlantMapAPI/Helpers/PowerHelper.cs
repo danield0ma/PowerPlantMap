@@ -2,6 +2,7 @@
 using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
+using System.Xml;
 
 namespace PowerPlantMapAPI.Helpers
 {
@@ -14,6 +15,56 @@ namespace PowerPlantMapAPI.Helpers
         {
             _dateService = dateService;
             _repository = repository;
+        }
+
+        public async Task<XmlDocument> APIquery(string DocumentType, string PeriodStart, string PeriodEnd)
+        {
+            string ProcessType = "A16";
+            string InDomain = "10YHU-MAVIR----U";
+            string BaseURL = "https://web-api.tp.entsoe.eu/api";
+            string SecurityToken = "";
+            try
+            {
+                using (var StreamReader = new StreamReader("key.txt"))
+                {
+                    SecurityToken = StreamReader.ReadToEnd();
+                }
+            }
+            catch (IOException Exception)
+            {
+                Console.WriteLine(Exception.Message);
+            }
+
+            if (SecurityToken != "")
+            {
+                string QueryString = BaseURL + "?securityToken=" + SecurityToken +
+                                                "&documentType=" + DocumentType +
+                                                "&processType=" + ProcessType +
+                                                "&outBiddingZone_Domain=" + InDomain +
+                                                "&periodStart=" + PeriodStart +
+                                                "&periodEnd=" + PeriodEnd;
+
+                var HttpClient = new HttpClient();
+                var Response = await HttpClient.GetAsync(QueryString);
+                string APIResponse = await Response.Content.ReadAsStringAsync();
+                XmlDocument Document = new XmlDocument();
+                Document.PreserveWhitespace = true;
+
+                try
+                {
+                    Document.Load(new StringReader(APIResponse));
+                }
+                catch (Exception Exception)
+                {
+                    Console.WriteLine(Exception);
+                }
+
+                return Document;
+            }
+            else
+            {
+                throw new FileNotFoundException("Hiányzik az API kulcsot tartalmazó file");
+            }
         }
 
         public async Task<List<GeneratorPowerDTO>> GetGeneratorPower(string generator, DateTime start, DateTime end)
