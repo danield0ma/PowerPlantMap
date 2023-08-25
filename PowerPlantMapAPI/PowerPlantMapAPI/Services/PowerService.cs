@@ -164,14 +164,13 @@ namespace PowerPlantMapAPI.Services
             return PowerOfPowerPlants;
         }
 
-        public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
+        public async Task<string> InitData(DateTime? PeriodStart = null, DateTime? PeriodEnd = null)
         {
             List<DateTime> TimeStamps = new List<DateTime>();
-
-            if (periodStart is DateTime && periodEnd is DateTime)
+            if (PeriodStart is DateTime && PeriodEnd is DateTime)
             {
-                TimeStamps.Add(periodStart.Value);
-                TimeStamps.Add(periodEnd.Value);
+                TimeStamps.Add(PeriodStart.Value);
+                TimeStamps.Add(PeriodEnd.Value);
             }
             else
             {
@@ -193,76 +192,32 @@ namespace PowerPlantMapAPI.Services
                 await saveData(ImportDataSet, TimeStamps[0], true);
                 await saveData(ExportDataSet, TimeStamps[0], false);
             }
-            else if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 48)
+            else// if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 48)
             {
-                //string StartTime = _dateService.EditTime(TimeStamps[0]);
-                //string MiddleTime = _dateService.EditTime(TimeStamps[1].AddHours(-24));
-                //string EndTime = _dateService.EditTime(TimeStamps[1]);
+                DateTime CurrentTime = TimeStamps[0];
+                while (CurrentTime < TimeStamps[1])
+                {
+                    DateTime End = CurrentTime.AddHours(24);
+                    if (End > TimeStamps[1])
+                    {
+                        End = TimeStamps[1];
+                    }
 
-                string Response = await InitData(TimeStamps[0], TimeStamps[0].AddHours(24));
-                //System.Diagnostics.Debug.WriteLine("InitData double call: ", Response);
-                Response = await InitData(TimeStamps[0].AddHours(24), TimeStamps[1]);
-                //System.Diagnostics.Debug.WriteLine("InitData double call: ", Response);
+                    await InitData(CurrentTime, End);
+                    CurrentTime = CurrentTime.AddHours(24);
+                }
 
-                //List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", StartTime, MiddleTime);
-                //List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", StartTime, MiddleTime);
-                //List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, StartTime, MiddleTime);
-                //List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, StartTime, MiddleTime);
-
-                //await saveData(PowerPlantDataSet, TimeStamps[0], false);
-                //await saveData(RenewableDataSet, TimeStamps[0], false);
-                //await saveData(ImportDataSet, TimeStamps[0], true);
-                //await saveData(ExportDataSet, TimeStamps[0], false);
-
-                //DateTime start = TimeStamps[1].AddHours(-24);
-                //PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A73", MiddleTime, EndTime);
-                //RenewableDataSet = (List<PowerOfPowerPlantDTO>)await getPPData("A75", MiddleTime, EndTime);
-                //ImportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(false, MiddleTime, EndTime);
-                //ExportDataSet = (List<PowerOfPowerPlantDTO>)await getImportData(true, MiddleTime, EndTime);
-
-                //await saveData(PowerPlantDataSet, start, false);
-                //await saveData(RenewableDataSet, start, false);
-                //await saveData(ImportDataSet, start, true);
-                //await saveData(ExportDataSet, start, false);
+                //string Response = await InitData(TimeStamps[0], TimeStamps[0].AddHours(24));
+                //Response = await InitData(TimeStamps[0].AddHours(24), TimeStamps[1]);
             }
-            else
-            {
-                throw new NotImplementedException("Time interval is larger than 48 hours.");
-            }
+            //else
+            //{
+            //    throw new NotImplementedException("Time interval is larger than 48 hours.");
+            //}
 
             List<DateTime> LastData = await _repository.QueryLastDataTime();
             return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
         }
-
-        //public async Task<CurrentLoadDTO> GetCurrentLoad(string periodStart, string periodEnd)
-        //{
-        //    XmlNode Period = await APIquery(periodStart, periodEnd);
-
-        //    CurrentLoadDTO load = new CurrentLoadDTO();
-
-        //    load.end = _dateService.TransformTime(Period.ChildNodes[1].ChildNodes[3].InnerXml);
-        //    load.CurrentLoad = Int32.Parse(Period.ChildNodes[Period.ChildNodes.Count - 2].ChildNodes[3].InnerXml);
-
-        //    return load;
-        //}
-
-        //public async Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(DateTime periodStart, DateTime periodEnd)
-        //{
-        //    XmlNode Period = await APIquery(_dateService.EditTime(periodStart), _dateService.EditTime(periodEnd));
-
-        //    List<CurrentLoadDTO> loadHistory = new List<CurrentLoadDTO>();
-
-        //    for (int i = 5; i < Period.ChildNodes.Count; i += 2)
-        //    {
-        //        CurrentLoadDTO load = new CurrentLoadDTO();
-        //        load.CurrentLoad = Int32.Parse(Period.ChildNodes[i].ChildNodes[3].InnerXml);
-        //        periodStart = periodStart.AddMinutes(15);
-        //        load.end = periodStart;
-        //        loadHistory.Add(load);
-        //    }
-
-        //    return loadHistory;
-        //}
 
         private async Task<IEnumerable<PowerOfPowerPlantDTO>> getPPData(string docType, string periodStart, string periodEnd)
         {

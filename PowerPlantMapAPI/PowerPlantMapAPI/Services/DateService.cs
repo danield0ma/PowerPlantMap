@@ -62,10 +62,10 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<List<DateTime>> GetInitDataTimeInterval()
         {
-            DateTime end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
-            DateTime start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+            DateTime Now = DateTime.Now;
+            DateTime end = new DateTime(Now.Year, Now.Month, Now.Day, Now.Hour, 0, 0);
 
-            if (DateTime.Now.Minute < 15)
+            if (Now.Minute < 15)
             {
                 end = end.AddHours(-1);
                 end = end.AddMinutes(45);
@@ -82,13 +82,16 @@ namespace PowerPlantMapAPI.Services
             {
                 end = end.AddMinutes(30);
             }
-            //start = end.AddHours(-30);
-
+            
+            DateTime start = end.AddHours(-30);
             List<DateTime> LastData = await _repository.QueryLastDataTime();
             if (LastData[0] > start)
             {
                 start = LastData[0];
             }
+
+            Console.WriteLine(start);
+            Console.WriteLine(end);
 
             return new List<DateTime> { start, end };
         }
