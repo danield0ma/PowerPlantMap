@@ -86,6 +86,10 @@ namespace PowerPlantMapAPI.Services
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
+            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            PowerPlant.DataStart = TimeStamps[0];// TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[0], cest);
+            PowerPlant.DataEnd = TimeStamps[1];// TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[1], cest);
+
             int PPMaxPower = 0, PPCurrentPower = 0, i = 0;
             List<BlocDTO> Blocs = new List<BlocDTO>();
             while (i < PowerPlantDetails.Count)
@@ -103,7 +107,7 @@ namespace PowerPlantMapAPI.Services
                     GeneratorDTO Generator = new GeneratorDTO();
                     Generator.GeneratorID = PowerPlantDetails[i].GeneratorID;
                     Generator.MaxCapacity = PowerPlantDetails[i].MaxCapacity;
-                    Generator.PastPower = await _powerHelper.GetGeneratorPower(Generator.GeneratorID, PowerPlant.DataStart, PowerPlant.DataEnd);
+                    Generator.PastPower = await _powerHelper.GetGeneratorPower(Generator.GeneratorID, TimeStamps[0], TimeStamps[1]);
                     Generators.Add(Generator);
                     CurrentPower += Generator.PastPower[Generator.PastPower.Count - 1].Power;
                     MaxPower += Generator.MaxCapacity;
@@ -138,9 +142,10 @@ namespace PowerPlantMapAPI.Services
             PowerOfPowerPlantsDTO PowerOfPowerPlants = new PowerOfPowerPlantsDTO();
             List<string> PowerPlants = await _powerRepository.QueryPowerPlants();
 
+            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
             List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
-            PowerOfPowerPlants.Start = TimeStamps[0];
-            PowerOfPowerPlants.End = TimeStamps[1];
+            PowerOfPowerPlants.Start = TimeStamps[0]; //TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[0], cest);
+            PowerOfPowerPlants.End = TimeStamps[1]; //TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[1], cest);
 
             if (Date != null)
             {

@@ -6,7 +6,7 @@
         string getTime(int diff);
         string EditTime(DateTime start);
         Task<List<DateTime>> GetInitDataTimeInterval();
-        Task<List<DateTime>> GetLastDataTime();
+        //Task<List<DateTime>> GetLastDataTime();
         DateTime TransformTime(string time);
         int CalculateTheNumberOfIntervals(DateTime Start, DateTime End);
     }

@@ -14,21 +14,37 @@ namespace PowerPlantMapAPI.Services
         public async Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
         {
             List<DateTime> TimeStamps = new List<DateTime>();
+            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
 
             if (Date != null)
             {
-                TimeStamps.Add(new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0));
+                DateTime First = new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0);
+                DateTime.SpecifyKind(First, DateTimeKind.Local);
+                //TimeZoneInfo.ConvertTimeToUtc(First, cest);
                 Date = Date.Value.AddDays(1);
-                TimeStamps.Add(new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0));
+                DateTime Second = new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0);
+                DateTime.SpecifyKind(Second, DateTimeKind.Local);
+                //TimeZoneInfo.ConvertTimeToUtc(First, cest);
+                TimeStamps.Add(First);
+                TimeStamps.Add(Second);
             }
             else if (Start != null && End != null)
             {
+                //DateTime First = TimeZoneInfo.ConvertTimeToUtc((DateTime)Start, cest);
+                Start = DateTime.SpecifyKind((DateTime)Start, DateTimeKind.Local);
                 TimeStamps.Add((DateTime)Start);
+                //DateTime Second = TimeZoneInfo.ConvertTimeToUtc((DateTime)End, cest);
+                End = DateTime.SpecifyKind((DateTime)End, DateTimeKind.Local);
                 TimeStamps.Add((DateTime)End);
             }
             else
             {
-                TimeStamps = await GetLastDataTime();
+                List<DateTime> LastDataTime = await _repository.QueryLastDataTime();
+                //TODO túl régi adat esetén nincs elérhető adat kiírása...
+                DateTime Time = TimeZoneInfo.ConvertTimeFromUtc(LastDataTime[0], cest);
+                Time = DateTime.SpecifyKind(Time, DateTimeKind.Local);
+                TimeStamps.Add(Time);
+                TimeStamps.Insert(0, Time.AddDays(-1));
             }
 
             return TimeStamps;
@@ -96,16 +112,17 @@ namespace PowerPlantMapAPI.Services
             return new List<DateTime> { start, end };
         }
 
-        public async Task<List<DateTime>> GetLastDataTime()
-        {
-            List<DateTime> LastDataTime = await _repository.QueryLastDataTime();
+        //public async Task<List<DateTime>> GetLastDataTime()
+        //{
+        //    List<DateTime> LastDataTime = await _repository.QueryLastDataTime();
+        //    TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
 
-            //TODO túl régi adat esetén nincs elérhető adat kiírása...
-            DateTime End = LastDataTime[0];
-            DateTime Start = End.AddDays(-1)/*.AddMinutes(-15)*/;
+        //    //TODO túl régi adat esetén nincs elérhető adat kiírása...
+        //    DateTime End = TimeZoneInfo.ConvertTimeFromUtc(LastDataTime[0], cest);
+        //    DateTime Start = End.AddDays(-1)/*.AddMinutes(-15)*/;
 
-            return new List<DateTime> { Start, End };
-        }
+        //    return new List<DateTime> { Start, End };
+        //}
 
         public DateTime TransformTime(string time)
         {

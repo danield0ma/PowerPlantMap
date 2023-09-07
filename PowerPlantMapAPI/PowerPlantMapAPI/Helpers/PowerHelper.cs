@@ -76,13 +76,21 @@ namespace PowerPlantMapAPI.Helpers
 
         public async Task<List<GeneratorPowerDTO>> GetGeneratorPower(string generator, DateTime start, DateTime end)
         {
-            List<PastActivityModel> PastActivity = await _repository.QueryPastActivity(generator, start, end);
+            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            if (start.Kind != DateTimeKind.Utc)
+            {
+                start = TimeZoneInfo.ConvertTimeToUtc(start, TimeZoneInfo.Local);
+                start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+                end = TimeZoneInfo.ConvertTimeToUtc(end, TimeZoneInfo.Local);
+                end = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+            }
 
+            List<PastActivityModel> PastActivity = await _repository.QueryPastActivity(generator, start, end);
             List<GeneratorPowerDTO> PastPowerOfGenerator = new List<GeneratorPowerDTO>();
             foreach (var Activity in PastActivity)
             {
                 GeneratorPowerDTO GeneratorPower = new GeneratorPowerDTO();
-                GeneratorPower.TimePoint = Activity.PeriodStart;
+                GeneratorPower.TimePoint = TimeZoneInfo.ConvertTimeFromUtc(Activity.PeriodStart, cest);
                 GeneratorPower.Power = Activity.ActualPower;
                 PastPowerOfGenerator.Add(GeneratorPower);
             }
