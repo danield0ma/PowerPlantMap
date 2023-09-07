@@ -86,9 +86,8 @@ namespace PowerPlantMapAPI.Services
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
-            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
-            PowerPlant.DataStart = TimeStamps[0];// TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[0], cest);
-            PowerPlant.DataEnd = TimeStamps[1];// TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[1], cest);
+            PowerPlant.DataStart = TimeStamps[0];
+            PowerPlant.DataEnd = TimeStamps[1];
 
             int PPMaxPower = 0, PPCurrentPower = 0, i = 0;
             List<BlocDTO> Blocs = new List<BlocDTO>();
@@ -142,10 +141,9 @@ namespace PowerPlantMapAPI.Services
             PowerOfPowerPlantsDTO PowerOfPowerPlants = new PowerOfPowerPlantsDTO();
             List<string> PowerPlants = await _powerRepository.QueryPowerPlants();
 
-            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
             List<DateTime> TimeStamps = await _dateService.HandleWhichDateFormatIsBeingUsed(Date, Start, End);
-            PowerOfPowerPlants.Start = TimeStamps[0]; //TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[0], cest);
-            PowerOfPowerPlants.End = TimeStamps[1]; //TimeZoneInfo.ConvertTimeFromUtc(TimeStamps[1], cest);
+            PowerOfPowerPlants.Start = TimeStamps[0];
+            PowerOfPowerPlants.End = TimeStamps[1];
 
             if (Date != null)
             {
