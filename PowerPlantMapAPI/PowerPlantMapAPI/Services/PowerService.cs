@@ -195,7 +195,7 @@ namespace PowerPlantMapAPI.Services
                 await SaveQueriedDataToDb(ImportDataSet, TimeStamps[0], true);
                 await SaveQueriedDataToDb(ExportDataSet, TimeStamps[0], false);
             }
-            else// if ((TimeStamps[1] - TimeStamps[0]).TotalHours <= 48)
+            else
             {
                 DateTime CurrentTime = TimeStamps[0];
                 while (CurrentTime < TimeStamps[1])
@@ -209,14 +209,7 @@ namespace PowerPlantMapAPI.Services
                     await InitData(CurrentTime, End);
                     CurrentTime = CurrentTime.AddHours(24);
                 }
-
-                //string Response = await InitData(TimeStamps[0], TimeStamps[0].AddHours(24));
-                //Response = await InitData(TimeStamps[0].AddHours(24), TimeStamps[1]);
             }
-            //else
-            //{
-            //    throw new NotImplementedException("Time interval is larger than 48 hours.");
-            //}
 
             List<DateTime> LastData = await _powerRepository.QueryLastDataTime();
             return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
