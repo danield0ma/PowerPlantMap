@@ -18,7 +18,7 @@ namespace PowerPlantMapAPI.Helpers
             _repository = repository;
         }
 
-        public async Task<XmlDocument> APIquery(string DocumentType, string PeriodStart, string PeriodEnd, string? InDomain = null, string? OutDomain = null)
+        public async Task<string> APIquery(string DocumentType, string PeriodStart, string PeriodEnd, string? InDomain = null, string? OutDomain = null)
         {
             string ProcessType = "A16";
             if (InDomain == null)
@@ -53,6 +53,8 @@ namespace PowerPlantMapAPI.Helpers
                 var HttpClient = new HttpClient();
                 var Response = await HttpClient.GetAsync(QueryString);
                 string APIResponse = await Response.Content.ReadAsStringAsync();
+                return APIResponse;
+
                 XmlDocument Document = new XmlDocument();
                 Document.PreserveWhitespace = true;
 

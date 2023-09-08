@@ -6,6 +6,7 @@ using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Helpers;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace PowerPlantMapAPI.Services
 {
@@ -218,82 +219,141 @@ namespace PowerPlantMapAPI.Services
         private async Task<IEnumerable<PowerOfPowerPlantDTO>> GetPPData(string DocType, string PeriodStart, string PeriodEnd)
         {
             List<PowerOfPowerPlantDTO> PPData = new List<PowerOfPowerPlantDTO>();
-            XmlDocument Document;
             try
             {
-                Document = await _powerHelper.APIquery(DocType, PeriodStart, PeriodEnd);
+                XDocument Document = XDocument.Parse(await _powerHelper.APIquery(DocType, PeriodStart, PeriodEnd));
+                List<int> Sum = Enumerable.Repeat(0, 100).ToList();
+
+                if (Document is not null && Document?.Root is not null && Document?.Root?.Elements("TimeSeries") is not null)
+                {
+                    foreach (var TimeSeries in Document?.Root?.Elements("TimeSeries"))
+                    {
+                        string? name = "";
+                        if (DocType == "A73")
+                        {
+                            name = TimeSeries?.Element("MktPSRType")?.Element("PowerSystemResources")?.Element("name")?.Value;
+                        }
+                        if (DocType == "A75")
+                        {
+                            name = TimeSeries?.Element("MktPSRType")?.Element("psrType")?.Value;
+                        }
+
+                        var Period = TimeSeries?.Element("Period");
+                        List<int> power = new List<int>();
+                        if (Period?.Elements("Point") is not null)
+                        {
+                            foreach (var Point in Period?.Elements("Point"))
+                            {
+                                int currentPower = Convert.ToInt32(Point?.Element("quantity").Value);
+                                power.Add(currentPower);
+                                Sum[Convert.ToInt32(Point?.Element("position"))] += currentPower;
+                            }
+                        }
+
+                        List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
+                        foreach (int p in power)
+                        {
+                            PowerStampDTO PowerStamp = new PowerStampDTO();
+                            PowerStamp.Power = p;
+                            PowerStamp.Start = DateTime.Now;
+                            PowerStamps.Add(PowerStamp);
+                        }
+
+                        PowerOfPowerPlantDTO current = new PowerOfPowerPlantDTO()
+                        {
+                            PowerPlantName = name,
+                            PowerStamps = PowerStamps
+                        };
+
+                        List<string> codes = new List<string>
+                        {
+                            "B01", "B04", "B16", "B19"
+                        };
+
+                        if (DocType == "A73" || (DocType == "A75" && codes.Contains(current.PowerPlantName)))
+                        {
+                            PPData.Add(current);
+                        }
+                    }
+                }
+                
+
+
+
+
+
+                //for (int i = 20; i < Document.ChildNodes[2].ChildNodes.Count; i++)
+                //{
+                //    XmlNode Node = Document.ChildNodes[2].ChildNodes[i];
+
+                //    if (Node.ChildNodes.Count != 0)
+                //    {
+                //        XmlNode MktPSRType = Node.ChildNodes[15];
+                //        if (DocType == "A75")
+                //        {
+                //            MktPSRType = Node.ChildNodes[13];
+                //        }
+
+                //        string name = "";
+                //        if (DocType == "A73")
+                //        {
+                //            name = MktPSRType.ChildNodes[3].ChildNodes[3].InnerXml;
+                //        }
+                //        else if (DocType == "A75")
+                //        {
+                //            name = MktPSRType.ChildNodes[1].InnerXml;
+                //        }
+
+                //        XmlNode Period = Node.ChildNodes[15];
+                //        if (DocType == "A73")
+                //        {
+                //            Period = Node.ChildNodes[17];
+                //        }
+
+                //        "--------------"
+                //        List<int> power = new List<int>();
+                //        for (int j = 5; j < Period.ChildNodes.Count; j += 2)
+                //        {
+                //            int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
+                //            power.Add(p);
+                //            Sum[(j - 5) / 2] += p;
+                //        }
+
+                //        List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
+                //        foreach (int p in power)
+                //        {
+                //            PowerStampDTO PowerStamp = new PowerStampDTO();
+                //            PowerStamp.Power = p;
+                //            PowerStamp.Start = DateTime.Now;
+                //            PowerStamps.Add(PowerStamp);
+                //        }
+
+                //        PowerOfPowerPlantDTO current = new PowerOfPowerPlantDTO()
+                //        {
+                //            PowerPlantName = name,
+                //            PowerStamps = PowerStamps
+                //        };
+
+                //        List<string> codes = new List<string>
+                //        {
+                //            "B01", "B04", "B16", "B19"
+                //        };
+
+                //        if (DocType == "A73" || (DocType == "A75" && codes.Contains(current.PowerPlantName)))
+                //        {
+                //            PPData.Add(current);
+                //        }
+                //    }
+                //}
+
+                //data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
+
             }
             catch (Exception Exception)
             {
                 Console.WriteLine(Exception);
-                return PPData;
-            }
-            List<int> Sum = Enumerable.Repeat(0, 100).ToList();
-
-            for (int i = 20; i < Document.ChildNodes[2].ChildNodes.Count; i++)
-            {
-                XmlNode Node = Document.ChildNodes[2].ChildNodes[i];
-
-                if (Node.ChildNodes.Count != 0)
-                {
-                    XmlNode MktPSRType = Node.ChildNodes[15];
-                    if (DocType == "A75")
-                    {
-                        MktPSRType = Node.ChildNodes[13];
-                    }
-
-                    string name = "";
-                    if (DocType == "A73")
-                    {
-                        name = MktPSRType.ChildNodes[3].ChildNodes[3].InnerXml;
-                    }
-                    else if (DocType == "A75")
-                    {
-                        name = MktPSRType.ChildNodes[1].InnerXml;
-                    }
-
-                    XmlNode Period = Node.ChildNodes[15];
-                    if (DocType == "A73")
-                    {
-                        Period = Node.ChildNodes[17];
-                    }
-
-                    List<int> power = new List<int>();
-                    for (int j = 5; j < Period.ChildNodes.Count; j += 2)
-                    {
-                        int p = Int32.Parse(Period.ChildNodes[j].ChildNodes[3].InnerXml);
-                        power.Add(p);
-                        Sum[(j - 5) / 2] += p;
-                    }
-
-                    List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
-                    foreach (int p in power)
-                    {
-                        PowerStampDTO PowerStamp = new PowerStampDTO();
-                        PowerStamp.Power = p;
-                        PowerStamp.Start = DateTime.Now;
-                        PowerStamps.Add(PowerStamp);
-                    }
-
-                    PowerOfPowerPlantDTO current = new PowerOfPowerPlantDTO()
-                    {
-                        PowerPlantName = name,
-                        PowerStamps = PowerStamps
-                    };
-
-                    List<string> codes = new List<string>
-                    {
-                        "B01", "B04", "B16", "B19"
-                    };
-
-                    if (DocType == "A73" || (DocType == "A75" && codes.Contains(current.PowerPlantName)))
-                    {
-                        PPData.Add(current);
-                    }
-                }
             }
 
-            //data.Add(new PowerDTO() { PowerPlantBloc = "sum" + ", " + periodEnd, Power = sum });
             return PPData;
         }
 
