@@ -45,30 +45,31 @@ namespace PowerPlantMapAPI.Helpers
                     QueryString = BaseURL + "?securityToken=" + SecurityToken +
                                             "&documentType=" + DocumentType +
                                             "&processType=" + ProcessType +
-                                            "&outBiddingZone_Domain=" + InDomain +
+                                            "&in_Domain=" + InDomain +
                                             "&periodStart=" + PeriodStart +
                                             "&periodEnd=" + PeriodEnd;
                 }
+                Console.WriteLine(QueryString);
 
                 var HttpClient = new HttpClient();
                 var Response = await HttpClient.GetAsync(QueryString);
                 string APIResponse = await Response.Content.ReadAsStringAsync();
                 return APIResponse;
 
-                XmlDocument Document = new XmlDocument();
-                Document.PreserveWhitespace = true;
+                //XmlDocument Document = new XmlDocument();
+                //Document.PreserveWhitespace = true;
 
-                try
-                {
-                    Document.Load(new StringReader(APIResponse));
-                    Document.Save("XMLData/" + QueryString + ".xml");
-                }
-                catch (Exception Exception)
-                {
-                    Console.WriteLine(Exception);
-                }
+                //try
+                //{
+                //    Document.Load(new StringReader(APIResponse));
+                //    Document.Save("XMLData/" + QueryString + ".xml");
+                //}
+                //catch (Exception Exception)
+                //{
+                //    Console.WriteLine(Exception);
+                //}
 
-                return Document;
+                //return Document;
             }
             else
             {

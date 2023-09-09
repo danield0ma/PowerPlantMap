@@ -112,18 +112,6 @@ namespace PowerPlantMapAPI.Services
             return new List<DateTime> { start, end };
         }
 
-        //public async Task<List<DateTime>> GetLastDataTime()
-        //{
-        //    List<DateTime> LastDataTime = await _repository.QueryLastDataTime();
-        //    TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
-
-        //    //TODO túl régi adat esetén nincs elérhető adat kiírása...
-        //    DateTime End = TimeZoneInfo.ConvertTimeFromUtc(LastDataTime[0], cest);
-        //    DateTime Start = End.AddDays(-1)/*.AddMinutes(-15)*/;
-
-        //    return new List<DateTime> { Start, End };
-        //}
-
         public DateTime TransformTime(string time)
         {
             DateTime t = new DateTime(Int32.Parse(time.Substring(0, 4)),
