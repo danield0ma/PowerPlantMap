@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace PowerPlantMapAPI.Services
 {
@@ -190,10 +191,9 @@ namespace PowerPlantMapAPI.Services
 
                 var task1 = Task.Run(async () => await GetPPData("A73", StartTime, EndTime, TimeStamps[0]));
                 var task2 = Task.Run(async () => await GetPPData("A75", StartTime, EndTime, TimeStamps[0]));
-                var task3 = Task.Run(async () => await GetImportData(false, StartTime, EndTime, TimeStamps[0]));
-                var task4 = Task.Run(async () => await GetImportData(true, StartTime, EndTime, TimeStamps[0]));
+                var task3 = Task.Run(async () => await GetImportData(StartTime, EndTime, TimeStamps[0]));
 
-                Task.WaitAll(task1, task2, task3, task4);
+                Task.WaitAll(task1, task2, task3);
             }
             else
             {
@@ -272,7 +272,7 @@ namespace PowerPlantMapAPI.Services
                                 PowerPlantName = name,
                                 PowerStamps = PowerStamps
                             };
-                            
+
                             PPData.Add(current);
                         }
                     }
@@ -282,12 +282,12 @@ namespace PowerPlantMapAPI.Services
             {
                 Console.WriteLine(Exception);
             }
-            await SaveQueriedDataToDb(PPData, start, false);
+            await SaveQueriedDataToDb(PPData, start);
         }
 
-        private async Task GetImportData(bool export, string periodStart, string periodEnd, DateTime start)
+        private async Task GetImportData(string periodStart, string periodEnd, DateTime start)
         {
-            List<string> neighbourCountries = new List<string>
+            List<string> neighbourCountries = new()
             {
                 "10YSK-SEPS-----K",
                 "10YAT-APG------L",
@@ -298,7 +298,7 @@ namespace PowerPlantMapAPI.Services
                 "10Y1001C--00003F"
             };
 
-            List<string> problematic = new List<string>
+            List<string> problematicCountries = new()
             {
                 "10YSK-SEPS-----K",
                 "10YHR-HEP------M",
@@ -306,12 +306,12 @@ namespace PowerPlantMapAPI.Services
                 "10Y1001C--00003F"
             };
 
-            List<PowerOfPowerPlantDTO> importData = new List<PowerOfPowerPlantDTO>();
+            List<PowerOfPowerPlantDTO> importData = new();
             List<int> sum = Enumerable.Repeat(0, 100).ToList();
 
             foreach (string countryCode in neighbourCountries)
             {
-                if (problematic.Contains(countryCode))
+                if (problematicCountries.Contains(countryCode))
                 {
                     periodStart = periodStart.Remove(10);
                     periodStart += "00";
@@ -321,64 +321,60 @@ namespace PowerPlantMapAPI.Services
 
                 try
                 {
-                    XDocument document;
-                    if (export)
-                    {
-                        document = XDocument.Parse(await _powerHelper.APIquery("A11", periodStart, periodEnd, "10YHU-MAVIR----U", countryCode));
-                    }
-                    else
-                    {
-                        document = XDocument.Parse(await _powerHelper.APIquery("A11", periodStart, periodEnd, countryCode, "10YHU-MAVIR----U"));
-                    }
+                    XDocument importedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", periodStart, periodEnd, "10YHU-MAVIR----U", countryCode));
+                    XDocument exportedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", periodStart, periodEnd, countryCode, "10YHU-MAVIR----U"));
 
-                    XNamespace ns = document.Root.Name.Namespace;
-                    if (document is not null && document?.Root is not null && document?.Root?.Elements(ns + "TimeSeries") is not null)
+                    XNamespace importNameSpace = importedEnergyData.Root.Name.Namespace;
+                    XNamespace exportNameSpace = exportedEnergyData.Root.Name.Namespace;
+
+                    var importTimeSeries = importedEnergyData?.Root?.Element(importNameSpace + "TimeSeries");
+                    var exportTimeSeries = exportedEnergyData?.Root?.Element(exportNameSpace + "TimeSeries");
+
+                    if (importTimeSeries?.Elements() is not null && exportTimeSeries?.Elements() is not null)
                     {
-                        var TimeSeries = document?.Root?.Element(ns + "TimeSeries");
-                        if (TimeSeries?.Elements() is not null)
+                        var importPeriod = importTimeSeries?.Element(importNameSpace + "Period");
+                        var exportPeriod = exportTimeSeries?.Element(exportNameSpace + "Period");
+
+                        List<PowerStampDTO> powerStamps = new List<PowerStampDTO>();
+
+                        if (importPeriod?.Elements(importNameSpace + "Point") is not null && exportPeriod?.Elements(exportNameSpace + "Point") is not null)
                         {
-                            var Period = TimeSeries?.Element(ns + "Period");
-                            List<PowerStampDTO> powerStamps = new List<PowerStampDTO>();
-
-                            int index = 0;
-                            if (Period?.Elements(ns + "Point") is not null)
+                            for (int i = 0; i < importPeriod.Elements(importNameSpace + "Point").Count(); i++)
                             {
-                                foreach (var Point in Period.Elements(ns + "Point"))
+                                PowerStampDTO powerStamp = new();
+                                XElement importPoint = importPeriod.Elements(importNameSpace + "Point").ToList()[i];
+                                XElement exportPoint = exportPeriod.Elements(importNameSpace + "Point").ToList()[i];
+
+                                int importValue = Convert.ToInt32(importPoint?.Element(importNameSpace + "quantity")?.Value);
+                                int exportValue = Convert.ToInt32(exportPoint?.Element(exportNameSpace + "quantity")?.Value);
+                                exportValue *= -1;
+
+                                int currentPower = importValue + exportValue;
+
+                                int numberOfTimesTheValueHasToBeSaved = 1;
+                                if (problematicCountries.Contains(countryCode))
                                 {
-                                    PowerStampDTO powerStamp = new PowerStampDTO();
-                                    int currentPower = Convert.ToInt32(Point?.Element(ns + "quantity")?.Value);
-                                    if (export)
-                                    {
-                                        currentPower *= -1;
-                                    }
+                                    numberOfTimesTheValueHasToBeSaved = 4;
+                                }
 
-                                    int numberOfTimesTheValueHasToBeSaved = 1;
-                                    if (problematic.Contains(countryCode))
-                                    {
-                                        numberOfTimesTheValueHasToBeSaved = 4;
-                                    }
+                                powerStamp.Start = DateTime.Now;
+                                powerStamp.Power = currentPower;
 
-                                    powerStamp.Start = DateTime.Now;
-                                    powerStamp.Power = currentPower;
-
-                                    for (int i = 0; i < numberOfTimesTheValueHasToBeSaved; i++)
-                                    {
-                                        powerStamps.Add(powerStamp);
-                                        sum[Convert.ToInt32(Point?.Element(ns + "position")?.Value)] += currentPower;
-                                    }
-
-                                    index++;
+                                for (int j = 0; j < numberOfTimesTheValueHasToBeSaved; j++)
+                                {
+                                    powerStamps.Add(powerStamp);
+                                    sum[Convert.ToInt32(importPoint?.Element(importNameSpace + "position")?.Value)] += currentPower;
                                 }
                             }
-
-                            PowerOfPowerPlantDTO current = new PowerOfPowerPlantDTO()
-                            {
-                                PowerPlantName = countryCode,
-                                PowerStamps = powerStamps
-                            };
-
-                            importData.Add(current);
                         }
+
+                        PowerOfPowerPlantDTO current = new()
+                        {
+                            PowerPlantName = countryCode,
+                            PowerStamps = powerStamps
+                        };
+
+                        importData.Add(current);
                     }
                 }
                 catch (Exception ex)
@@ -386,10 +382,10 @@ namespace PowerPlantMapAPI.Services
                     Console.WriteLine(ex);
                 }
             }
-            await SaveQueriedDataToDb(importData, start, !export);
+            await SaveQueriedDataToDb(importData, start);
         }
 
-        private async Task<bool> SaveQueriedDataToDb(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime Start, bool Import)
+        private async Task<bool> SaveQueriedDataToDb(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime Start)
         {
             List<string> Generators = await _powerRepository.QueryGenerators();
 
@@ -401,11 +397,11 @@ namespace PowerPlantMapAPI.Services
                     foreach (PowerStampDTO PowerStamp in PowerData.PowerStamps)
                     {
                         PeriodStart = PeriodStart.AddMinutes(15);
-                        if (!Import || (Import && PowerStamp.Power != 0))
+                        //if (!Import || (Import && PowerStamp.Power != 0))
                         //TODO mi ez a feltétel?
-                        {
-                            await _powerRepository.InsertData(PowerData.PowerPlantName, PeriodStart, PowerStamp.Power);
-                        }
+                        //{
+                        await _powerRepository.InsertData(PowerData.PowerPlantName, PeriodStart, PowerStamp.Power);
+                        //}
                     }
                 }
             }
