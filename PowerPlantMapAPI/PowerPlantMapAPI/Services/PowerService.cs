@@ -217,72 +217,77 @@ namespace PowerPlantMapAPI.Services
 
         private async Task GetPPData(string docType, string periodStart, string periodEnd, DateTime start)
         {
-            List<PowerOfPowerPlantDTO> PPData = new List<PowerOfPowerPlantDTO>();
-
-            List<string> codes = new List<string>
+            if (docType == "A73" || docType == "A75")
             {
-                "B01", "B04", "B16", "B19"
-            };
-
-            try
-            {
-                XDocument document = XDocument.Parse(await _powerHelper.APIquery(docType, periodStart, periodEnd));
-                XNamespace ns = document?.Root.Name.Namespace;
-                List<int> Sum = Enumerable.Repeat(0, 100).ToList();
-
-                if (document is not null && document?.Root is not null && document?.Root?.Elements(ns + "TimeSeries") is not null)
+                try
                 {
-                    foreach (var TimeSeries in document?.Root?.Elements(ns + "TimeSeries"))
+                    List<PowerOfPowerPlantDTO> PPData = new();
+                    List<string> Generators = await _powerRepository.QueryGenerators();
+
+                    XDocument document = XDocument.Parse(await _powerHelper.APIquery(docType, periodStart, periodEnd));
+                    XNamespace ns = document?.Root.Name.Namespace;
+                    List<int> Sum = Enumerable.Repeat(0, 100).ToList();
+
+                    if (document is not null && document?.Root is not null && document?.Root?.Elements(ns + "TimeSeries") is not null)
                     {
-                        string? name = "";
-                        if (docType == "A73")
+                        foreach (var TimeSeries in document?.Root?.Elements(ns + "TimeSeries"))
                         {
-                            name = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "PowerSystemResources")?.Element(ns + "name")?.Value;
-                        }
-                        if (docType == "A75")
-                        {
-                            name = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "psrType")?.Value;
-                        }
-
-                        if (docType == "A73" || docType == "A75" && name is not null && codes.Contains(name))
-                        {
-                            XElement Period = TimeSeries.Element(ns + "Period");
-                            List<int> power = new List<int>();
-                            if (Period is not null)
+                            string? name = "";
+                            if (docType == "A73")
                             {
-                                foreach (XElement Point in Period.Elements(ns + "Point"))
+                                name = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "PowerSystemResources")?.Element(ns + "name")?.Value;
+                            }
+                            if (docType == "A75")
+                            {
+                                name = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "psrType")?.Value;
+                            }
+
+                            if (name is not null && Generators.Contains(name))
+                            {
+                                XElement Period = TimeSeries.Element(ns + "Period");
+                                List<int> power = new List<int>();
+                                if (Period is not null)
                                 {
-                                    int currentPower = Convert.ToInt32(Point?.Element(ns + "quantity")?.Value);
-                                    power.Add(currentPower);
-                                    Sum[Convert.ToInt32(Point?.Element(ns + "position")?.Value)] += currentPower;
+                                    foreach (XElement Point in Period.Elements(ns + "Point"))
+                                    {
+                                        int currentPower = Convert.ToInt32(Point?.Element(ns + "quantity")?.Value);
+                                        power.Add(currentPower);
+                                        Sum[Convert.ToInt32(Point?.Element(ns + "position")?.Value)] += currentPower;
+                                        //save to DB here
+                                    }
                                 }
+
+                                List<PowerStampDTO> PowerStamps = new();
+                                foreach (int p in power)
+                                {
+                                    PowerStampDTO PowerStamp = new();
+                                    PowerStamp.Power = p;
+                                    PowerStamp.Start = DateTime.Now;
+                                    PowerStamps.Add(PowerStamp);
+                                }
+
+                                PowerOfPowerPlantDTO current = new()
+                                {
+                                    PowerPlantName = name,
+                                    PowerStamps = PowerStamps
+                                };
+
+                                PPData.Add(current);
                             }
-
-                            List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
-                            foreach (int p in power)
-                            {
-                                PowerStampDTO PowerStamp = new PowerStampDTO();
-                                PowerStamp.Power = p;
-                                PowerStamp.Start = DateTime.Now;
-                                PowerStamps.Add(PowerStamp);
-                            }
-
-                            PowerOfPowerPlantDTO current = new PowerOfPowerPlantDTO()
-                            {
-                                PowerPlantName = name,
-                                PowerStamps = PowerStamps
-                            };
-
-                            PPData.Add(current);
                         }
-                    }
+                        await SaveQueriedDataToDb(PPData, start);
+                    }                   
                 }
+                catch (Exception Exception)
+                {
+                    Console.WriteLine(Exception);
+                }
+                
             }
-            catch (Exception Exception)
+            else
             {
-                Console.WriteLine(Exception);
+                throw new NotImplementedException("Unimplemented DocumentType was given");
             }
-            await SaveQueriedDataToDb(PPData, start);
         }
 
         private async Task GetImportData(string periodStart, string periodEnd, DateTime start)
@@ -362,6 +367,7 @@ namespace PowerPlantMapAPI.Services
 
                                 for (int j = 0; j < numberOfTimesTheValueHasToBeSaved; j++)
                                 {
+                                    //Save to db here
                                     powerStamps.Add(powerStamp);
                                     sum[Convert.ToInt32(importPoint?.Element(importNameSpace + "position")?.Value)] += currentPower;
                                 }
@@ -397,11 +403,7 @@ namespace PowerPlantMapAPI.Services
                     foreach (PowerStampDTO PowerStamp in PowerData.PowerStamps)
                     {
                         PeriodStart = PeriodStart.AddMinutes(15);
-                        //if (!Import || (Import && PowerStamp.Power != 0))
-                        //TODO mi ez a feltétel?
-                        //{
                         await _powerRepository.InsertData(PowerData.PowerPlantName, PeriodStart, PowerStamp.Power);
-                        //}
                     }
                 }
             }
