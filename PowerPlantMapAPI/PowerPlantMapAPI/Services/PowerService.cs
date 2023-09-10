@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 namespace PowerPlantMapAPI.Services
 {
@@ -187,15 +188,12 @@ namespace PowerPlantMapAPI.Services
                 string StartTime = _dateService.EditTime(TimeStamps[0]);
                 string EndTime = _dateService.EditTime(TimeStamps[1]);
 
-                List<PowerOfPowerPlantDTO> PowerPlantDataSet = (List<PowerOfPowerPlantDTO>)await GetPPData("A73", StartTime, EndTime);
-                List<PowerOfPowerPlantDTO> RenewableDataSet = (List<PowerOfPowerPlantDTO>)await GetPPData("A75", StartTime, EndTime);
-                List<PowerOfPowerPlantDTO> ImportDataSet = (List<PowerOfPowerPlantDTO>)await GetImportData(false, StartTime, EndTime);
-                List<PowerOfPowerPlantDTO> ExportDataSet = (List<PowerOfPowerPlantDTO>)await GetImportData(true, StartTime, EndTime);
+                var task1 = Task.Run(async () => await GetPPData("A73", StartTime, EndTime, TimeStamps[0]));
+                var task2 = Task.Run(async () => await GetPPData("A75", StartTime, EndTime, TimeStamps[0]));
+                var task3 = Task.Run(async () => await GetImportData(false, StartTime, EndTime, TimeStamps[0]));
+                var task4 = Task.Run(async () => await GetImportData(true, StartTime, EndTime, TimeStamps[0]));
 
-                await SaveQueriedDataToDb(PowerPlantDataSet, TimeStamps[0], false);
-                await SaveQueriedDataToDb(RenewableDataSet, TimeStamps[0], false);
-                await SaveQueriedDataToDb(ImportDataSet, TimeStamps[0], true);
-                await SaveQueriedDataToDb(ExportDataSet, TimeStamps[0], false);
+                Task.WaitAll(task1, task2, task3, task4);
             }
             else
             {
@@ -217,7 +215,7 @@ namespace PowerPlantMapAPI.Services
             return TimeStamps[0] + " - " + TimeStamps[1] + " --> " + LastData[0];
         }
 
-        private async Task<IEnumerable<PowerOfPowerPlantDTO>> GetPPData(string DocType, string PeriodStart, string PeriodEnd)
+        private async Task GetPPData(string docType, string periodStart, string periodEnd, DateTime start)
         {
             List<PowerOfPowerPlantDTO> PPData = new List<PowerOfPowerPlantDTO>();
 
@@ -228,30 +226,25 @@ namespace PowerPlantMapAPI.Services
 
             try
             {
-                XDocument document = XDocument.Parse(await _powerHelper.APIquery(DocType, PeriodStart, PeriodEnd));
+                XDocument document = XDocument.Parse(await _powerHelper.APIquery(docType, periodStart, periodEnd));
                 XNamespace ns = document?.Root.Name.Namespace;
                 List<int> Sum = Enumerable.Repeat(0, 100).ToList();
 
                 if (document is not null && document?.Root is not null && document?.Root?.Elements(ns + "TimeSeries") is not null)
                 {
-                    //foreach (var element in document?.Root?.Elements())
-                    //{
-                    //    Console.WriteLine("Element: " + element.Name);
-                    //}
-
                     foreach (var TimeSeries in document?.Root?.Elements(ns + "TimeSeries"))
                     {
                         string? name = "";
-                        if (DocType == "A73")
+                        if (docType == "A73")
                         {
                             name = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "PowerSystemResources")?.Element(ns + "name")?.Value;
                         }
-                        if (DocType == "A75")
+                        if (docType == "A75")
                         {
                             name = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "psrType")?.Value;
                         }
 
-                        if (DocType == "A73" || DocType == "A75" && name is not null && codes.Contains(name))
+                        if (docType == "A73" || docType == "A75" && name is not null && codes.Contains(name))
                         {
                             XElement Period = TimeSeries.Element(ns + "Period");
                             List<int> power = new List<int>();
@@ -289,11 +282,10 @@ namespace PowerPlantMapAPI.Services
             {
                 Console.WriteLine(Exception);
             }
-
-            return PPData;
+            await SaveQueriedDataToDb(PPData, start, false);
         }
 
-        private async Task<IEnumerable<PowerOfPowerPlantDTO>> GetImportData(bool export, string periodStart, string periodEnd)
+        private async Task GetImportData(bool export, string periodStart, string periodEnd, DateTime start)
         {
             List<string> neighbourCountries = new List<string>
             {
@@ -394,8 +386,7 @@ namespace PowerPlantMapAPI.Services
                     Console.WriteLine(ex);
                 }
             }
-
-            return importData;
+            await SaveQueriedDataToDb(importData, start, !export);
         }
 
         private async Task<bool> SaveQueriedDataToDb(List<PowerOfPowerPlantDTO> PowerDataSet, DateTime Start, bool Import)

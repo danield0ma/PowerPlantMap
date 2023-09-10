@@ -55,21 +55,6 @@ namespace PowerPlantMapAPI.Helpers
                 var Response = await HttpClient.GetAsync(QueryString);
                 string APIResponse = await Response.Content.ReadAsStringAsync();
                 return APIResponse;
-
-                //XmlDocument Document = new XmlDocument();
-                //Document.PreserveWhitespace = true;
-
-                //try
-                //{
-                //    Document.Load(new StringReader(APIResponse));
-                //    Document.Save("XMLData/" + QueryString + ".xml");
-                //}
-                //catch (Exception Exception)
-                //{
-                //    Console.WriteLine(Exception);
-                //}
-
-                //return Document;
             }
             else
             {
