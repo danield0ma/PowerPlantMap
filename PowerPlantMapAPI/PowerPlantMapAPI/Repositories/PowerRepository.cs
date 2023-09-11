@@ -75,17 +75,16 @@ namespace PowerPlantMapAPI.Repositories
             return generators;
         }
 
-        public async Task InsertData(string GID, DateTime start, int power)
+        public async Task InsertData(string generatorId, DateTime startDateTime, int power)
         {
-            var par = new { GID = GID, start = start, end = start.AddMinutes(15), power = power };
+            var parameters = new { GID = generatorId, start = startDateTime, end = startDateTime.AddMinutes(15), power = power };
             try
             {
-                await _connection.QueryAsync("AddPastActivity", par, commandType: CommandType.StoredProcedure);
+                await _connection.QueryAsync("AddPastActivity", parameters, commandType: CommandType.StoredProcedure);
             }
             catch (Exception E)
             {
                 System.Diagnostics.Debug.WriteLine(E.Message);
-                //TODO SQL UPDATE COMMAND kellene!!
             }
         }
     }
