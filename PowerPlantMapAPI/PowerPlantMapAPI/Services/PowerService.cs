@@ -190,7 +190,7 @@ namespace PowerPlantMapAPI.Services
                 var task2 = Task.Run(async () => await GetPPData("A75", TimeStamps));
                 var task3 = Task.Run(async () => await GetImportData("10YHU-MAVIR----U", TimeStamps));
 
-                Task.WaitAll(task1, task2, task3);
+                await Task.WhenAll(task1, task2, task3);
             }
             else
             {
