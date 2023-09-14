@@ -216,8 +216,7 @@ namespace PowerPlantMapAPI.Services
         {
             string periodStart = _dateService.EditTime(TimeStamps[0]);
             string periodEnd = _dateService.EditTime(TimeStamps[1]);
-            DateTime startTimePoint = TimeStamps[0];
-
+            
             if (docType == "A73" || docType == "A75")
             {
                 try
@@ -231,6 +230,7 @@ namespace PowerPlantMapAPI.Services
                     {
                         foreach (var TimeSeries in document?.Root?.Elements(ns + "TimeSeries"))
                         {
+                            DateTime startTimePoint = TimeStamps[0];
                             string? generatorName = "";
                             if (docType == "A73")
                             {
@@ -273,7 +273,6 @@ namespace PowerPlantMapAPI.Services
         {
             string periodStart = _dateService.EditTime(TimeStamps[0]);
             string periodEnd = _dateService.EditTime(TimeStamps[1]);
-            DateTime startTimePoint = TimeStamps[0];
 
             List<string> neighbourCountries = new()
             {
@@ -296,6 +295,8 @@ namespace PowerPlantMapAPI.Services
 
             foreach (string countryCode in neighbourCountries)
             {
+                DateTime startTimePoint = TimeStamps[0];
+                
                 if (problematicCountries.Contains(countryCode))
                 {
                     periodStart = periodStart.Remove(10);
