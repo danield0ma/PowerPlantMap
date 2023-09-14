@@ -51,7 +51,7 @@ namespace PowerPlantMapAPI.Helpers
                 }
                 Console.WriteLine(QueryString);
 
-                var HttpClient = new HttpClient();
+                using var HttpClient = new HttpClient();
                 var Response = await HttpClient.GetAsync(QueryString);
                 string APIResponse = await Response.Content.ReadAsStringAsync();
                 return APIResponse;

@@ -247,11 +247,9 @@ namespace PowerPlantMapAPI.Services
                                 List<int> power = new List<int>();
                                 if (Period is not null)
                                 {
-                                    
                                     foreach (XElement Point in Period.Elements(ns + "Point"))
                                     {
                                         int currentPower = Convert.ToInt32(Point?.Element(ns + "quantity")?.Value);
-                                        power.Add(currentPower);
                                         await _powerRepository.InsertData(generatorName, startTimePoint, currentPower);
                                         startTimePoint = startTimePoint.AddMinutes(15);
                                     }
