@@ -213,17 +213,14 @@ namespace PowerPlantMapAPI.Services
         }
 
         private async Task GetPPData(string docType, List<DateTime> TimeStamps)
-        {
-            string periodStart = _dateService.EditTime(TimeStamps[0]);
-            string periodEnd = _dateService.EditTime(TimeStamps[1]);
-            
+        {            
             if (docType == "A73" || docType == "A75")
             {
                 try
                 {
                     List<string> Generators = await _powerRepository.QueryGenerators();
 
-                    XDocument document = XDocument.Parse(await _powerHelper.APIquery(docType, periodStart, periodEnd));
+                    XDocument document = XDocument.Parse(await _powerHelper.APIquery(docType, TimeStamps[0], TimeStamps[1]));
                     XNamespace ns = document?.Root.Name.Namespace;
 
                     if (document is not null && document?.Root is not null && document?.Root?.Elements(ns + "TimeSeries") is not null)
@@ -271,9 +268,6 @@ namespace PowerPlantMapAPI.Services
 
         private async Task GetImportData(string homeCountry, List<DateTime> TimeStamps)
         {
-            string periodStart = _dateService.EditTime(TimeStamps[0]);
-            string periodEnd = _dateService.EditTime(TimeStamps[1]);
-
             List<string> neighbourCountries = new()
             {
                 "10YSK-SEPS-----K",
@@ -296,19 +290,19 @@ namespace PowerPlantMapAPI.Services
             foreach (string countryCode in neighbourCountries)
             {
                 DateTime startTimePoint = TimeStamps[0];
+                DateTime queryStartTime = TimeStamps[0];
+                DateTime queryEndTime = TimeStamps[1];
                 
                 if (problematicCountries.Contains(countryCode))
                 {
-                    periodStart = periodStart.Remove(10);
-                    periodStart += "00";
-                    periodEnd = periodEnd.Remove(10);
-                    periodEnd += "00";
+                    queryStartTime = queryStartTime.AddMinutes(queryStartTime.Minute * -1);
+                    queryEndTime = queryEndTime.AddMinutes(queryEndTime.Minute * -1);
                 }
 
                 try
                 {
-                    XDocument importedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", periodStart, periodEnd, homeCountry, countryCode));
-                    XDocument exportedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", periodStart, periodEnd, countryCode, homeCountry));
+                    XDocument importedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", queryStartTime, queryEndTime, homeCountry, countryCode));
+                    XDocument exportedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", queryStartTime, queryEndTime, countryCode, homeCountry));
 
                     XNamespace importNameSpace = importedEnergyData.Root.Name.Namespace;
                     XNamespace exportNameSpace = exportedEnergyData.Root.Name.Namespace;

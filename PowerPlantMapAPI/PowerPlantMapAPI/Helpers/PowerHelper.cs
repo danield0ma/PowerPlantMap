@@ -18,12 +18,15 @@ namespace PowerPlantMapAPI.Helpers
             _repository = repository;
         }
 
-        public async Task<string> APIquery(string DocumentType, string PeriodStart, string PeriodEnd, string? InDomain = null, string? OutDomain = null)
+        public async Task<string> APIquery(string documentType, DateTime start, DateTime end, string? inDomain = null, string? outDomain = null)
         {
+            string periodStart = _dateService.EditTime(start);
+            string periodEnd = _dateService.EditTime(end);
+
             string ProcessType = "A16";
-            if (InDomain == null)
+            if (inDomain == null)
             {
-                InDomain = "10YHU-MAVIR----U";
+                inDomain = "10YHU-MAVIR----U";
             }
             string BaseURL = "https://web-api.tp.entsoe.eu/api";
             string SecurityToken = GetAPIToken();
@@ -31,25 +34,25 @@ namespace PowerPlantMapAPI.Helpers
             if (SecurityToken != "")
             {
                 string QueryString = "";
-                if (DocumentType == "A11")
+                if (documentType == "A11")
                 {
                     QueryString = BaseURL + "?securityToken=" + SecurityToken +
-                                       "&documentType=" + DocumentType +
-                                       "&in_Domain=" + InDomain +
-                                       "&out_Domain=" + OutDomain +
-                                       "&periodStart=" + PeriodStart +
-                                       "&periodEnd=" + PeriodEnd;
+                                       "&documentType=" + documentType +
+                                       "&in_Domain=" + inDomain +
+                                       "&out_Domain=" + outDomain +
+                                       "&periodStart=" + periodStart +
+                                       "&periodEnd=" + periodEnd;
                 }
                 else
                 {
                     QueryString = BaseURL + "?securityToken=" + SecurityToken +
-                                            "&documentType=" + DocumentType +
+                                            "&documentType=" + documentType +
                                             "&processType=" + ProcessType +
-                                            "&in_Domain=" + InDomain +
-                                            "&periodStart=" + PeriodStart +
-                                            "&periodEnd=" + PeriodEnd;
+                                            "&in_Domain=" + inDomain +
+                                            "&periodStart=" + periodStart +
+                                            "&periodEnd=" + periodEnd;
                 }
-                Console.WriteLine(QueryString);
+                System.Diagnostics.Debug.WriteLine(QueryString);
 
                 using var HttpClient = new HttpClient();
                 var Response = await HttpClient.GetAsync(QueryString);
