@@ -1,0 +1,17 @@
+name: Show Versions
+run-name: ${{ github.actor }} will see the versions
+on: [push]
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: node --version
+      - run: npm --version
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - run: dotnet --version
