@@ -3,10 +3,11 @@ import fs from 'fs'
 
 export default {
   server: {
-    https: {
+    dev: process.env.NODE_ENV === 'development',
+    https: process.env.NODE_ENV === 'production' ? {
       key: fs.readFileSync(path.resolve('/etc/letsencrypt/live/powerplantmap.tech', 'privkey.pem')),
       cert: fs.readFileSync(path.resolve('/etc/letsencrypt/live/powerplantmap.tech', 'fullchain.pem'))
-    }
+    } : null,
   },
   
   // Global page headers: https://go.nuxtjs.dev/config-head

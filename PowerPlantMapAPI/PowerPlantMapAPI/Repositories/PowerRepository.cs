@@ -11,7 +11,7 @@ namespace PowerPlantMapAPI.Repositories
 
         public PowerRepository(IConfiguration configuration)
         {
-            connectionString = configuration.GetConnectionString("PPM.Tech");
+            connectionString = configuration.GetConnectionString("Default");
         }
 
         public async Task<List<PowerPlantDataModel>> QueryPowerPlantBasics()
