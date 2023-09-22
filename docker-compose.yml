@@ -27,7 +27,7 @@ services:
       - "1433:1433"
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=ASDfgh123456!%
+      - MSSQL_SA_PASSWORD=${MSSQL_PWD}
       - MSSQL_PID=Standard
     volumes:
       - PPM:/var/opt/mssql

@@ -43,3 +43,4 @@ msbuild.wrn
 appsettings.json
 appsettings.Development.json
 key.txt
+.env
