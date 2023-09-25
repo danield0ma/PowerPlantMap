@@ -86,7 +86,7 @@
 
         <div v-if="content.blocs[selectedBloc].generators.length > 1">
           <!-- <div v-for="generator in content.blocs[selectedBloc].generators" :key="generator.generatorID">
-                        <p>{{generator.generatorID}}: {{generator.currentPower[0]}}/{{generator.maxCapacity}}MW</p>
+                        <p>{{generator.generatorID}}: {{generator.pastPower[0]}}/{{generator.maxCapacity}}MW</p>
                     </div> -->
           <div class="flexbox" style="justify-content: space-around">
             <div>
@@ -132,7 +132,7 @@
 
         <!-- <div v-for="bloc in content.blocs" :key="bloc.blocID">
                     <div class="flexbox">
-                        <h6>{{bloc.blocID}} ({{bloc.blocType}}): {{bloc.currentPower}}/{{bloc.maxBlocCapacity}}MW</h6>
+                        <h6>{{bloc.blocID}} ({{bloc.blocType}}): {{bloc.pastPower}}/{{bloc.maxBlocCapacity}}MW</h6>
                         <div class="inline" v-if="bloc.generators.length > 1">
                             <font-awesome-icon icon="fa-solid fa-xmark fa-xs" class="faicon" />
                         </div>
@@ -150,7 +150,7 @@
 
                     <div v-if="bloc.generators.length > 1">
                         <div v-for="generator in bloc.generators" :key="generator.generatorID">
-                            <p>{{generator.generatorID}}: {{generator.currentPower[0]}}/{{generator.maxCapacity}}MW</p>
+                            <p>{{generator.generatorID}}: {{generator.pastPower[0]}}/{{generator.maxCapacity}}MW</p>
                         </div>
                     </div>
                 </div> -->
@@ -265,6 +265,7 @@ export default {
             },
           },
         },
+        minimumFractionDigits: 2,
       };
     },
 
@@ -343,7 +344,7 @@ export default {
         if (choice || blocID == bloc.blocID) {
           for (let generator of bloc.generators) {
             for (let i = 0; i < 97; i++) {
-              a[i] += generator.currentPower[i];
+              a[i] += generator.pastPower[i];
             }
           }
         }
@@ -354,7 +355,7 @@ export default {
           for (let generator of bloc.generators) {
             if (blocID == generator.generatorID) {
               for (let i = 0; i < 97; i++) {
-                a[i] += generator.currentPower[i];
+                a[i] += generator.pastPower[i];
               }
             }
           }
@@ -398,7 +399,7 @@ export default {
 
     getMin() {
       if (this.content.isCountry) {
-        let array = this.content.blocs[0].generators[0].currentPower;
+        let array = this.content.blocs[0].generators[0].pastPower;
         let min = Math.min(...array);
         return Math.floor(min / 100) * 100;
       } else {
@@ -416,16 +417,16 @@ export default {
       if (selectedBloc == -1) {
         for (let bloc of this.content.blocs) {
           for (let generator of bloc.generators) {
-            for (let i = 0; i < generator.currentPower.length; i++) {
-              array[i] += generator.currentPower[i];
+            for (let i = 0; i < generator.pastPower.length; i++) {
+              array[i] += generator.pastPower[i];
             }
           }
         }
       } else {
         for (let generator of this.content.blocs[selectedBloc].generators) {
           if (generatorID == "" || generatorID == generator.generatorID) {
-            for (let i = 0; i < generator.currentPower.length; i++) {
-              array[i] += generator.currentPower[i];
+            for (let i = 0; i < generator.pastPower.length; i++) {
+              array[i] += generator.pastPower[i];
             }
           }
         }

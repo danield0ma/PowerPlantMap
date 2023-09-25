@@ -85,7 +85,7 @@ export default {
 
   methods: {
     async fetchWithBasePath(path) {
-      const basePath = 'https://powerplantmap.tech:5001/';
+      const basePath = 'https://207.154.199.39:5001/';
       const url = `${basePath}${path}`;
       return await fetch(url);
     },

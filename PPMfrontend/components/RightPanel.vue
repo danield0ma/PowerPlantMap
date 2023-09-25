@@ -93,6 +93,7 @@ export default {
             },
           },
         },
+        minimumFractionDigits: 2,
       };
     },
   },
