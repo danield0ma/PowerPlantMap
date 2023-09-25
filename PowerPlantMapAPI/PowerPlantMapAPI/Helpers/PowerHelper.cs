@@ -21,10 +21,10 @@ namespace PowerPlantMapAPI.Helpers
             _configuration = configuration;
         }
 
-        public async Task<string> APIquery(string documentType, DateTime start, DateTime end, string? inDomain = null, string? outDomain = null)
+        public async Task<string> APIquery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
         {
-            string periodStart = _dateService.EditTime(start);
-            string periodEnd = _dateService.EditTime(end);
+            string periodStartUtc = _dateService.EditTime(startUtc);
+            string periodEndUtc = _dateService.EditTime(endUtc);
 
             string ProcessType = "A16";
             if (inDomain == null)
@@ -43,8 +43,8 @@ namespace PowerPlantMapAPI.Helpers
                                        "&documentType=" + documentType +
                                        "&in_Domain=" + inDomain +
                                        "&out_Domain=" + outDomain +
-                                       "&periodStart=" + periodStart +
-                                       "&periodEnd=" + periodEnd;
+                                       "&periodStart=" + periodStartUtc +
+                                       "&periodEnd=" + periodEndUtc;
                 }
                 else
                 {
@@ -52,8 +52,8 @@ namespace PowerPlantMapAPI.Helpers
                                             "&documentType=" + documentType +
                                             "&processType=" + ProcessType +
                                             "&in_Domain=" + inDomain +
-                                            "&periodStart=" + periodStart +
-                                            "&periodEnd=" + periodEnd;
+                                            "&periodStart=" + periodStartUtc +
+                                            "&periodEnd=" + periodEndUtc;
                 }
                 System.Diagnostics.Debug.WriteLine(QueryString);
 
@@ -68,61 +68,63 @@ namespace PowerPlantMapAPI.Helpers
             }
         }
 
-        public async Task<List<GeneratorPowerDTO>> GetGeneratorPower(string generator, DateTime start, DateTime end)
+        public async Task<List<GeneratorPowerDTO>> GetGeneratorPower(string generator, DateTime startUtc, DateTime endUtc)
         {
-            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
-            if (start.Kind != DateTimeKind.Utc)
+            //if (startUtc.Kind != DateTimeKind.Utc)
+            //{
+            //    startUtc = TimeZoneInfo.ConvertTimeToUtc(startUtc, TimeZoneInfo.Local);
+            //    startUtc = DateTime.SpecifyKind(startUtc, DateTimeKind.Utc);
+            //    endUtc = TimeZoneInfo.ConvertTimeToUtc(endUtc, TimeZoneInfo.Local);
+            //    endUtc = DateTime.SpecifyKind(endUtc, DateTimeKind.Utc);
+            //}
+
+            List<PastActivityModel> pastActivity = await _repository.QueryPastActivity(generator, startUtc, endUtc);
+            List<GeneratorPowerDTO> pastPowerOfGenerator = new();
+            foreach (var activity in pastActivity)
             {
-                start = TimeZoneInfo.ConvertTimeToUtc(start, TimeZoneInfo.Local);
-                start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
-                end = TimeZoneInfo.ConvertTimeToUtc(end, TimeZoneInfo.Local);
-                end = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+                GeneratorPowerDTO generatorPower = new()
+                {
+                    TimePoint = TimeZoneInfo.ConvertTimeFromUtc(activity.PeriodStart, TimeZoneInfo.Local),
+                    Power = activity.ActualPower
+                };
+                pastPowerOfGenerator.Add(generatorPower);
             }
 
-            List<PastActivityModel> PastActivity = await _repository.QueryPastActivity(generator, start, end);
-            List<GeneratorPowerDTO> PastPowerOfGenerator = new List<GeneratorPowerDTO>();
-            foreach (var Activity in PastActivity)
-            {
-                GeneratorPowerDTO GeneratorPower = new GeneratorPowerDTO();
-                GeneratorPower.TimePoint = TimeZoneInfo.ConvertTimeFromUtc(Activity.PeriodStart, cest);
-                GeneratorPower.Power = Activity.ActualPower;
-                PastPowerOfGenerator.Add(GeneratorPower);
-            }
+            int numberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(startUtc, endUtc);
 
-            int NumberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(start, end);
-
-            for (int i = PastPowerOfGenerator.Count; i < NumberOfDataPoints; i++)
+            for (int i = pastPowerOfGenerator.Count; i < numberOfDataPoints; i++)
             {
-                PastPowerOfGenerator.Add(new GeneratorPowerDTO());
+                pastPowerOfGenerator.Add(new GeneratorPowerDTO());
             }
-            return PastPowerOfGenerator;
+            return pastPowerOfGenerator;
         }
 
-        public async Task<List<PowerStampDTO>> GetPowerStampsListOfPowerPlant(string Id, int NumberOfDataPoints, List<DateTime> TimeStamps)
+        public async Task<List<PowerStampDTO>> GetPowerStampsListOfPowerPlant(string id, int numberOfDataPoints, List<DateTime> timeStampsUtc)
         {
-            List<PowerStampDTO> PowerStamps = new List<PowerStampDTO>();
-            for (int i = 0; i < NumberOfDataPoints; i++)
+            List<PowerStampDTO> powerStamps = new();
+            for (int i = 0; i < numberOfDataPoints; i++)
             {
-                PowerStampDTO PowerStamp = new PowerStampDTO();
-                PowerStamp.Start = TimeStamps[0].AddMinutes(i * 15);
-                PowerStamp.Power = 0;
-                PowerStamps.Add(PowerStamp);
+                PowerStampDTO powerStamp = new();
+                powerStamp.Start = TimeZoneInfo.ConvertTimeFromUtc(timeStampsUtc[0].AddMinutes(i * 15), TimeZoneInfo.Local);
+                powerStamp.Power = 0;
+                powerStamps.Add(powerStamp);
             }
 
-            List<string> Generators = await _repository.QueryGeneratorsOfPowerPlant(Id);
-            foreach (string Generator in Generators)
+            List<string> generators = await _repository.QueryGeneratorsOfPowerPlant(id);
+            foreach (string generator in generators)
             {
-                List<GeneratorPowerDTO> GeneratorPowers = await GetGeneratorPower(Generator, TimeStamps[0], TimeStamps[1]);
-                foreach (GeneratorPowerDTO GeneratorPower in GeneratorPowers)
+                List<GeneratorPowerDTO> generatorPowers = await GetGeneratorPower(generator, timeStampsUtc[0], timeStampsUtc[1]);
+                foreach (GeneratorPowerDTO generatorPower in generatorPowers)
                 {
-                    List<PowerStampDTO> Matches = (List<PowerStampDTO>)PowerStamps.Where(x => x.Start == GeneratorPower.TimePoint).ToList();
-                    foreach (PowerStampDTO Match in Matches)
+                    DateTime generatorPowerTimePointLocal = generatorPower.TimePoint;
+                    List<PowerStampDTO> matches = powerStamps.Where(x => x.Start == generatorPowerTimePointLocal).ToList();
+                    foreach (PowerStampDTO match in matches)
                     {
-                        Match.Power += GeneratorPower.Power;
+                        match.Power += generatorPower.Power;
                     }
                 }
             }
-            return PowerStamps;
+            return powerStamps;
         }
 
         private string GetAPIToken()

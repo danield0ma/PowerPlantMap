@@ -11,43 +11,49 @@ namespace PowerPlantMapAPI.Services
             _repository = repository;
         }
 
-        public async Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
+        public async Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
         {
-            List<DateTime> TimeStamps = new List<DateTime>();
-            TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            List<DateTime> timeStampsUtc = new();
+            //TimeZoneInfo cest = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
 
-            if (Date != null)
+            if (date is DateTime)
             {
-                DateTime First = new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0);
-                DateTime.SpecifyKind(First, DateTimeKind.Local);
-                //TimeZoneInfo.ConvertTimeToUtc(First, cest);
-                Date = Date.Value.AddDays(1);
-                DateTime Second = new DateTime(Date.Value.Year, Date.Value.Month, Date.Value.Day, 0, 0, 0);
-                DateTime.SpecifyKind(Second, DateTimeKind.Local);
-                //TimeZoneInfo.ConvertTimeToUtc(First, cest);
-                TimeStamps.Add(First);
-                TimeStamps.Add(Second);
+                date = DateTime.SpecifyKind((DateTime)date, DateTimeKind.Local);
+                DateTime firstLocal = new(date.Value.Year, date.Value.Month, date.Value.Day, 0, 0, 0, DateTimeKind.Local);
+                DateTime firstUtc = TimeZoneInfo.ConvertTimeToUtc(firstLocal, TimeZoneInfo.Local);
+                firstUtc = DateTime.SpecifyKind(firstUtc, DateTimeKind.Utc);
+
+                DateTime secondUtc = firstUtc.AddDays(1);
+                secondUtc = DateTime.SpecifyKind(secondUtc, DateTimeKind.Utc);
+                
+                timeStampsUtc.Add(firstUtc);
+                timeStampsUtc.Add(secondUtc);
             }
-            else if (Start != null && End != null)
+            else if (startLocal != null && endLocal != null)
             {
-                //DateTime First = TimeZoneInfo.ConvertTimeToUtc((DateTime)Start, cest);
-                Start = DateTime.SpecifyKind((DateTime)Start, DateTimeKind.Local);
-                TimeStamps.Add((DateTime)Start);
-                //DateTime Second = TimeZoneInfo.ConvertTimeToUtc((DateTime)End, cest);
-                End = DateTime.SpecifyKind((DateTime)End, DateTimeKind.Local);
-                TimeStamps.Add((DateTime)End);
+                startLocal = DateTime.SpecifyKind((DateTime)startLocal, DateTimeKind.Local);
+                DateTime startUtc = TimeZoneInfo.ConvertTimeToUtc((DateTime)startLocal, TimeZoneInfo.Local);
+                timeStampsUtc.Add(startUtc);
+                
+                endLocal = DateTime.SpecifyKind((DateTime)endLocal, DateTimeKind.Local);
+                DateTime endUtc = TimeZoneInfo.ConvertTimeToUtc((DateTime)endLocal, TimeZoneInfo.Local);
+                timeStampsUtc.Add(endUtc);
             }
             else
             {
-                List<DateTime> LastDataTime = await _repository.QueryLastDataTime();
+                List<DateTime> lastDataTimeUtcArray = await _repository.QueryLastDataTime();
+                DateTime lastDataTimeUtc = lastDataTimeUtcArray[0];
+                DateTime startUtc = lastDataTimeUtc.AddDays(-1);
                 //TODO túl régi adat esetén nincs elérhető adat kiírása...
-                DateTime Time = TimeZoneInfo.ConvertTimeFromUtc(LastDataTime[0], cest);
-                Time = DateTime.SpecifyKind(Time, DateTimeKind.Local);
-                TimeStamps.Add(Time);
-                TimeStamps.Insert(0, Time.AddDays(-1));
+                //DateTime lastDataTimeLocal = TimeZoneInfo.ConvertTimeFromUtc(lastDataTimeUtc[0], cest);
+                //lastDataTimeLocal = DateTime.SpecifyKind(lastDataTimeLocal, DateTimeKind.Local);
+                lastDataTimeUtc = DateTime.SpecifyKind(lastDataTimeUtc, DateTimeKind.Utc);
+                startUtc = DateTime.SpecifyKind(startUtc, DateTimeKind.Utc);
+                timeStampsUtc.Add(startUtc);
+                timeStampsUtc.Add(lastDataTimeUtc);
             }
 
-            return TimeStamps;
+            return timeStampsUtc;
         }
 
         public string getTime(int diff)
@@ -64,52 +70,53 @@ namespace PowerPlantMapAPI.Services
 
         public string EditTime(DateTime start)
         {
-            string StartTime = Convert.ToString(start.Year);
-            if (start.Month < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Month);
-            if (start.Day < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Day);
-            if (start.Hour < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Hour);
-            if (start.Minute < 10) { StartTime += "0"; }
-            StartTime += Convert.ToString(start.Minute);
-            return StartTime;
+            string startTime = Convert.ToString(start.Year);
+            if (start.Month < 10) { startTime += "0"; }
+            startTime += Convert.ToString(start.Month);
+            if (start.Day < 10) { startTime += "0"; }
+            startTime += Convert.ToString(start.Day);
+            if (start.Hour < 10) { startTime += "0"; }
+            startTime += Convert.ToString(start.Hour);
+            if (start.Minute < 10) { startTime += "0"; }
+            startTime += Convert.ToString(start.Minute);
+            return startTime;
         }
 
         public async Task<List<DateTime>> GetInitDataTimeInterval()
         {
-            DateTime Now = DateTime.Now;
-            DateTime end = new DateTime(Now.Year, Now.Month, Now.Day, Now.Hour, 0, 0);
+            DateTime now = DateTime.Now;
+            DateTime endLocal = new(now.Year, now.Month, now.Day, now.Hour, 0, 0);
 
-            if (Now.Minute < 15)
+            if (now.Minute < 15)
             {
-                end = end.AddHours(-1);
-                end = end.AddMinutes(45);
+                endLocal = endLocal.AddHours(-1);
+                endLocal = endLocal.AddMinutes(45);
             }
             else if (DateTime.Now.Minute < 30)
             {
-                end = end.AddMinutes(0);
+                endLocal = endLocal.AddMinutes(0);
             }
             else if (DateTime.Now.Minute < 45)
             {
-                end = end.AddMinutes(15);
+                endLocal = endLocal.AddMinutes(15);
             }
             else
             {
-                end = end.AddMinutes(30);
+                endLocal = endLocal.AddMinutes(30);
             }
             
-            DateTime start = end.AddHours(-30);
-            List<DateTime> LastData = await _repository.QueryLastDataTime();
-            if (LastData[0] > start)
+            endLocal = DateTime.SpecifyKind(endLocal, DateTimeKind.Local);
+            DateTime endUtc = TimeZoneInfo.ConvertTimeToUtc(endLocal, TimeZoneInfo.Local);
+            
+            DateTime startUtc = endUtc.AddHours(-48);
+            List<DateTime> lastDataUtc = await _repository.QueryLastDataTime();
+            if (lastDataUtc[0] > startUtc)
             {
-                start = LastData[0];
+                startUtc = lastDataUtc[0];
             }
+            startUtc = DateTime.SpecifyKind(startUtc, DateTimeKind.Utc);
 
-            Console.WriteLine(start);
-            Console.WriteLine(end);
-
-            return new List<DateTime> { start, end };
+            return new List<DateTime> { startUtc, endUtc };
         }
 
         public DateTime TransformTime(string time)

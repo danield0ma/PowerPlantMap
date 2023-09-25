@@ -92,7 +92,7 @@ namespace PowerPlantMapAPI.Repositories
             }
             catch (Exception E)
             {
-                System.Diagnostics.Debug.WriteLine(E.Message);
+                System.Diagnostics.Debug.WriteLine("While inserting into the db: ", E.Message);
             }
         }
     }
