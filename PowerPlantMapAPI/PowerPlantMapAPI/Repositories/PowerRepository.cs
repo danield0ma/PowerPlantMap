@@ -7,25 +7,24 @@ namespace PowerPlantMapAPI.Repositories
 {
     public class PowerRepository : IPowerRepository
     {
-        private string connectionString;
+        private readonly string connectionString;
 
         public PowerRepository(IConfiguration configuration)
         {
-            connectionString = configuration.GetConnectionString("Default");
+            connectionString = configuration.GetConnectionString(configuration["ConnectionStringToBeUsed"]);
         }
 
         public async Task<List<PowerPlantDataModel>> QueryPowerPlantBasics()
         {
             using var connection = new SqlConnection(connectionString);
-            return (List<PowerPlantDataModel>) await
-                connection.QueryAsync<PowerPlantDataModel>("[PowerPlantBasics]", CommandType.StoredProcedure);
+            return (List<PowerPlantDataModel>)await connection.QueryAsync<PowerPlantDataModel>("[PowerPlantBasics]", CommandType.StoredProcedure);
         }
 
         public async Task<PowerPlantDataModel> QueryBasicsOfPowerPlant(string id)
         {
             using var connection = new SqlConnection(connectionString);
-            var parameters = new { id = id };
-            List<PowerPlantDataModel> PP = (List<PowerPlantDataModel>) await connection.QueryAsync<PowerPlantDataModel>
+            var parameters = new { id };
+            List<PowerPlantDataModel> PP = (List<PowerPlantDataModel>)await connection.QueryAsync<PowerPlantDataModel>
                 ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
             return PP[0];
         }
@@ -51,18 +50,17 @@ namespace PowerPlantMapAPI.Repositories
         public async Task<List<string>> QueryPowerPlants()
         {
             using var connection = new SqlConnection(connectionString);
-            List<string> PowerPlants = (List<string>)await connection.QueryAsync<string>
-                    ("GetPowerPlants", commandType: CommandType.StoredProcedure);
-            return PowerPlants;
+            List<string> powerPlants = (List<string>)await connection.QueryAsync<string>("GetPowerPlants", commandType: CommandType.StoredProcedure);
+            return powerPlants;
         }
 
         public async Task<List<string>> QueryGeneratorsOfPowerPlant(string PowerPlant)
         {
             using var connection = new SqlConnection(connectionString);
             var parameters = new { PPID = PowerPlant };
-            List<string> Generators = (List<string>)await connection.QueryAsync<string>
+            List<string> generators = (List<string>)await connection.QueryAsync<string>
                 ("GetGeneratorsOfPowerPlant", parameters, commandType: CommandType.StoredProcedure);
-            return Generators;
+            return generators;
         }
 
         public async Task<List<DateTime>> QueryLastDataTime()
@@ -85,7 +83,7 @@ namespace PowerPlantMapAPI.Repositories
         public async Task InsertData(string generatorId, DateTime startDateTime, int power)
         {
             using var connection = new SqlConnection(connectionString);
-            var parameters = new { GID = generatorId, start = startDateTime, end = startDateTime.AddMinutes(15), power = power };
+            var parameters = new { GID = generatorId, start = startDateTime, end = startDateTime.AddMinutes(15), power };
             try
             {
                 await connection.QueryAsync("AddPastActivity", parameters, commandType: CommandType.StoredProcedure);
