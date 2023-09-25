@@ -4,6 +4,7 @@ using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
 using System.Xml;
 using System;
+using Microsoft.Extensions.Configuration;
 
 namespace PowerPlantMapAPI.Helpers
 {
@@ -11,11 +12,13 @@ namespace PowerPlantMapAPI.Helpers
     {
         private readonly IDateService _dateService;
         private readonly IPowerRepository _repository;
+        private readonly IConfiguration _configuration;
 
-        public PowerHelper(IDateService dateService, IPowerRepository repository)
+        public PowerHelper(IDateService dateService, IPowerRepository repository, IConfiguration configuration)
         {
             _dateService = dateService;
             _repository = repository;
+            _configuration = configuration;
         }
 
         public async Task<string> APIquery(string documentType, DateTime start, DateTime end, string? inDomain = null, string? outDomain = null)
@@ -124,19 +127,16 @@ namespace PowerPlantMapAPI.Helpers
 
         private string GetAPIToken()
         {
-            string SecurityToken = "";
+            string securityToken = "";
             try
             {
-                using (var StreamReader = new StreamReader("key.txt"))
-                {
-                    SecurityToken = StreamReader.ReadToEnd();
-                }
+                securityToken = _configuration["APIToken"];
             }
             catch (IOException Exception)
             {
                 Console.WriteLine(Exception.Message);
             }
-            return SecurityToken;
+            return securityToken;
         }
     }
 }
