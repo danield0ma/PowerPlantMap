@@ -29,12 +29,19 @@
           />
         </client-only>
       </div>
+      <!-- <TotalChart
+        blocId="Gönyű 1"
+        generatorId="Gönyű 1"
+        v-bind:generator="false"
+      /> -->
     </div>
   </div>
 </template>
 
 <script>
 import moment from "moment";
+import "chart.js";
+import TotalChart from "~/components/TotalChart.vue";
 
 export default {
   computed: {

@@ -26,7 +26,12 @@
       <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
 
       <div v-if="blocsNotEnabled">
-        <client-only>
+        <TotalChart
+          :blocId="'Gönyű 1'"
+          :generatorId="'Gönyű 1'"
+          v-bind:generator="false"
+        />
+        <!-- <client-only>
           <line-chart
             :chart-data="chartData('all', false)"
             :chart-options="
@@ -36,7 +41,7 @@
             :width="500"
             chart-id="Teljes"
           />
-        </client-only>
+        </client-only> -->
       </div>
 
       <div class="flexbox" v-if="content.blocs.length > 1">
@@ -61,7 +66,7 @@
       </div>
 
       <div v-if="blocsEnabled">
-        <client-only>
+        <!-- <client-only>
           <line-chart
             :chart-data="chartData(content.blocs[selectedBloc].blocID, false)"
             :chart-options="
@@ -71,7 +76,7 @@
             :width="500"
             chart-id="bloc"
           />
-        </client-only>
+        </client-only> -->
 
         <div
           class="flexbox"
@@ -90,70 +95,49 @@
                     </div> -->
           <div class="flexbox" style="justify-content: space-around">
             <div>
-              <line-chart
-                :chart-data="
-                  chartData(
-                    content.blocs[selectedBloc].generators[0].generatorID,
-                    true
-                  )
-                "
-                :chart-options="
-                  chartOptions(
-                    content.blocs[selectedBloc].generators[0].generatorID,
-                    content.blocs[selectedBloc].generators[0].generatorID
-                  )
-                "
-                :height="150"
-                :width="200"
-                chart-id="bloc"
-              />
+              <!-- <client-only>
+                <line-chart
+                  :chart-data="
+                    chartData(
+                      content.blocs[selectedBloc].generators[0].generatorID,
+                      true
+                    )
+                  "
+                  :chart-options="
+                    chartOptions(
+                      content.blocs[selectedBloc].generators[0].generatorID,
+                      content.blocs[selectedBloc].generators[0].generatorID
+                    )
+                  "
+                  :height="150"
+                  :width="200"
+                  chart-id="bloc"
+                />
+              </client-only> -->
             </div>
             <div>
-              <line-chart
-                :chart-data="
-                  chartData(
-                    content.blocs[selectedBloc].generators[1].generatorID,
-                    true
-                  )
-                "
-                :chart-options="
-                  chartOptions(
-                    content.blocs[selectedBloc].generators[1].generatorID,
-                    content.blocs[selectedBloc].generators[1].generatorID
-                  )
-                "
-                :height="150"
-                :width="200"
-                chart-id="bloc"
-              />
+              <!-- <client-only>
+                <line-chart
+                  :chart-data="
+                    chartData(
+                      content.blocs[selectedBloc].generators[1].generatorID,
+                      true
+                    )
+                  "
+                  :chart-options="
+                    chartOptions(
+                      content.blocs[selectedBloc].generators[1].generatorID,
+                      content.blocs[selectedBloc].generators[1].generatorID
+                    )
+                  "
+                  :height="150"
+                  :width="200"
+                  chart-id="bloc"
+                />
+              </client-only> -->
             </div>
           </div>
         </div>
-
-        <!-- <div v-for="bloc in content.blocs" :key="bloc.blocID">
-                    <div class="flexbox">
-                        <h6>{{bloc.blocID}} ({{bloc.blocType}}): {{bloc.pastPower}}/{{bloc.maxBlocCapacity}}MW</h6>
-                        <div class="inline" v-if="bloc.generators.length > 1">
-                            <font-awesome-icon icon="fa-solid fa-xmark fa-xs" class="faicon" />
-                        </div>
-                    </div>
-
-                    <client-only>
-                        <line-chart
-                            :chart-data = "chartData(bloc.blocID)"
-                            :chart-options = "chartOptions"
-                            :height = "300"
-                            :width = "500"
-                            chart-id = bloc.blocID
-                        />
-                    </client-only>
-
-                    <div v-if="bloc.generators.length > 1">
-                        <div v-for="generator in bloc.generators" :key="generator.generatorID">
-                            <p>{{generator.generatorID}}: {{generator.pastPower[0]}}/{{generator.maxCapacity}}MW</p>
-                        </div>
-                    </div>
-                </div> -->
       </div>
     </div>
   </div>
@@ -161,6 +145,8 @@
 
 <script>
 import moment from "moment";
+import "chart.js";
+import TotalChart from "~/components/TotalChart.vue";
 
 export default {
   name: "LeftPanel",
