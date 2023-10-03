@@ -26,12 +26,12 @@
       <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
 
       <div v-if="blocsNotEnabled">
-        <TotalChart
+        <!-- <TotalChart
           :blocId="'Gönyű 1'"
           :generatorId="'Gönyű 1'"
           v-bind:generator="false"
-        />
-        <!-- <client-only>
+        /> -->
+        <client-only>
           <line-chart
             :chart-data="chartData('all', false)"
             :chart-options="
@@ -41,7 +41,7 @@
             :width="500"
             chart-id="Teljes"
           />
-        </client-only> -->
+        </client-only>
       </div>
 
       <div class="flexbox" v-if="content.blocs.length > 1">
@@ -66,7 +66,7 @@
       </div>
 
       <div v-if="blocsEnabled">
-        <!-- <client-only>
+        <client-only>
           <line-chart
             :chart-data="chartData(content.blocs[selectedBloc].blocID, false)"
             :chart-options="
@@ -76,7 +76,7 @@
             :width="500"
             chart-id="bloc"
           />
-        </client-only> -->
+        </client-only>
 
         <div
           class="flexbox"
@@ -95,7 +95,7 @@
                     </div> -->
           <div class="flexbox" style="justify-content: space-around">
             <div>
-              <!-- <client-only>
+              <client-only>
                 <line-chart
                   :chart-data="
                     chartData(
@@ -113,10 +113,10 @@
                   :width="200"
                   chart-id="bloc"
                 />
-              </client-only> -->
+              </client-only>
             </div>
             <div>
-              <!-- <client-only>
+              <client-only>
                 <line-chart
                   :chart-data="
                     chartData(
@@ -134,7 +134,7 @@
                   :width="200"
                   chart-id="bloc"
                 />
-              </client-only> -->
+              </client-only>
             </div>
           </div>
         </div>
@@ -151,15 +151,11 @@ import TotalChart from "~/components/TotalChart.vue";
 export default {
   name: "LeftPanel",
 
-  // created() {
-  //     moment.locale('hu')
-  // },
-
-  // data() {
-  //     return {
-  //         selectedBloc: 0
-  //     }
-  // },
+  data() {
+    return {
+      PowerArray: [],
+    };
+  },
 
   computed: {
     dataEnd() {
@@ -201,6 +197,7 @@ export default {
       return this.$store.state.power.selectedBloc;
     },
   },
+
   methods: {
     chartOptions(generatorID, title) {
       return {
@@ -256,7 +253,7 @@ export default {
     },
 
     chartData(blocID, generator) {
-      let asd = {
+      return {
         labels: this.getDateArray(),
         datasets: [
           {
@@ -275,7 +272,6 @@ export default {
           },
         ],
       };
-      return asd;
     },
 
     getContent() {
@@ -294,61 +290,31 @@ export default {
         time = moment(time).add(15, "m");
         dateArray.push(moment(time).format("HH:mm"));
       }
-
       return dateArray;
-
-      // let time = moment(this.$store.state.power.content.dataStart).add(15, 'm').toDate()
-
-      // let timeArray = []
-      // let resultArray = []
-      // let previous = time
-      // timeArray.push(time)
-      // resultArray.push(moment(time).format("HH:mm"))
-      // for(let i=1; i<97; i++)
-      // {
-      //     let time = moment(previous).add(15, 'm').toDate()
-      //     timeArray.push(time)
-      //     resultArray.push(moment(time).format("HH:mm"))
-      //     previous = time
-      // }
-      // return resultArray
     },
 
-    getPowerArray(blocID, generator) {
-      let choice = false;
-      if (blocID == "all") {
-        choice = true;
+    getPowerArray(id, isGenerator) {
+      // let result = [];
+      for (let i = 0; i < 96; i++) {
+        this.PowerArray.push(0);
       }
 
-      let data = this.content;
-      let a = [];
-      for (let i = 0; i < 97; i++) {
-        a.push(0);
-      }
+      console.log(id, isGenerator);
 
-      for (let bloc of data.blocs) {
-        if (choice || blocID == bloc.blocID) {
+      for (let bloc of this.content.blocs) {
+        if (id === "all" || id === bloc.blocID || isGenerator) {
           for (let generator of bloc.generators) {
-            for (let i = 0; i < 97; i++) {
-              a[i] += generator.pastPower[i];
-            }
-          }
-        }
-      }
-
-      if (generator) {
-        for (let bloc of data.blocs) {
-          for (let generator of bloc.generators) {
-            if (blocID == generator.generatorID) {
-              for (let i = 0; i < 97; i++) {
-                a[i] += generator.pastPower[i];
+            if (!isGenerator || (isGenerator && id == generator.generatorID)) {
+              for (let i = 0; i < 96; i++) {
+                this.PowerArray[i] += generator.pastPower[i].power;
               }
             }
           }
         }
       }
 
-      return a;
+      console.log("DATA: ", this.PowerArray);
+      return this.PowerArray;
     },
 
     getMaxCap(blocID) {

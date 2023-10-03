@@ -319,11 +319,11 @@ export default {
       let powerArray = this.$store.state.power.powerOfPowerPlants.data;
       for (let power of powerArray) {
         if (power.powerPlantName == PPID) {
-          //return power.powerStamps
           let powerData = [];
           for (let powerStamp of power.powerStamps) {
             powerData.push(powerStamp.power);
           }
+          console.log(powerData);
           return powerData;
         }
       }
