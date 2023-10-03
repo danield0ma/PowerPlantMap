@@ -16,8 +16,7 @@ namespace PowerPlantMapAPI
                 options.AddDefaultPolicy(
                     policy =>
                     {
-                        policy//.WithOrigins("http://localhost:3000")
-                               //.AllowCredentials()
+                        policy.AllowCredentials()
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowAnyOrigin();

@@ -1,49 +1,49 @@
 <template>
   <div>
-    <div style='height: 3.5rem; position: absolute'></div>
-    <div id='left' v-if='showLeftPanel'>
+    <div style="height: 3.5rem; position: absolute"></div>
+    <div id="left" v-if="showLeftPanel">
       <LeftPanel></LeftPanel>
     </div>
-    <div id='rightPanel' v-if='rightNotLoading'>
+    <div id="rightPanel" v-if="rightNotLoading">
       <RightPanel></RightPanel>
     </div>
-    <div id='chooseDay'>
+    <div id="chooseDay">
       <p>Napválasztó</p>
-      <input type='date' v-model='chosenDate' />
+      <input type="date" v-model="chosenDate" />
       <button
-        v-on:click='setDate'
-        class='btn btn-primary'
-        style='margin-left: 0.5rem'
+        v-on:click="setDate"
+        class="btn btn-primary"
+        style="margin-left: 0.5rem"
       >
         OK
       </button>
     </div>
-    <div id='map'></div>
+    <div id="map"></div>
   </div>
 </template>
   
 <script>
-import mapboxgl from 'mapbox-gl';
-import LeftPanel from '../components/LeftPanel.vue';
-import RightPanel from '../components/RightPanel.vue';
-import moment from 'moment';
+import mapboxgl from "mapbox-gl";
+import LeftPanel from "../components/LeftPanel.vue";
+import RightPanel from "../components/RightPanel.vue";
+import moment from "moment";
 
 export default {
-  name: 'MapView',
+  name: "MapView",
   data() {
     return {
       accessToken:
-        'pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q',
+        "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
       map: {},
       marker: [],
       popup: {},
-      chosenDate: '',
+      chosenDate: "",
     };
   },
 
   head() {
     return {
-      title: 'Map View - PowerPlantMap',
+      title: "Map View - PowerPlantMap",
     };
   },
 
@@ -72,7 +72,7 @@ export default {
     },
 
     defaultTime() {
-      let time = moment(Date(Date.now())).format('YYYY-MM-DD');
+      let time = moment(Date(Date.now())).format("YYYY-MM-DD");
       this.chosenDate = time;
       //this.$store.dispatch('power/setDate', time)
       return time;
@@ -85,32 +85,41 @@ export default {
 
   methods: {
     async fetchWithBasePath(path) {
-      const basePath = 'https://207.154.199.39:5001/';
+      const basePath = "https://207.154.199.39:5001/";
       const url = `${basePath}${path}`;
-      return await fetch(url);
+      console.log(url);
+      return await fetch(url, {
+        mode: "no-cors",
+        contentType: "application/json",
+        accessControlAllowOrigin: "*",
+      });
     },
 
     async getLoad() {
       let powerOfPowerPlantsResponse;
       if (this.getDate == null) {
-        powerOfPowerPlantsResponse = await this.fetchWithBasePath('API/Power/getPowerOfPowerPlants')
+        powerOfPowerPlantsResponse = await this.fetchWithBasePath(
+          "API/Power/getPowerOfPowerPlants"
+        );
       } else {
-        powerOfPowerPlantsResponse = await this.fetchWithBasePath('API/Power/getPowerOfPowerPlants?date=' + this.getDate)
+        powerOfPowerPlantsResponse = await this.fetchWithBasePath(
+          "API/Power/getPowerOfPowerPlants?date=" + this.getDate
+        );
       }
       const powerOfPowerPlants = await powerOfPowerPlantsResponse.json();
       await this.$store.dispatch(
-        'power/setPowerOfPowerPlants',
+        "power/setPowerOfPowerPlants",
         powerOfPowerPlants
       );
-      await this.$store.dispatch('power/setRightLoading', false);
+      await this.$store.dispatch("power/setRightLoading", false);
     },
 
     async createMap() {
       mapboxgl.accessToken = this.accessToken;
       this.map = new mapboxgl.Map({
         accessToken: this.accessToken,
-        container: 'map',
-        style: 'mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy',
+        container: "map",
+        style: "mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy",
         center: [19.7, 47.15],
         zoom: 6.75,
         maxZoom: 9,
@@ -122,27 +131,27 @@ export default {
       //console.log('coord: ', coord)
 
       for (const marker of coord) {
-        const element = document.createElement('div');
-        element.className = 'marker';
+        const element = document.createElement("div");
+        element.className = "marker";
         element.style.backgroundImage = `url('${marker.properties.img}')`;
         //element.style.backgroundImage = `url(https://placekitten.com/g/50/50/)`;
         element.style.width = `3rem`;
         element.style.height = `3rem`;
-        element.style.backgroundSize = '100%';
+        element.style.backgroundSize = "100%";
 
         const m = new mapboxgl.Marker(element)
           .setLngLat(marker.geometry.coordinates)
           //.setPopup(new mapboxgl.Popup().setHTML('<h1>Paks</h1><h3>2000MW</h3>'))
           .addTo(this.map);
 
-        m.getElement().addEventListener('click', () => {
+        m.getElement().addEventListener("click", () => {
           if (
             this.showLeftPanel &&
             this.content.powerPlantID == marker.properties.id
           ) {
-            this.$store.dispatch('power/setLeftPanel', false);
-            this.$store.dispatch('power/setSelectedBloc', -1);
-            this.$store.dispatch('power/toggleBlocs', false);
+            this.$store.dispatch("power/setLeftPanel", false);
+            this.$store.dispatch("power/setSelectedBloc", -1);
+            this.$store.dispatch("power/toggleBlocs", false);
           } else {
             this.getDetailsOfPowerPlant(marker.properties.id);
           }
@@ -151,13 +160,13 @@ export default {
     },
 
     async getPowerPlantBasics() {
-      const res = await this.fetchWithBasePath('API/Power/getPowerPlantBasics');
+      const res = await this.fetchWithBasePath("API/Power/getPowerPlantBasics");
       const f = await res.json();
 
       const data = {
-        type: 'geojson',
+        type: "geojson",
         data: {
-          type: 'FeatureCollection',
+          type: "FeatureCollection",
           features: f,
         },
       };
@@ -169,30 +178,37 @@ export default {
       //console.log('ID: ', id)
       try {
         //loading page
-        await this.$store.dispatch('power/setLeftPanelLoading', true);
-        await this.$store.dispatch('power/toggleBlocs', false);
-        await this.$store.dispatch('power/setSelectedBloc', -1);
-        await this.$store.dispatch('power/setLeftPanel', true);
+        await this.$store.dispatch("power/setLeftPanelLoading", true);
+        await this.$store.dispatch("power/toggleBlocs", false);
+        await this.$store.dispatch("power/setSelectedBloc", -1);
+        await this.$store.dispatch("power/setLeftPanel", true);
 
         let res;
         if (this.getDate == null) {
-          res = await this.fetchWithBasePath('API/Power/getDetailsOfPowerPlant?id=' + id);
+          res = await this.fetchWithBasePath(
+            "API/Power/getDetailsOfPowerPlant?id=" + id
+          );
         } else {
-          res = await this.fetchWithBasePath('API/Power/getDetailsOfPowerPlant?id=' + id + '&date=' + this.getDate);
+          res = await this.fetchWithBasePath(
+            "API/Power/getDetailsOfPowerPlant?id=" +
+              id +
+              "&date=" +
+              this.getDate
+          );
         }
         const data = await res.json();
 
-        await this.$store.dispatch('power/setLeftContent', data);
-        await this.$store.dispatch('power/setLeftPanelLoading', false);
+        await this.$store.dispatch("power/setLeftContent", data);
+        await this.$store.dispatch("power/setLeftPanelLoading", false);
       } catch (error) {
         //console.error(error)
       }
     },
 
     async setDate() {
-      this.$store.dispatch('power/setRightLoading', true);
-      this.$store.dispatch('power/setLeftPanel', false);
-      await this.$store.dispatch('power/setDate', this.chosenDate);
+      this.$store.dispatch("power/setRightLoading", true);
+      this.$store.dispatch("power/setLeftPanel", false);
+      await this.$store.dispatch("power/setDate", this.chosenDate);
       //console.log('SETDATE: ', this.$store.state.power.date, this.chosenDate)
       await this.getLoad();
     },

@@ -41,8 +41,8 @@ export default {
             borderColor: this.color,
             fill: { value: 0 },
             data: this.getPowerArray(this.blocId, this.generator),
-          },
-        ],
+          }
+        ]
       },
       options: {
         elements: {
@@ -164,6 +164,7 @@ export default {
         }
       }
 
+      console.log(a);
       return a;
     },
 
