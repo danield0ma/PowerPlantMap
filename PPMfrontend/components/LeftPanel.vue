@@ -235,20 +235,30 @@ export default {
         },
         scales: {
           y: {
-            min: this.getMin(),
-            max: this.getMax(generatorID),
+            min: 0, //this.getMin(),
+            max: 2000, //this.getMax(generatorID),
             grid: {
               lineWidth: 0,
             },
             stacked: false,
+            ticks: {
+              callback: function (value, index, values) {
+                return value.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                });
+              },
+            },
+            // minimumFractionDigits: 2,
           },
           x: {
             grid: {
               lineWidth: 0,
             },
+            // minimumFractionDigits: 2,
           },
+          // minimumFractionDigits: 2,
         },
-        minimumFractionDigits: 2,
       };
     },
 
@@ -294,7 +304,6 @@ export default {
     },
 
     getPowerArray(id, isGenerator) {
-      // let result = [];
       for (let i = 0; i < 96; i++) {
         this.PowerArray.push(0);
       }
@@ -350,9 +359,11 @@ export default {
     },
 
     getMin() {
+      console.log("getMin");
       if (this.content.isCountry) {
         let array = this.content.blocs[0].generators[0].pastPower;
         let min = Math.min(...array);
+        console.log(min);
         return Math.floor(min / 100) * 100;
       } else {
         return 0;
@@ -360,6 +371,7 @@ export default {
     },
 
     getMax(generatorID) {
+      console.log("getMax");
       let selectedBloc = this.$store.state.power.selectedBloc;
       let array = [];
       for (let i = 0; i < 100; i++) {

@@ -38,6 +38,7 @@ export default {
       marker: [],
       popup: {},
       chosenDate: "",
+      BASE_PATH: "https://207.154.199.39:5001/",
     };
   },
 
@@ -98,12 +99,14 @@ export default {
     async getLoad() {
       let powerOfPowerPlantsResponse;
       if (this.getDate == null) {
-        powerOfPowerPlantsResponse = await this.fetchWithBasePath(
-          "API/Power/getPowerOfPowerPlants"
+        powerOfPowerPlantsResponse = await fetch(
+          this.BASE_PATH + "API/Power/getPowerOfPowerPlants"
         );
       } else {
-        powerOfPowerPlantsResponse = await this.fetchWithBasePath(
-          "API/Power/getPowerOfPowerPlants?date=" + this.getDate
+        powerOfPowerPlantsResponse = await fetch(
+          this.BASE_PATH +
+            "API/Power/getPowerOfPowerPlants?date=" +
+            this.getDate
         );
       }
       const powerOfPowerPlants = await powerOfPowerPlantsResponse.json();
@@ -160,7 +163,7 @@ export default {
     },
 
     async getPowerPlantBasics() {
-      const res = await this.fetchWithBasePath("API/Power/getPowerPlantBasics");
+      const res = await fetch(this.BASE_PATH + "API/Power/getPowerPlantBasics");
       const f = await res.json();
 
       const data = {
@@ -175,7 +178,6 @@ export default {
     },
 
     async getDetailsOfPowerPlant(id) {
-      //console.log('ID: ', id)
       try {
         //loading page
         await this.$store.dispatch("power/setLeftPanelLoading", true);
@@ -185,12 +187,13 @@ export default {
 
         let res;
         if (this.getDate == null) {
-          res = await this.fetchWithBasePath(
-            "API/Power/getDetailsOfPowerPlant?id=" + id
+          res = await fetch(
+            this.BASE_PATH + "API/Power/getDetailsOfPowerPlant?id=" + id
           );
         } else {
-          res = await this.fetchWithBasePath(
-            "API/Power/getDetailsOfPowerPlant?id=" +
+          res = await fetch(
+            this.BASE_PATH +
+              "API/Power/getDetailsOfPowerPlant?id=" +
               id +
               "&date=" +
               this.getDate
@@ -201,7 +204,7 @@ export default {
         await this.$store.dispatch("power/setLeftContent", data);
         await this.$store.dispatch("power/setLeftPanelLoading", false);
       } catch (error) {
-        //console.error(error)
+        console.error(error);
       }
     },
 
