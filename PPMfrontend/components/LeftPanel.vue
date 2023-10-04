@@ -26,16 +26,11 @@
       <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
 
       <div v-if="blocsNotEnabled">
-        <!-- <TotalChart
-          :blocId="'Gönyű 1'"
-          :generatorId="'Gönyű 1'"
-          v-bind:generator="false"
-        /> -->
         <client-only>
           <line-chart
             :chart-data="chartData('all', false)"
             :chart-options="
-              chartOptions('', content.description + ' termelése')
+              chartOptions(content.description + ' termelése', 'all', false)
             "
             :height="300"
             :width="500"
@@ -70,7 +65,11 @@
           <line-chart
             :chart-data="chartData(content.blocs[selectedBloc].blocID, false)"
             :chart-options="
-              chartOptions('', content.blocs[selectedBloc].blocID)
+              chartOptions(
+                content.blocs[selectedBloc].blocID + ' termelése',
+                content.blocs[selectedBloc].blocID,
+                false
+              )
             "
             :height="300"
             :width="500"
@@ -90,51 +89,46 @@
         </div>
 
         <div v-if="content.blocs[selectedBloc].generators.length > 1">
-          <!-- <div v-for="generator in content.blocs[selectedBloc].generators" :key="generator.generatorID">
-                        <p>{{generator.generatorID}}: {{generator.pastPower[0]}}/{{generator.maxCapacity}}MW</p>
-                    </div> -->
           <div class="flexbox" style="justify-content: space-around">
             <div>
-              <client-only>
-                <line-chart
-                  :chart-data="
-                    chartData(
-                      content.blocs[selectedBloc].generators[0].generatorID,
-                      true
-                    )
-                  "
-                  :chart-options="
-                    chartOptions(
-                      content.blocs[selectedBloc].generators[0].generatorID,
-                      content.blocs[selectedBloc].generators[0].generatorID
-                    )
-                  "
-                  :height="150"
-                  :width="200"
-                  chart-id="bloc"
-                />
-              </client-only>
+              <line-chart
+                :chart-data="
+                  chartData(
+                    content.blocs[selectedBloc].generators[0].generatorID,
+                    true
+                  )
+                "
+                :chart-options="
+                  chartOptions(
+                    content.blocs[selectedBloc].generators[0].generatorID,
+                    content.blocs[selectedBloc].generators[0].generatorID,
+                    true
+                  )
+                "
+                :height="150"
+                :width="200"
+                chart-id="bloc"
+              />
             </div>
             <div>
-              <client-only>
-                <line-chart
-                  :chart-data="
-                    chartData(
-                      content.blocs[selectedBloc].generators[1].generatorID,
-                      true
-                    )
-                  "
-                  :chart-options="
-                    chartOptions(
-                      content.blocs[selectedBloc].generators[1].generatorID,
-                      content.blocs[selectedBloc].generators[1].generatorID
-                    )
-                  "
-                  :height="150"
-                  :width="200"
-                  chart-id="bloc"
-                />
-              </client-only>
+              <line-chart
+                :chart-data="
+                  chartData(
+                    content.blocs[selectedBloc].generators[1].generatorID,
+                    true
+                  )
+                "
+                :chart-options="
+                  chartOptions(
+                    content.blocs[selectedBloc].generators[1].generatorID,
+                    content.blocs[selectedBloc].generators[1].generatorID,
+                    true
+                  )
+                "
+                :height="150"
+                :width="200"
+                chart-id="bloc"
+              />
             </div>
           </div>
         </div>
@@ -145,15 +139,13 @@
 
 <script>
 import moment from "moment";
-import "chart.js";
-import TotalChart from "~/components/TotalChart.vue";
 
 export default {
   name: "LeftPanel",
 
   data() {
     return {
-      PowerArray: [],
+      powerArrayToDisplay: [],
     };
   },
 
@@ -197,9 +189,8 @@ export default {
       return this.$store.state.power.selectedBloc;
     },
   },
-
   methods: {
-    chartOptions(generatorID, title) {
+    chartOptions(title, id, isGenerator) {
       return {
         elements: {
           line: {
@@ -235,34 +226,23 @@ export default {
         },
         scales: {
           y: {
-            min: 0, //this.getMin(),
-            max: 2000, //this.getMax(generatorID),
+            min: this.getMin(id, isGenerator),
+            max: this.getMax(id, isGenerator),
             grid: {
               lineWidth: 0,
             },
             stacked: false,
-            ticks: {
-              callback: function (value, index, values) {
-                return value.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                });
-              },
-            },
-            // minimumFractionDigits: 2,
           },
           x: {
             grid: {
               lineWidth: 0,
             },
-            // minimumFractionDigits: 2,
           },
-          // minimumFractionDigits: 2,
         },
       };
     },
 
-    chartData(blocID, generator) {
+    chartData(blocID, isGenerator) {
       return {
         labels: this.getDateArray(),
         datasets: [
@@ -271,7 +251,7 @@ export default {
             backgroundColor: this.color,
             borderColor: this.color,
             fill: { value: 0 },
-            data: this.getPowerArray(blocID, generator),
+            data: this.getPowerArray(blocID, isGenerator),
           },
           {
             label: "Max Capacity [MW]",
@@ -293,48 +273,36 @@ export default {
     },
 
     getDateArray() {
-      let time = this.content.dataStart;
-      let dateArray = [];
-      dateArray.push(moment(time).format("HH:mm"));
-      for (let i = 0; i < 97; i++) {
-        time = moment(time).add(15, "m");
-        dateArray.push(moment(time).format("HH:mm"));
-      }
-      return dateArray;
+      return this.content.blocs[0].generators[0].pastPower.map((x) =>
+        moment(x.timePoint).format("HH:mm")
+      );
     },
 
     getPowerArray(id, isGenerator) {
+      let powerArray = [];
       for (let i = 0; i < 96; i++) {
-        this.PowerArray.push(0);
+        powerArray.push(0);
       }
-
-      console.log(id, isGenerator);
 
       for (let bloc of this.content.blocs) {
         if (id === "all" || id === bloc.blocID || isGenerator) {
           for (let generator of bloc.generators) {
             if (!isGenerator || (isGenerator && id == generator.generatorID)) {
-              for (let i = 0; i < 96; i++) {
-                this.PowerArray[i] += generator.pastPower[i].power;
-              }
+              const pastPower = generator.pastPower.map((x) => x.power);
+              powerArray.forEach((value, index) => {
+                powerArray[index] += pastPower[index];
+              });
             }
           }
         }
       }
-
-      console.log("DATA: ", this.PowerArray);
-      return this.PowerArray;
+      return powerArray;
     },
 
     getMaxCap(blocID) {
-      let choice = false;
-      if (blocID == "all") {
-        choice = true;
-      }
       let maxCap = 0;
-
       for (let bloc of this.content.blocs) {
-        if (choice || blocID == bloc.blocID) {
+        if (blocID == "all" || blocID == bloc.blocID) {
           for (let generator of bloc.generators) {
             maxCap += generator.maxCapacity;
           }
@@ -342,7 +310,7 @@ export default {
       }
 
       let arr = [];
-      for (let i = 0; i < 97; i++) {
+      for (let i = 0; i < 96; i++) {
         arr.push(maxCap);
       }
       return arr;
@@ -358,58 +326,23 @@ export default {
       }
     },
 
-    getMin() {
-      console.log("getMin");
-      if (this.content.isCountry) {
-        let array = this.content.blocs[0].generators[0].pastPower;
-        let min = Math.min(...array);
-        console.log(min);
-        return Math.floor(min / 100) * 100;
-      } else {
-        return 0;
-      }
+    getMin(id, isGenerator) {
+      let min = Math.min(...this.getPowerArray(id, isGenerator));
+      min > 100 ? (min -= 100) : (min = min);
+      return Math.floor(min / 100) * 100;
     },
 
-    getMax(generatorID) {
-      console.log("getMax");
-      let selectedBloc = this.$store.state.power.selectedBloc;
-      let array = [];
-      for (let i = 0; i < 100; i++) {
-        array.push(0);
-      }
-
-      if (selectedBloc == -1) {
-        for (let bloc of this.content.blocs) {
-          for (let generator of bloc.generators) {
-            for (let i = 0; i < generator.pastPower.length; i++) {
-              array[i] += generator.pastPower[i];
-            }
-          }
-        }
-      } else {
-        for (let generator of this.content.blocs[selectedBloc].generators) {
-          if (generatorID == "" || generatorID == generator.generatorID) {
-            for (let i = 0; i < generator.pastPower.length; i++) {
-              array[i] += generator.pastPower[i];
-            }
-          }
-        }
-      }
-
-      let sum = 0;
-      for (let i = 0; i < 100; i++) {
-        sum += array[i];
-      }
-      if (sum == 0) {
+    getMax(id, isGenerator) {
+      let powerArray = this.getPowerArray(id, isGenerator);
+      if (powerArray.reduce((accumulator, currentValue) => accumulator + currentValue) === 0) {
+        console.log("sum is 0");
         return 100;
       }
-
-      let max = Math.max(...array);
+      let max = Math.max(...powerArray);
       return Math.ceil(max / 100) * 100;
     },
 
     async selectBloc(n) {
-      //this.selectedBloc = n
       await this.$store.dispatch("power/setSelectedBloc", n);
     },
   },

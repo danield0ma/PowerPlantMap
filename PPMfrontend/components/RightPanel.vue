@@ -323,7 +323,7 @@ export default {
           for (let powerStamp of power.powerStamps) {
             powerData.push(powerStamp.power);
           }
-          console.log(powerData);
+          // console.log(powerData);
           return powerData;
         }
       }
