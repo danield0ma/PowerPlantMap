@@ -16,7 +16,7 @@ namespace PowerPlantMapAPI
                 options.AddDefaultPolicy(
                     policy =>
                     {
-                        policy.AllowCredentials()
+                        policy//.AllowCredentials()
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowAnyOrigin();

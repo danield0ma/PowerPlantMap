@@ -41,7 +41,7 @@ namespace PowerPlantMapAPI.Repositories
         public async Task<List<PastActivityModel>> QueryPastActivity(string generator, DateTime start, DateTime end)
         {
             using var connection = new SqlConnection(connectionString);
-            var parameters = new { GID = generator, start = start, end = end };
+            var parameters = new { GID = generator, start, end };
             List<PastActivityModel> PastActivity = (List<PastActivityModel>)await connection.QueryAsync<PastActivityModel>
                 ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
             return PastActivity;
@@ -83,7 +83,7 @@ namespace PowerPlantMapAPI.Repositories
         public async Task InsertData(string generatorId, DateTime startDateTime, int power)
         {
             using var connection = new SqlConnection(connectionString);
-            var parameters = new { GID = generatorId, start = startDateTime, end = startDateTime.AddMinutes(15), power };
+            var parameters = new { GID = generatorId, start = startDateTime, power };
             try
             {
                 await connection.QueryAsync("AddPastActivity", parameters, commandType: CommandType.StoredProcedure);
