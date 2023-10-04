@@ -334,8 +334,11 @@ export default {
 
     getMax(id, isGenerator) {
       let powerArray = this.getPowerArray(id, isGenerator);
-      if (powerArray.reduce((accumulator, currentValue) => accumulator + currentValue) === 0) {
-        console.log("sum is 0");
+      if (
+        powerArray.reduce(
+          (accumulator, currentValue) => accumulator + currentValue
+        ) === 0
+      ) {
         return 100;
       }
       let max = Math.max(...powerArray);
