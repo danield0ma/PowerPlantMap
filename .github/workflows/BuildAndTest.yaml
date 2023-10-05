@@ -1,16 +1,14 @@
-name: Show Versions
-run-name: ${{ github.actor }} will see the versions
+name: Build and Test
+run-name: Build and Test the app
 on: [push]
 jobs:
-  check-versions:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-      - run: node --version
-      - run: npm --version
       - run: cd PPMfrontend
       - run: pwd
       - run: npm install
@@ -18,7 +16,6 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "6.0.x"
-      - run: dotnet --version
       - run: cd PowerPlantMapAPI
       - run: pwd
       - run: dotnet build
