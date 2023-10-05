@@ -10,7 +10,7 @@ jobs:
         with:
           node-version: "16"
       - run: ls
-      - run: cd PPMfrontend
+      - run: cd ./PPMfrontend
       - run: pwd
       - run: ls
       - run: npm install
