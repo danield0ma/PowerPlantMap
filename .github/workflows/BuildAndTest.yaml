@@ -12,14 +12,14 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./PPMfrontend
-      -name: Build
+      - name: Run in dev mode
         run: npm run dev
         working-directory: ./PPMfrontend
 
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "6.0.x"
-      - name: Build
+      - name: Build app
         run: dotnet build
         working-directory: ./PowerPlantMapAPI
       - name: Run tests
