@@ -15,6 +15,8 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./PPMfrontend
+      - run: node --version
+      - run: npm --version
       - name: Build the app
         run: npm run build
         working-directory: ./PPMfrontend
@@ -25,8 +27,11 @@ jobs:
       - name: Change sdk version
         run: dotnet new globaljson --sdk-version 6.0.414 --force && dotnet --version
         working-directory: ./PowerPlantMapAPI
-      - name: Show current branch
-        run: git branch --show-current
+      - name: Show current branch, list SDKs and show current version
+        run: |
+          git branch --show-current
+          dotnet --list-sdks
+          dotnet --version
         working-directory: ./PowerPlantMapAPI
       - name: Restore dependencies
         run: dotnet restore
@@ -39,3 +44,10 @@ jobs:
       - name: Run tests
         run: dotnet test
         working-directory: ./PowerPlantMapAPI
+
+      - name: Deploy to server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh root@powerplantmap.tech "cd /Projects/PowerPlantMap && docker-compose down && git pull && docker-compose up --build -d"
