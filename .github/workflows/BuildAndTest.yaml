@@ -21,7 +21,13 @@ jobs:
 
       - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "6.0.x"
+          dotnet-version: "6.0.414"
+      - name: Change sdk version
+        run: dotnet new globaljson --sdk-version 6.0.414 --force
+        working-directory: ./PowerPlantMapAPI
+      - name: Show current branch
+        run: git branch --show-current
+        working-directory: ./PowerPlantMapAPI
       - name: Build app
         run: dotnet build
         working-directory: ./PowerPlantMapAPI
