@@ -11,7 +11,15 @@ jobs:
           node-version: "16"
       - run: node --version
       - run: npm --version
+      - run: cd PPMfrontend
+      - run: pwd
+      - run: npm install
+      - run: npm run dev
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "6.0.x"
       - run: dotnet --version
+      - run: cd PowerPlantMapAPI
+      - run: pwd
+      - run: dotnet build
+      - run: dotnet test
