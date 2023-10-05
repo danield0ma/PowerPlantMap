@@ -9,10 +9,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-      - run: ls
+      - run: pwd && ls && ls ./PPMfrontend
       - run: cd ./PPMfrontend
-      - run: pwd
-      - run: ls
+      - run: pwd && ls
       - run: npm install
       - run: npm run dev
       - uses: actions/setup-dotnet@v3
