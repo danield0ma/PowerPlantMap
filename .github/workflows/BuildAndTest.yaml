@@ -12,8 +12,8 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./PPMfrontend
-      - name: Run in dev mode
-        run: npm run dev
+      - name: Build the app
+        run: npm run build
         working-directory: ./PPMfrontend
 
       - uses: actions/setup-dotnet@v3
@@ -22,6 +22,8 @@ jobs:
       - name: Build app
         run: dotnet build
         working-directory: ./PowerPlantMapAPI
+        env:
+          APPSETTINGS: ${{ secrets.APPSETTINGS }}
       - name: Run tests
         run: dotnet test
         working-directory: ./PowerPlantMapAPI

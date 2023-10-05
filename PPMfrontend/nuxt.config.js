@@ -5,7 +5,8 @@ export default {
     server: {
         dev: process.env.NODE_ENV === "development",
         https:
-            process.env.NODE_ENV === "production"
+            process.env.NODE_ENV === "production" &&
+            process.env.GITHUB_ACTIONS !== "true"
                 ? {
                       key: fs.readFileSync(
                           path.resolve(
