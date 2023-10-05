@@ -23,10 +23,13 @@ jobs:
         with:
           dotnet-version: "6.0.414"
       - name: Change sdk version
-        run: dotnet new globaljson --sdk-version 6.0.414 --force
+        run: dotnet new globaljson --sdk-version 6.0.414 --force && dotnet --version
         working-directory: ./PowerPlantMapAPI
       - name: Show current branch
         run: git branch --show-current
+        working-directory: ./PowerPlantMapAPI
+      - name: Restore dependencies
+        run: dotnet restore
         working-directory: ./PowerPlantMapAPI
       - name: Build app
         run: dotnet build
