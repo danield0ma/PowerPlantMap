@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PowerPlantMapAPI", "PowerPlantMapAPI\PowerPlantMapAPI.csproj", "{DD97F66D-4DB7-427F-BE0C-B80A9B0DC7F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerPlantMapAPI.Tests", "PowerPlantMapAPI.tests\PowerPlantMapAPI.Tests.csproj", "{6D982BD0-A308-4E1D-8B5A-A1615B3BDFE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerPlantMapAPI.Tests", "PowerPlantMapAPI.Tests\PowerPlantMapAPI.Tests.csproj", "{6D982BD0-A308-4E1D-8B5A-A1615B3BDFE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
