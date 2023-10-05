@@ -9,16 +9,19 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-      - run: pwd && ls && ls -la
-      - run: chmod 777 ./PPMfrontend && ls -la
-      - run: cd ./PPMfrontend
-      - run: pwd && ls
-      - run: npm install
-      - run: npm run dev
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./PPMfrontend
+      -name: Build
+        run: npm run dev
+        working-directory: ./PPMfrontend
+
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "6.0.x"
-      - run: cd PowerPlantMapAPI
-      - run: pwd
-      - run: dotnet build
-      - run: dotnet test
+      - name: Build
+        run: dotnet build
+        working-directory: ./PowerPlantMapAPI
+      - name: Run tests
+        run: dotnet test
+        working-directory: ./PowerPlantMapAPI
