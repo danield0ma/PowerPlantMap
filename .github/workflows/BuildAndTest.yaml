@@ -9,7 +9,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-      - run: pwd && ls && ls ./PPMfrontend
+      - run: pwd && ls && ls -la
+      - run: chmod 777 ./PPMfrontend && ls -la
       - run: cd ./PPMfrontend
       - run: pwd && ls
       - run: npm install
