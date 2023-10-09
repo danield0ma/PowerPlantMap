@@ -12,7 +12,7 @@
           />
         </div>
         <h4 style="padding-left: 0.5rem; display: inline; vertical-align: top">
-          Magyarország
+          Hungary
         </h4>
       </div>
       <p style="padding: 0">{{ startTime }} - {{ endTime }}</p>
