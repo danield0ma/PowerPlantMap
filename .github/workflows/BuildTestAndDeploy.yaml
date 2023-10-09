@@ -3,7 +3,7 @@ run-name: Build and Test the app
 on:
   push:
     branches:
-      - dev
+      - main
 jobs:
   build-and-test:
     runs-on: ubuntu-latest

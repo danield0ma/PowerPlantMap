@@ -1,0 +1,22 @@
+name: Connect to server
+run-name: Connect to server through SSH
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+      - name: Test connection
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+          ls -la ~/.ssh
+          ssh -i "~/.ssh/id_rsa" -vvv root@powerplantmap.tech "cd /Projects/PowerPlantMap && docker-compose down && git pull && docker-compose up --build -d"
