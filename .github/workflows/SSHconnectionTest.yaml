@@ -21,4 +21,4 @@ jobs:
           chmod 700 ~/.ssh
           ls -la ~/.ssh
           ls -la ~/
-          ssh -i "~/.ssh/id_rsa" -vvv root@powerplantmap.tech "cd /Projects/PowerPlantMap && docker-compose down && git pull && docker-compose up --build -d"
+          ssh -i "~/.ssh/id_rsa" -vvv root@powerplantmap.tech "cd /Projects/PowerPlantMap && docker-compose down && git pull && docker-compose up --build -d && exit"
