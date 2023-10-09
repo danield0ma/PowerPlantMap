@@ -16,7 +16,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_rsa
           chmod 700 ~/.ssh
           ls -la ~/.ssh
+          ls -la ~/
           ssh -i "~/.ssh/id_rsa" -vvv root@powerplantmap.tech "cd /Projects/PowerPlantMap && docker-compose down && git pull && docker-compose up --build -d"
