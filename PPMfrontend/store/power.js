@@ -6,9 +6,6 @@ export const state = () => ({
     rightLoading: true,
     enableBlocs: false,
     currentLoad: 0,
-    currentLoadDateTime: '',
-    loadHistory: [],
-    powerOfPowerPlants: [],
     selectedBloc: -1
 })
 
@@ -36,15 +33,6 @@ export const mutations = {
     SET_CURRENTLOAD(state, value) {
         state.currentLoad = value
     },
-    SET_CURRENTLOADDATETIME(state, value) {
-        state.currentLoadDateTime = value
-    },
-    SET_LOADHISTORY(state, value) {
-        state.loadHistory = value
-    },
-    SET_POWEROFPOWERPLANTS(state, value) {
-        state.powerOfPowerPlants = value
-    },
     SET_SELECTEDBLOC(state, value) {
         state.selectedBloc = value
     }
@@ -68,16 +56,6 @@ export const actions = {
     },
     async toggleBlocs({ commit }, value) {
         await commit('TOGGLE_BLOCS', value)
-    },
-    async setCurrentLoad({ commit }, value) {
-        await commit('SET_CURRENTLOAD', value.currentLoad)
-        await commit('SET_CURRENTLOADDATETIME', value.end)
-    },
-    async setLoadHistory({ commit }, value) {
-        await commit('SET_LOADHISTORY', value)
-    },
-    async setPowerOfPowerPlants({ commit }, value) {
-        await commit('SET_POWEROFPOWERPLANTS', value)
     },
     async setSelectedBloc({ commit }, value) {
         await commit('SET_SELECTEDBLOC', value)

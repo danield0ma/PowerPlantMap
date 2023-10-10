@@ -5,7 +5,7 @@
       <LeftPanel></LeftPanel>
     </div>
     <div id="rightPanel" v-if="rightNotLoading">
-      <RightPanel></RightPanel>
+      <RightPanel :powerArray="powerOfPowerPlants" />
     </div>
     <div id="chooseDay">
       <p>Napválasztó</p>
@@ -29,16 +29,18 @@ import RightPanel from "../components/RightPanel.vue";
 import moment from "moment";
 
 export default {
+
   name: "MapView",
   data() {
     return {
-      accessToken:
-        "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
+      accessToken: process.env.ACCESS_TOKEN,
       map: {},
+      gj: {},
+      powerOfPowerPlants: {},
       marker: [],
       popup: {},
       chosenDate: "",
-      BASE_PATH: "https://backend:5001/",
+      BASE_PATH: "https://powerplantmap.tech:5001/",
     };
   },
 
@@ -57,6 +59,28 @@ export default {
     this.createMap();
     this.getLoad();
     this.defaultTime;
+  },
+
+  async asyncData() {
+    const BASE_PATH = "https://powerplantmap.tech:5001/";
+    const basics = await fetch(
+      `${BASE_PATH}` + "API/Power/getPowerPlantBasics"
+    );
+    const features = await basics.json();
+    const gj = {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: features,
+      },
+    };
+
+    const powers = await fetch(
+      `${BASE_PATH}` + "API/Power/getPowerOfPowerPlants"
+    );
+    const powerOfPowerPlants = await powers.json();
+
+    return { gj, powerOfPowerPlants };
   },
 
   computed: {
@@ -86,7 +110,7 @@ export default {
 
   methods: {
     async fetchWithBasePath(path) {
-      const basePath = "https://backend:5001/";
+      const basePath = "https://powerplantmap.tech:5001/";
       const url = `${basePath}${path}`;
       console.log(url);
       return await fetch(url, {
@@ -97,30 +121,21 @@ export default {
     },
 
     async getLoad() {
-      let powerOfPowerPlantsResponse;
-      if (this.getDate == null) {
-        powerOfPowerPlantsResponse = await fetch(
-          this.BASE_PATH + "API/Power/getPowerOfPowerPlants"
-        );
-      } else {
-        powerOfPowerPlantsResponse = await fetch(
+      if (this.getDate != null) {
+        const powerOfPowerPlantsResponse = await fetch(
           this.BASE_PATH +
             "API/Power/getPowerOfPowerPlants?date=" +
             this.getDate
         );
+        this.powerOfPowerPlants = await powerOfPowerPlantsResponse.json();
       }
-      const powerOfPowerPlants = await powerOfPowerPlantsResponse.json();
-      await this.$store.dispatch(
-        "power/setPowerOfPowerPlants",
-        powerOfPowerPlants
-      );
       await this.$store.dispatch("power/setRightLoading", false);
     },
 
     async createMap() {
-      mapboxgl.accessToken = this.accessToken;
+      console.log(process.env);
       this.map = new mapboxgl.Map({
-        accessToken: this.accessToken,
+        accessToken: "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
         container: "map",
         style: "mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy",
         center: [19.7, 47.15],
@@ -129,22 +144,17 @@ export default {
         minZoom: 5,
       });
 
-      const gj = await this.getPowerPlantBasics();
-      const coord = gj.data.features;
-      //console.log('coord: ', coord)
-
+      const coord = this.gj.data.features;
       for (const marker of coord) {
         const element = document.createElement("div");
         element.className = "marker";
         element.style.backgroundImage = `url('${marker.properties.img}')`;
-        //element.style.backgroundImage = `url(https://placekitten.com/g/50/50/)`;
         element.style.width = `3rem`;
         element.style.height = `3rem`;
         element.style.backgroundSize = "100%";
 
         const m = new mapboxgl.Marker(element)
           .setLngLat(marker.geometry.coordinates)
-          //.setPopup(new mapboxgl.Popup().setHTML('<h1>Paks</h1><h3>2000MW</h3>'))
           .addTo(this.map);
 
         m.getElement().addEventListener("click", () => {
@@ -173,13 +183,11 @@ export default {
           features: f,
         },
       };
-      //console.log(data)
       return data;
     },
 
     async getDetailsOfPowerPlant(id) {
       try {
-        //loading page
         await this.$store.dispatch("power/setLeftPanelLoading", true);
         await this.$store.dispatch("power/toggleBlocs", false);
         await this.$store.dispatch("power/setSelectedBloc", -1);
@@ -212,7 +220,6 @@ export default {
       this.$store.dispatch("power/setRightLoading", true);
       this.$store.dispatch("power/setLeftPanel", false);
       await this.$store.dispatch("power/setDate", this.chosenDate);
-      //console.log('SETDATE: ', this.$store.state.power.date, this.chosenDate)
       await this.getLoad();
     },
   },

@@ -16,8 +16,6 @@
         </h4>
       </div>
       <p style="padding: 0">{{ startTime }} - {{ endTime }}</p>
-      <!-- <h6>Teljes rendszerterhelés: {{ this.$store.state.power.currentLoad }} MW</h6>
-            <h6>Energia-mix diagram</h6> -->
       <div>
         <client-only>
           <line-chart
@@ -29,11 +27,6 @@
           />
         </client-only>
       </div>
-      <!-- <TotalChart
-        blocId="Gönyű 1"
-        generatorId="Gönyű 1"
-        v-bind:generator="false"
-      /> -->
     </div>
   </div>
 </template>
@@ -41,20 +34,24 @@
 <script>
 import moment from "moment";
 import "chart.js";
-import TotalChart from "~/components/TotalChart.vue";
 
 export default {
+  props: {
+    powerArray: {
+      type: Object,
+      required: true,
+    },
+  },
+
   computed: {
     startTime() {
-      return moment(this.$store.state.power.powerOfPowerPlants.start).format(
-        "YYYY.MM.DD HH:mm"
-      );
+      return moment(this.powerArray.start).format("YYYY.MM.DD HH:mm");
     },
 
     endTime() {
-      return moment(
-        this.$store.state.power.powerOfPowerPlants.end
-      )./*add(-15, 'm').*/ format("YYYY.MM.DD HH:mm");
+      return moment(this.powerArray.end)./*add(-15, 'm').*/ format(
+        "YYYY.MM.DD HH:mm"
+      );
     },
 
     chartOptions() {
@@ -108,7 +105,7 @@ export default {
   methods: {
     chartData() {
       return {
-        labels: this.getDateArray(),
+        labels: this.getDateArray("PKS"),
         datasets: [
           // {
           //     label: 'Total System Load [MW]',
@@ -295,15 +292,14 @@ export default {
       };
     },
 
-    getDateArray() {
-      let time = this.startTime;
-      let dateArray = [];
-      dateArray.push(moment(time).format("HH:mm"));
-      for (let i = 0; i < 97; i++) {
-        time = moment(time).add(15, "m");
-        dateArray.push(moment(time).format("HH:mm"));
-      }
-      return dateArray;
+    getDateArray(PPID) {
+      const powerOfPowerPlants = JSON.parse(JSON.stringify(this.powerArray));
+      const powerData = powerOfPowerPlants.data
+        .filter((x) => x.powerPlantName === PPID)
+        .flatMap((x) =>
+          x.powerStamps.map((y) => moment(y.start).format("HH:mm"))
+        );
+      return powerData;
     },
 
     getLoadArray() {
@@ -316,27 +312,21 @@ export default {
     },
 
     getPowerOfPowerPlant(PPID) {
-      let powerArray = this.$store.state.power.powerOfPowerPlants.data;
-      for (let power of powerArray) {
-        if (power.powerPlantName == PPID) {
-          let powerData = [];
-          for (let powerStamp of power.powerStamps) {
-            powerData.push(powerStamp.power);
-          }
-          // console.log(powerData);
-          return powerData;
-        }
-      }
+      const powerOfPowerPlants = JSON.parse(JSON.stringify(this.powerArray));
+      const powerData = powerOfPowerPlants.data
+        .filter((x) => x.powerPlantName === PPID)
+        .flatMap((x) => x.powerStamps.map((y) => y.power));
+      return powerData;
     },
 
     getPowerOfGAS() {
-      let gasPPs = ["DME", "GNY", "CSP", "KF", "KP"];
+      let gasPowerPlants = ["DME", "GNY", "CSP", "KF", "KP"];
       let power = [];
       for (let i = 0; i < 100; i++) {
         power.push(0);
       }
 
-      for (let gasPP of gasPPs) {
+      for (let gasPP of gasPowerPlants) {
         let array = this.getPowerOfPowerPlant(gasPP);
         for (let i = 0; i < array.length; i++) {
           power[i] += array[i];

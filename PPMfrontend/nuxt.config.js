@@ -1,5 +1,7 @@
 import path from "path";
 import fs from "fs";
+require("dotenv").config();
+import "dotenv/config";
 
 export default {
     server: {
