@@ -38,7 +38,7 @@ export default {
       marker: [],
       popup: {},
       chosenDate: "",
-      BASE_PATH: "https://powerplantmap.tech:5001/",
+      BASE_PATH: "https://backend:5001/",
     };
   },
 
@@ -86,7 +86,7 @@ export default {
 
   methods: {
     async fetchWithBasePath(path) {
-      const basePath = "https://powerplantmap.tech:5001/";
+      const basePath = "https://backend:5001/";
       const url = `${basePath}${path}`;
       console.log(url);
       return await fetch(url, {
