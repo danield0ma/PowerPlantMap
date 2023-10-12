@@ -11,15 +11,17 @@ export default {
             process.env.NODE_ENV === "production" &&
             process.env.GITHUB_ACTIONS !== "true"
                 ? {
-                      key: crypto.createPrivateKey({
-                          key: fs.readFileSync(
-                              path.resolve(
-                                  "/etc/letsencrypt/live/powerplantmap.tech",
-                                  "privkey.pem"
-                              )
-                          ),
-                          passphrase: "powerplantmap.tech",
-                      }),
+                      key: crypto
+                          .createPrivateKey({
+                              key: fs.readFileSync(
+                                  path.resolve(
+                                      "/etc/letsencrypt/live/powerplantmap.tech",
+                                      "privkey.pem"
+                                  )
+                              ),
+                              passphrase: "powerplantmap.tech",
+                          })
+                          .toString("utf8"),
                       cert: fs.readFileSync(
                           path.resolve(
                               "/etc/letsencrypt/live/powerplantmap.tech",
