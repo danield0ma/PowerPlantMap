@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 require("dotenv").config();
 import "dotenv/config";
 
@@ -10,12 +11,15 @@ export default {
             process.env.NODE_ENV === "production" &&
             process.env.GITHUB_ACTIONS !== "true"
                 ? {
-                      key: fs.readFileSync(
-                          path.resolve(
-                              "/etc/letsencrypt/live/powerplantmap.tech",
-                              "privkey.pem"
-                          )
-                      ),
+                      key: crypto.createPrivateKey({
+                          key: fs.readFileSync(
+                              path.resolve(
+                                  "/etc/letsencrypt/live/powerplantmap.tech",
+                                  "privkey.pem"
+                              )
+                          ),
+                          passphrase: "powerplantmap.tech",
+                      }),
                       cert: fs.readFileSync(
                           path.resolve(
                               "/etc/letsencrypt/live/powerplantmap.tech",
