@@ -21,7 +21,15 @@ export default {
                               ),
                               passphrase: "powerplantmap.tech",
                           })
-                          .toString("utf8"),
+                          .toString("utf8")
+                          .replace(
+                              "BEGIN ENCRYPTED PRIVATE KEY",
+                              "BEGIN PRIVATE KEY"
+                          )
+                          .replace(
+                              "END ENCRYPTED PRIVATE KEY",
+                              "END PRIVATE KEY"
+                          ),
                       cert: fs.readFileSync(
                           path.resolve(
                               "/etc/letsencrypt/live/powerplantmap.tech",
