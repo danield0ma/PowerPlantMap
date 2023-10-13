@@ -29,6 +29,7 @@ import RightPanel from "../components/RightPanel.vue";
 import moment from "moment";
 
 export default {
+
   name: "MapView",
   data() {
     return {
@@ -134,8 +135,7 @@ export default {
     async createMap() {
       console.log(process.env);
       this.map = new mapboxgl.Map({
-        accessToken:
-          "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
+        accessToken: "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
         container: "map",
         style: "mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy",
         center: [19.7, 47.15],
