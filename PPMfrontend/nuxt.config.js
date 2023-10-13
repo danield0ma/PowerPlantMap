@@ -1,38 +1,7 @@
 import path from "path";
 import fs from "fs";
-import crypto from "crypto";
 require("dotenv").config();
 import "dotenv/config";
-const { privateKeyToPem } = require("pem");
-
-let privateKey = crypto
-    .createPrivateKey({
-        key: fs.readFileSync(
-            path.resolve(
-                "/etc/letsencrypt/live/powerplantmap.tech",
-                "privkey.pem"
-            )
-        ),
-        passphrase: "powerplantmap.tech",
-    })
-    .toString("utf8");
-
-privateKeyToPem(privateKey, (err, pem) => {
-    if (err) {
-        throw new Error(
-            "Failed to convert private key to PEM format: " + err.message
-        );
-    }
-    console.log("Decrypted Private Key (PEM format):", pem);
-});
-
-pem =
-    "-----BEGIN PRIVATE KEY-----" +
-    "\n" +
-    pem +
-    "\n" +
-    "-----END PRIVATE KEY-----";
-console.log(pem);
 
 export default {
     server: {
@@ -41,15 +10,12 @@ export default {
             process.env.NODE_ENV === "production" &&
             process.env.GITHUB_ACTIONS !== "true"
                 ? {
-                      key: pem,
-                      //   .replace(
-                      //       "BEGIN ENCRYPTED PRIVATE KEY",
-                      //       "BEGIN PRIVATE KEY"
-                      //   )
-                      //   .replace(
-                      //       "END ENCRYPTED PRIVATE KEY",
-                      //       "END PRIVATE KEY"
-                      //   ),
+                      key: fs.readFileSync(
+                          path.resolve(
+                              "/etc/letsencrypt/live/powerplantmap.tech",
+                              "privkey.pem"
+                          )
+                      ),
                       cert: fs.readFileSync(
                           path.resolve(
                               "/etc/letsencrypt/live/powerplantmap.tech",
