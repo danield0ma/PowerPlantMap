@@ -61,7 +61,7 @@ export default {
   },
 
   async asyncData() {
-    const BASE_PATH = "https://backend:5001/";
+    const BASE_PATH = "https://powerplantmap.tech:5001/";
     const basics = await fetch(
       `${BASE_PATH}` + "API/Power/getPowerPlantBasics"
     );
