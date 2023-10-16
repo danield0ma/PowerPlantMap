@@ -12,10 +12,12 @@ namespace PowerPlantMapAPI.Controllers
     {
         private readonly IPowerService _powerService;
         private readonly IDateService _dateService;
-        public PowerController(IPowerService powerService, IDateService dateService)
+        private readonly IEmailService _emailService;
+        public PowerController(IPowerService powerService, IDateService dateService, IEmailService emailService)
         {
             _powerService = powerService;
             _dateService = dateService;
+            _emailService = emailService;
         }
 
         [HttpGet("[action]")]
@@ -52,6 +54,12 @@ namespace PowerPlantMapAPI.Controllers
         public async Task<string> InitData(DateTime? start = null, DateTime? end = null)
         {
             return await _powerService.InitData(start, end);
+        }
+
+        [HttpGet("[action]")]
+        public string SendTestEmail(string? to, string? subject, string? body)
+        {
+            return _emailService.SendEmail(to, subject, body);
         }
     }
 }
