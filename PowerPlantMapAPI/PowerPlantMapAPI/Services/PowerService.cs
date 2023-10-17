@@ -28,7 +28,7 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<ActionResult<IEnumerable<FeatureDTO>>> GetPowerPlantBasics()
         {
-            List<PowerPlantDataModel> PowerPlants = await _powerRepository.QueryPowerPlantBasics();
+            List<PowerPlantDataModel> PowerPlants = await _powerRepository.GetPowerPlantBasics();
 
             List<FeatureDTO> PowerPlantBasics = new List<FeatureDTO>();
 
@@ -59,7 +59,7 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<PowerPlantDataModel> GetBasicsOfPowerPlant(string id)
         {
-            return await _powerRepository.QueryBasicsOfPowerPlant(id);
+            return await _powerRepository.GetBasicsOfPowerPlant(id);
         }
 
         public async Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
@@ -80,7 +80,7 @@ namespace PowerPlantMapAPI.Services
             PowerPlant.longitude = Math.Round(basicsOfPowerPlant.longitude, 4);
             PowerPlant.latitude = Math.Round(basicsOfPowerPlant.latitude, 4);
 
-            List<PowerPlantDetailsModel> powerPlantDetails = await _powerRepository.QueryPowerPlantDetails(id);
+            List<PowerPlantDetailsModel> powerPlantDetails = await _powerRepository.GetPowerPlantDetails(id);
 
             List<DateTime> timeStampsUtc = await _dateService.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
             PowerPlant.DataStart = timeStampsUtc[0];
@@ -146,7 +146,7 @@ namespace PowerPlantMapAPI.Services
         public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
         {
             PowerOfPowerPlantsDTO powerOfPowerPlants = new PowerOfPowerPlantsDTO();
-            List<string> powerPlants = await _powerRepository.QueryPowerPlants();
+            List<string> powerPlants = await _powerRepository.GetPowerPlants();
 
             List<DateTime> timeStampsUtc = await _dateService.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
             powerOfPowerPlants.Start = timeStampsUtc[0]; //Utc
@@ -213,7 +213,7 @@ namespace PowerPlantMapAPI.Services
                 }
             }
 
-            List<DateTime> LastData = await _powerRepository.QueryLastDataTime();
+            List<DateTime> LastData = await _powerRepository.GetLastDataTime();
             return timeStampsUtc[0] + " - " + timeStampsUtc[1] + " --> " + LastData[0];
         }
 
@@ -223,7 +223,7 @@ namespace PowerPlantMapAPI.Services
             {
                 try
                 {
-                    List<string> Generators = await _powerRepository.QueryGenerators();
+                    List<string> Generators = await _powerRepository.GetGenerators();
 
                     XDocument document = XDocument.Parse(await _powerHelper.APIquery(docType, timeStampsUtc[0], timeStampsUtc[1]));
                     XNamespace ns = document?.Root.Name.Namespace;
@@ -252,7 +252,7 @@ namespace PowerPlantMapAPI.Services
                                     foreach (XElement Point in Period.Elements(ns + "Point"))
                                     {
                                         int currentPower = Convert.ToInt32(Point?.Element(ns + "quantity")?.Value);
-                                        await _powerRepository.InsertData(generatorName, startTimePointUtc, currentPower);
+                                        await _powerRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
                                         startTimePointUtc = startTimePointUtc.AddMinutes(15);
                                     }
                                 }
@@ -343,7 +343,7 @@ namespace PowerPlantMapAPI.Services
 
                                 for (int j = 0; j < numberOfTimesTheValueHasToBeSaved; j++)
                                 {
-                                    await _powerRepository.InsertData(countryCode, startTimePointUtc, currentPower);
+                                    await _powerRepository.AddPastActivity(countryCode, startTimePointUtc, currentPower);
                                     startTimePointUtc = startTimePointUtc.AddMinutes(15);
                                 }
                             }
@@ -359,7 +359,7 @@ namespace PowerPlantMapAPI.Services
 
         private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(List<DateTime> TimeStamps)
         {
-            List<PastActivityModel> PastActivity = await _powerRepository.QueryPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
+            List<PastActivityModel> PastActivity = await _powerRepository.GetPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
 
             if (PastActivity.Count < 10)
             {

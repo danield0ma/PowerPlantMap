@@ -78,7 +78,7 @@ namespace PowerPlantMapAPI.Helpers
             //    endUtc = DateTime.SpecifyKind(endUtc, DateTimeKind.Utc);
             //}
 
-            List<PastActivityModel> pastActivity = await _repository.QueryPastActivity(generator, startUtc, endUtc);
+            List<PastActivityModel> pastActivity = await _repository.GetPastActivity(generator, startUtc, endUtc);
             List<GeneratorPowerDTO> pastPowerOfGenerator = new();
             foreach (var activity in pastActivity)
             {
@@ -110,7 +110,7 @@ namespace PowerPlantMapAPI.Helpers
                 powerStamps.Add(powerStamp);
             }
 
-            List<string> generators = await _repository.QueryGeneratorsOfPowerPlant(id);
+            List<string> generators = await _repository.GetGeneratorsOfPowerPlant(id);
             foreach (string generator in generators)
             {
                 List<GeneratorPowerDTO> generatorPowers = await GetGeneratorPower(generator, timeStampsUtc[0], timeStampsUtc[1]);

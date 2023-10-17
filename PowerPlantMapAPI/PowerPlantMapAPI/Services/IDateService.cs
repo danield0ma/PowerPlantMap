@@ -2,12 +2,11 @@
 {
     public interface IDateService
     {
-        Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? date = null, DateTime? Start = null, DateTime? End = null);
-        string getTime(int diff);
+        Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? date = null, DateTime? start = null, DateTime? end = null);
         string EditTime(DateTime start);
         Task<List<DateTime>> GetInitDataTimeInterval();
-        //Task<List<DateTime>> GetLastDataTime();
         DateTime TransformTime(string time);
-        int CalculateTheNumberOfIntervals(DateTime Start, DateTime End);
+        int CalculateTheNumberOfIntervals(DateTime start, DateTime end);
+        List<DateTime> GetStartAndEndTimeOfDailyStatistics();
     }
 }
