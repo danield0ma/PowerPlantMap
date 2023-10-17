@@ -22,67 +22,71 @@ namespace PowerPlantMapAPI.Services
 
         public async Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics()
         {
-            List<PowerPlantDataDto> PowerPlants = await _powerRepository.GetDataOfPowerPlants();
+            var powerPlantBasics = new List<PowerPlantBasicsModel>();
+            var dataOfPowerPlants = await _powerRepository.GetDataOfPowerPlants();
 
-            List<PowerPlantBasicsModel> PowerPlantBasics = new List<PowerPlantBasicsModel>();
-
-            foreach (var PowerPlant in PowerPlants)
+            foreach (var dataOfPowerPlant in dataOfPowerPlants)
             {
-                PowerPlantBasicsModel feature = new PowerPlantBasicsModel();
-
-                FeaturePropertyDto? properties = new FeaturePropertyDto();
-                properties.Id = PowerPlant.PowerPlantId;
-                properties.Name = PowerPlant.Name;
-                properties.Description = PowerPlant.Description;
-                properties.Img = PowerPlant.Image;
+                var feature = new PowerPlantBasicsModel();
+                var properties = new FeaturePropertyDto
+                {
+                    Id = dataOfPowerPlant.PowerPlantId,
+                    Name = dataOfPowerPlant.Name,
+                    Description = dataOfPowerPlant.Description,
+                    Img = dataOfPowerPlant.Image
+                };
                 feature.Properties = properties;
 
-                FeatureGeometryDto geometry = new FeatureGeometryDto();
-                geometry.Type = "Point";
-                List<float>? coordinates = new List<float>();
-                coordinates.Add(PowerPlant.Latitude);
-                coordinates.Add(PowerPlant.Longitude);
-                geometry.Coordinates = coordinates;
+                var coordinates = new List<float>
+                {
+                    dataOfPowerPlant.Latitude,
+                    dataOfPowerPlant.Longitude
+                };
+                var geometry = new FeatureGeometryDto
+                {
+                    Type = "Point",
+                    Coordinates = coordinates
+                };
                 feature.Geometry = geometry;
-
-                PowerPlantBasics.Add(feature);
+                powerPlantBasics.Add(feature);
             }
 
-            return PowerPlantBasics;
+            return powerPlantBasics;
         }
         
         public async Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
         {
-            PowerPlantDetailsModel PowerPlant = new()
-            {
-                PowerPlantId = id
-            };
             var basicsOfPowerPlant = await _powerRepository.GetDataOfPowerPlant(id);
-
-            PowerPlant.Name = basicsOfPowerPlant.Name;
-            PowerPlant.Description = basicsOfPowerPlant.Description;
-            PowerPlant.OperatorCompany = basicsOfPowerPlant.OperatorCompany;
-            PowerPlant.Webpage = basicsOfPowerPlant.Webpage;
-            PowerPlant.Color = basicsOfPowerPlant.Color;
-            PowerPlant.Address = basicsOfPowerPlant.Address;
-            PowerPlant.IsCountry = basicsOfPowerPlant.IsCountry;
-            PowerPlant.Longitude = Math.Round(basicsOfPowerPlant.Longitude, 4);
-            PowerPlant.Latitude = Math.Round(basicsOfPowerPlant.Latitude, 4);
-
-            List<PowerPlantDetailsDto> powerPlantDetails = await _powerRepository.GetPowerPlantDetails(id);
-
-            List<DateTime> timeStampsUtc = await _dateService.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
-            PowerPlant.DataStart = timeStampsUtc[0];
-            PowerPlant.DataEnd = timeStampsUtc[1];
-
+            
+            PowerPlantDetailsModel detailsOfPowerPlant = new()
+            {
+                PowerPlantId = id,
+                Name = basicsOfPowerPlant.Name,
+                Description = basicsOfPowerPlant.Description,
+                OperatorCompany = basicsOfPowerPlant.OperatorCompany,
+                Webpage = basicsOfPowerPlant.Webpage,
+                Color = basicsOfPowerPlant.Color,
+                Address = basicsOfPowerPlant.Address,
+                IsCountry = basicsOfPowerPlant.IsCountry,
+                Longitude = Math.Round(basicsOfPowerPlant.Longitude, 4),
+                Latitude = Math.Round(basicsOfPowerPlant.Latitude, 4)
+            };
+            
+            var timeStampsUtc = await _dateService.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
+            detailsOfPowerPlant.DataStart = timeStampsUtc[0];
+            detailsOfPowerPlant.DataEnd = timeStampsUtc[1];
+            
             if (date != null)
             {
-                string msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
+                var msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
                 System.Diagnostics.Debug.WriteLine(msg);
             }
 
-            int PPMaxPower = 0, PPCurrentPower = 0, i = 0;
-            List<BlocDto>? blocs = new();
+            int maxPowerOfPowerPlant = 0, currentPowerOfPowerPlant = 0, i = 0;
+            List<BlocDto> blocsOfPowerPlant = new();
+            
+            var powerPlantDetails = await _powerRepository.GetPowerPlantDetails(id);
+            
             while (i < powerPlantDetails.Count)
             {
                 BlocDto bloc = new()
@@ -93,8 +97,8 @@ namespace PowerPlantMapAPI.Services
                     CommissionDate = powerPlantDetails[i].CommissionDate
                 };
 
-                List<GeneratorDto>? generators = new();
-                int CurrentPower = 0, MaxPower = 0;
+                List<GeneratorDto> generators = new();
+                int currentPower = 0, maxPower = 0;
                 while (i < powerPlantDetails.Count && powerPlantDetails[i].BlocId == bloc.BlocId)
                 {
                     GeneratorDto generator = new()
@@ -104,24 +108,24 @@ namespace PowerPlantMapAPI.Services
                     };
                     generator.PastPower = await _powerHelper.GetGeneratorPower(generator.GeneratorId, timeStampsUtc[0], timeStampsUtc[1]);
                     generators.Add(generator);
-                    CurrentPower += generator.PastPower[generator.PastPower.Count - 1].Power;
-                    MaxPower += generator.MaxCapacity;
+                    currentPower += generator.PastPower![generator.PastPower.Count - 1].Power;
+                    maxPower += generator.MaxCapacity;
                     i++;
                 }
-                bloc.CurrentPower = CurrentPower;
-                bloc.MaxPower = MaxPower;
+                bloc.CurrentPower = currentPower;
+                bloc.MaxPower = maxPower;
                 bloc.Generators = generators;
-                blocs.Add(bloc);
+                blocsOfPowerPlant.Add(bloc);
 
-                PPCurrentPower += CurrentPower;
-                PPMaxPower += MaxPower;
+                currentPowerOfPowerPlant += currentPower;
+                maxPowerOfPowerPlant += maxPower;
             }
 
-            PowerPlant.Blocs = blocs;
-            PowerPlant.CurrentPower = PPCurrentPower;
-            PowerPlant.MaxPower = PPMaxPower;
+            detailsOfPowerPlant.Blocs = blocsOfPowerPlant;
+            detailsOfPowerPlant.CurrentPower = currentPowerOfPowerPlant;
+            detailsOfPowerPlant.MaxPower = maxPowerOfPowerPlant;
 
-            return PowerPlant;
+            return detailsOfPowerPlant;
         }
 
         public async Task<IEnumerable<PowerOfPowerPlantModel>> GetPowerOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null)
@@ -149,7 +153,7 @@ namespace PowerPlantMapAPI.Services
 
             var numberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(powerOfPowerPlants.Start, powerOfPowerPlants.End);
 
-            List<PowerOfPowerPlantDto>? data = new();
+            List<PowerOfPowerPlantDto> data = new();
 
             foreach (var powerPlant in powerPlants)
             {
@@ -210,51 +214,45 @@ namespace PowerPlantMapAPI.Services
 
         private async Task GetPowerPlantData(string docType, IReadOnlyList<DateTime> timeStampsUtc)
         {
-            if (docType == "A73" || docType == "A75")
+            if (docType is "A73" or "A75")
             {
                 try
                 {
                     var generators = await _powerRepository.GetGeneratorNames();
 
                     var document = XDocument.Parse(await _powerHelper.ApiQuery(docType, timeStampsUtc[0], timeStampsUtc[1]));
-                    var ns = document?.Root?.Name.Namespace;
+                    var ns = document.Root?.Name.Namespace;
 
-                    if (document is not null && document?.Root is not null &&
-                        ns is not null && document?.Root?.Elements(ns + "TimeSeries") is not null)
+                    if (document.Root is not null && ns is not null && document.Root?.Elements(ns + "TimeSeries") is not null)
                     {
-                        foreach (var timeSeries in document?.Root?.Elements(ns + "TimeSeries")!)
+                        foreach (var timeSeries in document.Root?.Elements(ns + "TimeSeries")!)
                         {
                             var startTimePointUtc = timeStampsUtc[0];
                             var generatorName = docType switch
                             {
-                                "A73" => timeSeries?.Element(ns + "MktPSRType")
+                                "A73" => timeSeries.Element(ns + "MktPSRType")
                                     ?.Element(ns + "PowerSystemResources")
                                     ?.Element(ns + "name")
                                     ?.Value,
-                                "A75" => timeSeries?.Element(ns + "MktPSRType")?.Element(ns + "psrType")?.Value,
+                                "A75" => timeSeries.Element(ns + "MktPSRType")?.Element(ns + "psrType")?.Value,
                                 _ => ""
                             };
 
-                            if (generatorName is not null && generators.Contains(generatorName))
+                            if (generatorName is null || !generators.Contains(generatorName)) continue;
+                            var period = timeSeries.Element(ns + "Period");
+                            if (period is null) continue;
+                            foreach (var point in period.Elements(ns + "Point"))
                             {
-                                var period = timeSeries?.Element(ns + "Period");
-                                var power = new List<int>();
-                                if (period is not null)
-                                {
-                                    foreach (var point in period.Elements(ns + "Point"))
-                                    {
-                                        var currentPower = Convert.ToInt32(point?.Element(ns + "quantity")?.Value);
-                                        await _powerRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
-                                        startTimePointUtc = startTimePointUtc.AddMinutes(15);
-                                    }
-                                }
+                                var currentPower = Convert.ToInt32(point.Element(ns + "quantity")?.Value);
+                                await _powerRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
+                                startTimePointUtc = startTimePointUtc.AddMinutes(15);
                             }
                         }
                     }
                 }
-                catch (Exception Exception)
+                catch (Exception exception)
                 {
-                    Console.WriteLine(Exception);
+                    Console.WriteLine(exception);
                 }
             }
             else
@@ -306,15 +304,13 @@ namespace PowerPlantMapAPI.Services
 
                     if (importNameSpace is not null && exportNameSpace is not null)
                     {
-                       var importTimeSeries = importedEnergyData?.Root?.Element(importNameSpace + "TimeSeries");
-                       var exportTimeSeries = exportedEnergyData?.Root?.Element(exportNameSpace + "TimeSeries");
+                       var importTimeSeries = importedEnergyData.Root?.Element(importNameSpace + "TimeSeries");
+                       var exportTimeSeries = exportedEnergyData.Root?.Element(exportNameSpace + "TimeSeries");
    
                        if (importTimeSeries?.Elements() is not null && exportTimeSeries?.Elements() is not null)
                        {
-                           var importPeriod = importTimeSeries?.Element(importNameSpace + "Period");
-                           var exportPeriod = exportTimeSeries?.Element(exportNameSpace + "Period");
-   
-                           var powerStamps = new List<PowerOfPowerPlantModel>();
+                           var importPeriod = importTimeSeries.Element(importNameSpace + "Period");
+                           var exportPeriod = exportTimeSeries.Element(exportNameSpace + "Period");
    
                            if (importPeriod?.Elements(importNameSpace + "Point") is not null && exportPeriod?.Elements(exportNameSpace + "Point") is not null)
                            {
@@ -323,8 +319,8 @@ namespace PowerPlantMapAPI.Services
                                    var importPoint = importPeriod.Elements(importNameSpace + "Point").ToList()[i];
                                    var exportPoint = exportPeriod.Elements(importNameSpace + "Point").ToList()[i];
    
-                                   var importValue = Convert.ToInt32(importPoint?.Element(importNameSpace + "quantity")?.Value);
-                                   var exportValue = Convert.ToInt32(exportPoint?.Element(exportNameSpace + "quantity")?.Value);
+                                   var importValue = Convert.ToInt32(importPoint.Element(importNameSpace + "quantity")?.Value);
+                                   var exportValue = Convert.ToInt32(exportPoint.Element(exportNameSpace + "quantity")?.Value);
                                    exportValue *= -1;
    
                                    var currentPower = importValue + exportValue;
