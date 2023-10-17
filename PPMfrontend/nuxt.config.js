@@ -1,9 +1,13 @@
+require("dotenv").config();
 import path from "path";
 import fs from "fs";
-require("dotenv").config();
-import "dotenv/config";
 
 export default {
+    env: {
+        ACCESS_TOKEN: process.env.ACCESS_TOKEN,
+        STYLE: process.env.STYLE
+    },
+
     server: {
         dev: process.env.NODE_ENV === "development",
         https:

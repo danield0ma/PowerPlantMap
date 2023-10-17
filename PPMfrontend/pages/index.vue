@@ -21,8 +21,9 @@
     <div id="map"></div>
   </div>
 </template>
-  
+
 <script>
+require('dotenv').config();
 import mapboxgl from "mapbox-gl";
 import LeftPanel from "../components/LeftPanel.vue";
 import RightPanel from "../components/RightPanel.vue";
@@ -33,7 +34,7 @@ export default {
   name: "MapView",
   data() {
     return {
-      accessToken: process.env.ACCESS_TOKEN,
+      accessToken: "",
       map: {},
       gj: {},
       powerOfPowerPlants: {},
@@ -59,6 +60,8 @@ export default {
     this.createMap();
     this.getLoad();
     this.defaultTime;
+    //this.accessToken = process.env.ACCESS_TOKEN;
+    this.accessToken = this.$config.ACCESS_TOKEN;
   },
 
   async asyncData() {
@@ -134,8 +137,9 @@ export default {
 
     async createMap() {
       console.log(process.env);
+      console.log(this.$config);
       this.map = new mapboxgl.Map({
-        accessToken: "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
+        accessToken: this.$config.ACCESS_TOKEN, //"pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
         container: "map",
         style: "mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy",
         center: [19.7, 47.15],
@@ -225,7 +229,7 @@ export default {
   },
 };
 </script>
-  
+
 <style>
 body {
   margin: 0;
@@ -297,4 +301,3 @@ body {
   border-radius: 25px;
 }
 </style>
-  
