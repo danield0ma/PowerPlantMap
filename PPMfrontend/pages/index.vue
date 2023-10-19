@@ -21,7 +21,7 @@
     <div id="map"></div>
   </div>
 </template>
-  
+
 <script>
 import mapboxgl from "mapbox-gl";
 import LeftPanel from "../components/LeftPanel.vue";
@@ -148,25 +148,25 @@ export default {
       for (const marker of coord) {
         const element = document.createElement("div");
         element.className = "marker";
-        element.style.backgroundImage = `url('${marker.properties.img}')`;
+        element.style.backgroundImage = `url('${marker.Properties.img}')`;
         element.style.width = `3rem`;
         element.style.height = `3rem`;
         element.style.backgroundSize = "100%";
 
         const m = new mapboxgl.Marker(element)
-          .setLngLat(marker.geometry.coordinates)
+          .setLngLat(marker.Geometry.coordinates)
           .addTo(this.map);
 
         m.getElement().addEventListener("click", () => {
           if (
             this.showLeftPanel &&
-            this.content.powerPlantID == marker.properties.id
+            this.content.powerPlantID == marker.Properties.id
           ) {
             this.$store.dispatch("power/setLeftPanel", false);
             this.$store.dispatch("power/setSelectedBloc", -1);
             this.$store.dispatch("power/toggleBlocs", false);
           } else {
-            this.getDetailsOfPowerPlant(marker.properties.id);
+            this.getDetailsOfPowerPlant(marker.Properties.id);
           }
         });
       }
@@ -225,7 +225,7 @@ export default {
   },
 };
 </script>
-  
+
 <style>
 body {
   margin: 0;
@@ -297,4 +297,3 @@ body {
   border-radius: 25px;
 }
 </style>
-  

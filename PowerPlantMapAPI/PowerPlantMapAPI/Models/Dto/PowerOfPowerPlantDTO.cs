@@ -1,8 +1,8 @@
 ﻿namespace PowerPlantMapAPI.Models.DTO
 {
-    public class PowerOfPowerPlantDTO
+    public class PowerOfPowerPlantDto
     {
         public string? PowerPlantName { get; set; }
-        public List<PowerStampDTO> PowerStamps { get; set; }
+        public List<PowerOfPowerPlantModel>? PowerStamps { get; set; }
     }
 }
