@@ -10,12 +10,18 @@ namespace PowerPlantMapAPI.Helpers
         private readonly IDateHelper _dateHelper;
         private readonly IPowerRepository _repository;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<PowerHelper> _logger;
 
-        public PowerHelper(IDateHelper dateHelper, IPowerRepository repository, IConfiguration configuration)
+        public PowerHelper(
+            IDateHelper dateHelper,
+            IPowerRepository repository,
+            IConfiguration configuration,
+            ILogger<PowerHelper> logger)
         {
             _dateHelper = dateHelper;
             _repository = repository;
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task<string> ApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
@@ -49,11 +55,21 @@ namespace PowerPlantMapAPI.Helpers
                                             "&periodStart=" + periodStartUtc +
                                             "&periodEnd=" + periodEndUtc;
                 }
-                System.Diagnostics.Debug.WriteLine(queryString);
+                _logger.LogInformation(queryString);
 
                 using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(queryString);
+                HttpResponseMessage response = new();
+                try
+                {
+                    response = await httpClient.GetAsync(queryString);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                
                 var apiResponse = await response.Content.ReadAsStringAsync();
+                // _logger.LogDebug(apiResponse);
                 return apiResponse;
             }
             else
