@@ -148,25 +148,25 @@ export default {
       for (const marker of coord) {
         const element = document.createElement("div");
         element.className = "marker";
-        element.style.backgroundImage = `url('${marker.Properties.img}')`;
+        element.style.backgroundImage = `url('${marker.properties.img}')`;
         element.style.width = `3rem`;
         element.style.height = `3rem`;
         element.style.backgroundSize = "100%";
 
         const m = new mapboxgl.Marker(element)
-          .setLngLat(marker.Geometry.coordinates)
+          .setLngLat(marker.geometry.coordinates)
           .addTo(this.map);
 
         m.getElement().addEventListener("click", () => {
           if (
             this.showLeftPanel &&
-            this.content.powerPlantID == marker.Properties.id
+            this.content.powerPlantID == marker.properties.id
           ) {
             this.$store.dispatch("power/setLeftPanel", false);
             this.$store.dispatch("power/setSelectedBloc", -1);
             this.$store.dispatch("power/toggleBlocs", false);
           } else {
-            this.getDetailsOfPowerPlant(marker.Properties.id);
+            this.getDetailsOfPowerPlant(marker.properties.id);
           }
         });
       }

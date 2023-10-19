@@ -3,7 +3,7 @@
     <div v-if="isLoading">
       <h1>LOADING...</h1>
     </div>
-    <div v-else id="velse">
+    <div v-else Id="velse">
       <div class="flexbox">
         <h4>{{ content.description }}</h4>
         <div class="inline">
@@ -63,11 +63,11 @@
       <div v-if="blocsEnabled">
         <client-only>
           <line-chart
-            :chart-data="chartData(content.blocs[selectedBloc].blocID, false)"
+            :chart-data="chartData(content.blocs[selectedBloc].blocId, false)"
             :chart-options="
               chartOptions(
-                content.blocs[selectedBloc].blocID + ' termelése',
-                content.blocs[selectedBloc].blocID,
+                content.blocs[selectedBloc].blocId + ' termelése',
+                content.blocs[selectedBloc].blocId,
                 false
               )
             "
@@ -81,9 +81,9 @@
           class="flexbox"
           style="padding: 0 5rem; justify-content: space-evenly"
         >
-          <div v-for="(bloc, index) in content.blocs" :key="bloc.blocID">
+          <div v-for="(bloc, index) in content.blocs" :key="bloc.blocId">
             <button class="blocSelectionButton" v-on:click="selectBloc(index)">
-              {{ /*bloc.blocID[bloc.blocID.length - 1]*/ index + 1 }}
+              {{ /*bloc.blocId[bloc.blocId.length - 1]*/ index + 1 }}
             </button>
           </div>
         </div>
@@ -94,34 +94,34 @@
               <line-chart
                 :chart-data="
                   chartData(
-                    content.blocs[selectedBloc].generators[0].generatorID,
+                    content.blocs[selectedBloc].generators[0].generatorId,
                     true
                   )
                 "
                 :chart-options="
                   chartOptions(
-                    content.blocs[selectedBloc].generators[0].generatorID,
-                    content.blocs[selectedBloc].generators[0].generatorID,
+                    content.blocs[selectedBloc].generators[0].generatorId,
+                    content.blocs[selectedBloc].generators[0].generatorId,
                     true
                   )
                 "
                 :height="150"
-                :width="200"
-                chart-id="bloc"
+                :wIdth="200"
+                chart-Id="bloc"
               />
             </div>
             <div>
               <line-chart
                 :chart-data="
                   chartData(
-                    content.blocs[selectedBloc].generators[1].generatorID,
+                    content.blocs[selectedBloc].generators[1].generatorId,
                     true
                   )
                 "
                 :chart-options="
                   chartOptions(
-                    content.blocs[selectedBloc].generators[1].generatorID,
-                    content.blocs[selectedBloc].generators[1].generatorID,
+                    content.blocs[selectedBloc].generators[1].generatorId,
+                    content.blocs[selectedBloc].generators[1].generatorId,
                     true
                   )
                 "
@@ -190,7 +190,7 @@ export default {
     },
   },
   methods: {
-    chartOptions(title, id, isGenerator) {
+    chartOptions(title, Id, isGenerator) {
       return {
         elements: {
           line: {
@@ -226,8 +226,8 @@ export default {
         },
         scales: {
           y: {
-            min: this.getMin(id, isGenerator),
-            max: this.getMax(id, isGenerator),
+            min: this.getMin(Id, isGenerator),
+            max: this.getMax(Id, isGenerator),
             grid: {
               lineWidth: 0,
             },
@@ -242,7 +242,7 @@ export default {
       };
     },
 
-    chartData(blocID, isGenerator) {
+    chartData(blocId, isGenerator) {
       return {
         labels: this.getDateArray(),
         datasets: [
@@ -251,14 +251,14 @@ export default {
             backgroundColor: this.color,
             borderColor: this.color,
             fill: { value: 0 },
-            data: this.getPowerArray(blocID, isGenerator),
+            data: this.getPowerArray(blocId, isGenerator),
           },
           {
             label: "Max Capacity [MW]",
             backgroundColor: "#777",
             borderColor: "#777",
             fill: false,
-            data: this.getMaxCap(blocID),
+            data: this.getMaxCap(blocId),
           },
         ],
       };
@@ -278,16 +278,16 @@ export default {
       );
     },
 
-    getPowerArray(id, isGenerator) {
+    getPowerArray(Id, isGenerator) {
       let powerArray = [];
       for (let i = 0; i < 96; i++) {
         powerArray.push(0);
       }
 
       for (let bloc of this.content.blocs) {
-        if (id === "all" || id === bloc.blocID || isGenerator) {
+        if (Id === "all" || Id === bloc.blocId || isGenerator) {
           for (let generator of bloc.generators) {
-            if (!isGenerator || (isGenerator && id == generator.generatorID)) {
+            if (!isGenerator || (isGenerator && Id == generator.generatorId)) {
               const pastPower = generator.pastPower.map((x) => x.power);
               powerArray.forEach((value, index) => {
                 powerArray[index] += pastPower[index];
@@ -299,10 +299,10 @@ export default {
       return powerArray;
     },
 
-    getMaxCap(blocID) {
+    getMaxCap(blocId) {
       let maxCap = 0;
       for (let bloc of this.content.blocs) {
-        if (blocID == "all" || blocID == bloc.blocID) {
+        if (blocId == "all" || blocId == bloc.blocId) {
           for (let generator of bloc.generators) {
             maxCap += generator.maxCapacity;
           }
@@ -326,14 +326,14 @@ export default {
       }
     },
 
-    getMin(id, isGenerator) {
-      let min = Math.min(...this.getPowerArray(id, isGenerator));
+    getMin(Id, isGenerator) {
+      let min = Math.min(...this.getPowerArray(Id, isGenerator));
       min > 100 ? (min -= 100) : (min = min);
       return Math.floor(min / 100) * 100;
     },
 
-    getMax(id, isGenerator) {
-      let powerArray = this.getPowerArray(id, isGenerator);
+    getMax(Id, isGenerator) {
+      let powerArray = this.getPowerArray(Id, isGenerator);
       if (
         powerArray.reduce(
           (accumulator, currentValue) => accumulator + currentValue

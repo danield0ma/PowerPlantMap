@@ -92,7 +92,7 @@ namespace PowerPlantMapAPI.Services
             
             var powerPlantDetails = await _powerRepository.GetPowerPlantDetails(id);
 
-            foreach (var powerPlantDetail in powerPlantDetails)
+            foreach (var powerPlantDetail in powerPlantDetails.GroupBy(x => x.BlocId ).Select(group => group.First()).ToList())
             {
                 BlocDto bloc = new()
                 {
