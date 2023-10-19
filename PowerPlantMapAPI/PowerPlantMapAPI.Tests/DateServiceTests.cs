@@ -17,9 +17,9 @@ namespace PowerPlantMapAPI.Tests
         [Fact]
         public void EditTimeIsLengthCorrect()
         {
-            DateService DateService = new DateService(_powerRepository);
+            DateHelper dateHelper = new DateHelper(_powerRepository);
             DateTime time = DateTime.Now;
-            string start = DateService.EditTime(time);
+            string start = dateHelper.EditTime(time);
             Assert.Equal(12, start.Length);
         }
     }

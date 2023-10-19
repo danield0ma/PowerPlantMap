@@ -1,6 +1,6 @@
 ﻿namespace PowerPlantMapAPI.Services
 {
-    public interface IDateService
+    public interface IDateHelper
     {
         Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? date = null, DateTime? start = null, DateTime? end = null);
         string EditTime(DateTime start);

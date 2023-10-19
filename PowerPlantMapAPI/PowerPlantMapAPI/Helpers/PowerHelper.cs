@@ -7,21 +7,21 @@ namespace PowerPlantMapAPI.Helpers
 {
     public class PowerHelper : IPowerHelper
     {
-        private readonly IDateService _dateService;
+        private readonly IDateHelper _dateHelper;
         private readonly IPowerRepository _repository;
         private readonly IConfiguration _configuration;
 
-        public PowerHelper(IDateService dateService, IPowerRepository repository, IConfiguration configuration)
+        public PowerHelper(IDateHelper dateHelper, IPowerRepository repository, IConfiguration configuration)
         {
-            _dateService = dateService;
+            _dateHelper = dateHelper;
             _repository = repository;
             _configuration = configuration;
         }
 
         public async Task<string> ApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
         {
-            var periodStartUtc = _dateService.EditTime(startUtc);
-            var periodEndUtc = _dateService.EditTime(endUtc);
+            var periodStartUtc = _dateHelper.EditTime(startUtc);
+            var periodEndUtc = _dateHelper.EditTime(endUtc);
 
             const string processType = "A16";
             inDomain ??= "10YHU-MAVIR----U";
@@ -71,7 +71,7 @@ namespace PowerPlantMapAPI.Helpers
                     Power = activity.ActualPower
                 }).ToList();
 
-            var numberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(startUtc, endUtc);
+            var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(startUtc, endUtc);
 
             for (var i = pastPowerOfGenerator.Count; i < numberOfDataPoints; i++)
             {

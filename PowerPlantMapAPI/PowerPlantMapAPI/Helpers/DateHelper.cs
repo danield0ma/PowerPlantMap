@@ -2,11 +2,11 @@
 
 namespace PowerPlantMapAPI.Services
 {
-    public class DateService : IDateService
+    public class DateHelper : IDateHelper
     {
         private readonly IPowerRepository _repository;
 
-        public DateService(IPowerRepository repository)
+        public DateHelper(IPowerRepository repository)
         {
             _repository = repository;
         }
