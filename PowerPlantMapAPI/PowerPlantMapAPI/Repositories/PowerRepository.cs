@@ -1,7 +1,7 @@
 ﻿﻿using Dapper;
 using System.Data;
 using System.Data.SqlClient;
- using PowerPlantMapAPI.Models.DTO;
+using PowerPlantMapAPI.Models.DTO;
 
  namespace PowerPlantMapAPI.Repositories
 {
@@ -17,7 +17,7 @@ using System.Data.SqlClient;
         {
             await using var connection = new SqlConnection(_connectionString);
             var powerPlants = (List<string>)await connection.QueryAsync<string>
-                ("GetPowerPlants", commandType: CommandType.StoredProcedure);
+                ("GetPowerPlantNames", commandType: CommandType.StoredProcedure);
             return powerPlants;
         }
         
@@ -25,14 +25,14 @@ using System.Data.SqlClient;
         {
             await using var connection = new SqlConnection(_connectionString);
             var generators = (List<string>)await connection.QueryAsync<string>
-                ("GetGenerators", commandType: CommandType.StoredProcedure);
+                ("GetGeneratorNames", commandType: CommandType.StoredProcedure);
             return generators;
         }
 
         public async Task<List<string?>> GetGeneratorNamesOfPowerPlant(string powerPlant)
         {
             await using var connection = new SqlConnection(_connectionString);
-            var parameters = new { PPID = powerPlant };
+            var parameters = new { PowerPlantId = powerPlant };
             List<string?> generators = ((List<string>)await connection.QueryAsync<string>
                 ("GetGeneratorsOfPowerPlant", parameters, commandType: CommandType.StoredProcedure))!;
             return generators;
@@ -42,22 +42,22 @@ using System.Data.SqlClient;
         {
             await using var connection = new SqlConnection(_connectionString);
             return (List<PowerPlantDataDto>)await connection.QueryAsync<PowerPlantDataDto>
-                ("[PowerPlantBasics]", CommandType.StoredProcedure);
+                ("[GetDataOfPowerPlants]", CommandType.StoredProcedure);
         }
 
         public async Task<PowerPlantDataDto> GetDataOfPowerPlant(string id)
         {
             await using var connection = new SqlConnection(_connectionString);
-            var parameters = new { id };
+            var parameters = new { Id = id };
             var basicsOfPowerPlant = (List<PowerPlantDataDto>)await connection.QueryAsync<PowerPlantDataDto>
-                ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
+                ("[GetDataOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
             return basicsOfPowerPlant[0];
         }
 
         public async Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id)
         {
             await using var connection = new SqlConnection(_connectionString);
-            var parameters = new { PowerPlantID = id };
+            var parameters = new { PowerPlantId = id };
             return (List<PowerPlantDetailsDto>)await connection.
                 QueryAsync<PowerPlantDetailsDto>("GetPowerPlantDetails",
                 parameters, commandType: CommandType.StoredProcedure);
@@ -66,16 +66,15 @@ using System.Data.SqlClient;
         public async Task<List<DateTime>> GetLastDataTime()
         {
             await using var connection = new SqlConnection(_connectionString);
-            var parameter = new { PPID = "PKS" };
             var lastData = (List<DateTime>)await connection.QueryAsync<DateTime>
-                ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
+                ("GetLastDataTime", commandType: CommandType.StoredProcedure);
             return lastData;
         }
         
         public async Task<List<PastActivityDto>> GetPastActivity(string? generator, DateTime start, DateTime end)
         {
             await using var connection = new SqlConnection(_connectionString);
-            var parameters = new { GID = generator, start, end };
+            var parameters = new { GeneratorId = generator, PeriodStart = start, PeriodEnd = end };
             var pastActivity = (List<PastActivityDto>)await connection.QueryAsync<PastActivityDto>
                 ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
             return pastActivity;
@@ -84,7 +83,7 @@ using System.Data.SqlClient;
         public async Task AddPastActivity(string generatorId, DateTime startDateTime, int power)
         {
             await using var connection = new SqlConnection(_connectionString);
-            var parameters = new { GID = generatorId, start = startDateTime, power };
+            var parameters = new { GeneratorId = generatorId, PeriodStart = startDateTime, ActualPower = power };
             try
             {
                 await connection.QueryAsync("AddPastActivity", parameters, commandType: CommandType.StoredProcedure);

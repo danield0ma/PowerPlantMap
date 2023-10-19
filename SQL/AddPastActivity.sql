@@ -1,7 +1,6 @@
-CREATE PROCEDURE [dbo].[AddPastActivity] @GID nvarchar(20),
-		@start smalldatetime, @power smallint
+CREATE PROCEDURE [dbo].[AddPastActivity] @GeneratorId nvarchar(20), @PeriodStart smalldatetime, @ActualPower smallint
 
 AS
 
-INSERT INTO PastActivity (GeneratorID, PeriodStart, ActualPower)
-VALUES (@GID, @start, @power)
+INSERT INTO PastActivity (GeneratorId, PeriodStart, ActualPower)
+VALUES (@GeneratorId, @PeriodStart, @ActualPower)
