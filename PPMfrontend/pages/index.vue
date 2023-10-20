@@ -185,9 +185,9 @@ export default {
                 await this.$store.dispatch("power/setLeftPanel", true);
 
                 const res =
-                    this.getDate == null
+                    this.getDate === null
                         ? await fetch(
-                              `${this.BASE_PATHAPI}/Power/getDetailsOfPowerPlant?id=${id}`
+                              `${this.BASE_PATH}API/Power/getDetailsOfPowerPlant?id=${id}`
                           )
                         : await fetch(
                               `${this.BASE_PATH}API/Power/getDetailsOfPowerPlant?id=${id}&date=${this.getDate}`

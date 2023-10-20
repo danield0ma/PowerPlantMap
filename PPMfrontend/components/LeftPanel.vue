@@ -133,8 +133,8 @@
                                     )
                                 "
                                 :height="150"
-                                :wIdth="200"
-                                chart-Id="bloc"
+                                :width="200"
+                                chart-id="bloc"
                             />
                         </div>
                         <div>
@@ -197,9 +197,14 @@ export default {
         },
 
         content() {
-            waitForVariableChange(this.isLoading, false).then(() => {
-                return this.$store.state.power.content;
-            });
+            // this.waitForVariableChange(this.isLoading, false).then(() => {
+            //     return this.$store.state.power.content;
+            // });
+
+            while (this.isLoading) {
+                pass;
+            }
+            return this.$store.state.power.content;
         },
 
         blocsEnabled() {
