@@ -42,6 +42,8 @@ import moment from "moment";
 import "chart.js";
 
 export default {
+    name: "Energymix",
+
     props: {
         powerArray: {
             type: Object,
@@ -311,7 +313,7 @@ export default {
         },
 
         getLoadArray() {
-            let loadArray = [];
+            const loadArray = [];
             for (const load of this.$store.state.power.loadHistory) {
                 loadArray.push(load.currentLoad);
             }
@@ -330,22 +332,22 @@ export default {
         },
 
         getPowerOfGAS() {
-            let gasPowerPlants = ["DME", "GNY", "CSP", "KF", "KP"];
-            let power = [];
+            const gasPowerPlants = ["DME", "GNY", "CSP", "KF", "KP"];
+            const power = [];
             for (let i = 0; i < 100; i++) {
                 power.push(0);
             }
 
-            for (let gasPP of gasPowerPlants) {
-                let array = this.getPowerOfPowerPlant(gasPP);
+            for (const gasPP of gasPowerPlants) {
+                const array = this.getPowerOfPowerPlant(gasPP);
                 for (let i = 0; i < array.length; i++) {
                     power[i] += array[i];
                 }
             }
 
-            let GASarray = this.getPowerOfPowerPlant("GAS");
+            const GASarray = this.getPowerOfPowerPlant("GAS");
 
-            let result = [];
+            const result = [];
             for (let i = 0; i < GASarray.length; i++) {
                 result[i] = GASarray[i] - power[i];
             }

@@ -22,9 +22,13 @@
             <h6>Üzemeltető: {{ content.operatorCompany }}</h6>
             <h6>
                 Weboldal:
-                <a :href="content.webpage" target="_blank">{{
-                    content.webpage
-                }}</a>
+                <a
+                    :href="content.webpage"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ content.webpage }}
+                </a>
             </h6>
             <!-- <a href={{ content.webpage }}>{{ content.webpage }}</a> -->
             <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
@@ -167,7 +171,7 @@
 import moment from "moment";
 
 export default {
-    name: "LeftPanel",
+    name: "DetailsPanel",
 
     data() {
         return {
@@ -193,10 +197,9 @@ export default {
         },
 
         content() {
-            while (this.isLoading) {
-                pass;
-            }
-            return this.$store.state.power.content;
+            waitForVariableChange(this.isLoading, false).then(() => {
+                return this.$store.state.power.content;
+            });
         },
 
         blocsEnabled() {
@@ -208,7 +211,7 @@ export default {
         },
 
         color() {
-            return "#" + this.content.color;
+            return `#${this.content.color}`;
         },
 
         selectedBloc() {
@@ -216,6 +219,19 @@ export default {
         },
     },
     methods: {
+        waitForVariableChange(targetVariable, targetValue) {
+            return new Promise((resolve) => {
+                const checkVariable = () => {
+                    if (targetVariable === targetValue) {
+                        resolve();
+                    } else {
+                        setTimeout(checkVariable, 100);
+                    }
+                };
+                checkVariable();
+            });
+        },
+
         chartOptions(title, Id, isGenerator) {
             return {
                 elements: {
@@ -305,17 +321,17 @@ export default {
         },
 
         getPowerArray(Id, isGenerator) {
-            let powerArray = [];
+            const powerArray = [];
             for (let i = 0; i < 96; i++) {
                 powerArray.push(0);
             }
 
-            for (let bloc of this.content.blocs) {
+            for (const bloc of this.content.blocs) {
                 if (Id === "all" || Id === bloc.blocId || isGenerator) {
                     for (let generator of bloc.generators) {
                         if (
                             !isGenerator ||
-                            (isGenerator && Id == generator.generatorId)
+                            (isGenerator && Id === generator.generatorId)
                         ) {
                             const pastPower = generator.pastPower.map(
                                 (x) => x.power
@@ -332,15 +348,15 @@ export default {
 
         getMaxCap(blocId) {
             let maxCap = 0;
-            for (let bloc of this.content.blocs) {
-                if (blocId == "all" || blocId == bloc.blocId) {
-                    for (let generator of bloc.generators) {
+            for (const bloc of this.content.blocs) {
+                if (blocId === "all" || blocId === bloc.blocId) {
+                    for (const generator of bloc.generators) {
                         maxCap += generator.maxCapacity;
                     }
                 }
             }
 
-            let arr = [];
+            const arr = [];
             for (let i = 0; i < 96; i++) {
                 arr.push(maxCap);
             }
@@ -359,12 +375,14 @@ export default {
 
         getMin(Id, isGenerator) {
             let min = Math.min(...this.getPowerArray(Id, isGenerator));
-            min > 100 ? (min -= 100) : (min = min);
+            if (min > 100) {
+                min -= 100;
+            }
             return Math.floor(min / 100) * 100;
         },
 
         getMax(Id, isGenerator) {
-            let powerArray = this.getPowerArray(Id, isGenerator);
+            const powerArray = this.getPowerArray(Id, isGenerator);
             if (
                 powerArray.reduce(
                     (accumulator, currentValue) => accumulator + currentValue
@@ -372,7 +390,7 @@ export default {
             ) {
                 return 100;
             }
-            let max = Math.max(...powerArray);
+            const max = Math.max(...powerArray);
             return Math.ceil(max / 100) * 100;
         },
 

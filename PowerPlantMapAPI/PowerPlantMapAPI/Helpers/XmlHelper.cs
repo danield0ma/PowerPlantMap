@@ -59,7 +59,7 @@ public class XmlHelper: IXmlHelper
         }
         else
         {
-            throw new NotImplementedException("Unimplemented DocumentType was given");
+            throw new Exception("Unimplemented DocumentType was given");
         }
     }
 

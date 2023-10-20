@@ -57,25 +57,23 @@ export default {
     mounted() {
         this.createMap();
         this.getLoad();
-        this.defaultTime;
+        this.chosenDate = moment(Date(Date.now())).format("YYYY-MM-DD");
     },
 
     async asyncData() {
         const BASE_PATH = "https://powerplantmap.tech:5001/";
-        const basics = await fetch(
-            `${BASE_PATH}` + "API/Power/getPowerPlantBasics"
-        );
+        const basics = await fetch(`${BASE_PATH}API/Power/getPowerPlantBasics`);
         const features = await basics.json();
         const gj = {
             type: "geojson",
             data: {
                 type: "FeatureCollection",
-                features: features,
+                features,
             },
         };
 
         const powers = await fetch(
-            `${BASE_PATH}` + "API/Power/getPowerOfPowerPlants"
+            `${BASE_PATH}API/Power/getPowerOfPowerPlants`
         );
         const powerOfPowerPlants = await powers.json();
 
@@ -95,13 +93,6 @@ export default {
             return this.$store.state.power.content;
         },
 
-        defaultTime() {
-            let time = moment(Date(Date.now())).format("YYYY-MM-DD");
-            this.chosenDate = time;
-            //this.$store.dispatch('power/setDate', time)
-            return time;
-        },
-
         getDate() {
             return this.$store.state.power.date;
         },
@@ -111,8 +102,7 @@ export default {
         async fetchWithBasePath(path) {
             const basePath = "https://powerplantmap.tech:5001/";
             const url = `${basePath}${path}`;
-            console.log(url);
-            return await fetch(url, {
+            return fetch(url, {
                 mode: "no-cors",
                 contentType: "application/json",
                 accessControlAllowOrigin: "*",
@@ -122,9 +112,7 @@ export default {
         async getLoad() {
             if (this.getDate != null) {
                 const powerOfPowerPlantsResponse = await fetch(
-                    this.BASE_PATH +
-                        "API/Power/getPowerOfPowerPlants?date=" +
-                        this.getDate
+                    `${this.BASE_PATH}API/Power/getPowerOfPowerPlants?date=${this.getDate}`
                 );
                 this.powerOfPowerPlants =
                     await powerOfPowerPlantsResponse.json();
@@ -132,8 +120,8 @@ export default {
             await this.$store.dispatch("power/setRightLoading", false);
         },
 
-        async createMap() {
-            console.log(process.env);
+        createMap() {
+            // console.log(process.env);
             this.map = new mapboxgl.Map({
                 accessToken:
                     "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
@@ -145,29 +133,29 @@ export default {
                 minZoom: 5,
             });
 
-            const coord = this.gj.data.features;
-            for (const marker of coord) {
+            const powerPlants = this.gj.data.features;
+            for (const powerPlant of powerPlants) {
                 const element = document.createElement("div");
                 element.className = "marker";
-                element.style.backgroundImage = `url('${marker.properties.img}')`;
-                element.style.width = `3rem`;
-                element.style.height = `3rem`;
+                element.style.backgroundImage = `url('${powerPlant.properties.img}')`;
+                element.style.width = "3rem";
+                element.style.height = "3rem";
                 element.style.backgroundSize = "100%";
 
-                const m = new mapboxgl.Marker(element)
-                    .setLngLat(marker.geometry.coordinates)
+                const marker = new mapboxgl.Marker(element)
+                    .setLngLat(powerPlant.geometry.coordinates)
                     .addTo(this.map);
 
-                m.getElement().addEventListener("click", () => {
+                marker.getElement().addEventListener("click", () => {
                     if (
                         this.showLeftPanel &&
-                        this.content.powerPlantID == marker.properties.id
+                        this.content.powerPlantID === powerPlant.properties.id
                     ) {
                         this.$store.dispatch("power/setLeftPanel", false);
                         this.$store.dispatch("power/setSelectedBloc", -1);
                         this.$store.dispatch("power/toggleBlocs", false);
                     } else {
-                        this.getDetailsOfPowerPlant(marker.properties.id);
+                        this.getDetailsOfPowerPlant(powerPlant.properties.id);
                     }
                 });
             }
@@ -175,15 +163,15 @@ export default {
 
         async getPowerPlantBasics() {
             const res = await fetch(
-                this.BASE_PATH + "API/Power/getPowerPlantBasics"
+                `${this.BASE_PATH}API/Power/getPowerPlantBasics`
             );
-            const f = await res.json();
+            const features = await res.json();
 
             const data = {
                 type: "geojson",
                 data: {
                     type: "FeatureCollection",
-                    features: f,
+                    features,
                 },
             };
             return data;
@@ -196,24 +184,15 @@ export default {
                 await this.$store.dispatch("power/setSelectedBloc", -1);
                 await this.$store.dispatch("power/setLeftPanel", true);
 
-                let res;
-                if (this.getDate == null) {
-                    res = await fetch(
-                        this.BASE_PATH +
-                            "API/Power/getDetailsOfPowerPlant?id=" +
-                            id
-                    );
-                } else {
-                    res = await fetch(
-                        this.BASE_PATH +
-                            "API/Power/getDetailsOfPowerPlant?id=" +
-                            id +
-                            "&date=" +
-                            this.getDate
-                    );
-                }
+                const res =
+                    this.getDate == null
+                        ? await fetch(
+                              `${this.BASE_PATHAPI}/Power/getDetailsOfPowerPlant?id=${id}`
+                          )
+                        : await fetch(
+                              `${this.BASE_PATH}API/Power/getDetailsOfPowerPlant?id=${id}&date=${this.getDate}`
+                          );
                 const data = await res.json();
-
                 await this.$store.dispatch("power/setLeftContent", data);
                 await this.$store.dispatch("power/setLeftPanelLoading", false);
             } catch (error) {

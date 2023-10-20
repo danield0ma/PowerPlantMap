@@ -3,126 +3,119 @@ using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
 
-namespace PowerPlantMapAPI.Helpers
+namespace PowerPlantMapAPI.Helpers;
+
+public class PowerHelper : IPowerHelper
 {
-    public class PowerHelper : IPowerHelper
+    private readonly IDateHelper _dateHelper;
+    private readonly IPowerRepository _repository;
+    private readonly IConfiguration _configuration;
+
+    public PowerHelper(IDateHelper dateHelper, IPowerRepository repository, IConfiguration configuration)
     {
-        private readonly IDateHelper _dateHelper;
-        private readonly IPowerRepository _repository;
-        private readonly IConfiguration _configuration;
+        _dateHelper = dateHelper;
+        _repository = repository;
+        _configuration = configuration;
+    }
 
-        public PowerHelper(IDateHelper dateHelper, IPowerRepository repository, IConfiguration configuration)
+    public async Task<string> ApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
+    {
+        var periodStartUtc = _dateHelper.EditTime(startUtc);
+        var periodEndUtc = _dateHelper.EditTime(endUtc);
+
+        const string processType = "A16";
+        inDomain ??= "10YHU-MAVIR----U";
+        const string baseUrl = "https://web-api.tp.entsoe.eu/api";
+        var securityToken = GetApiToken();
+
+        if (string.IsNullOrEmpty(securityToken))
         {
-            _dateHelper = dateHelper;
-            _repository = repository;
-            _configuration = configuration;
+            throw new FileNotFoundException("Hiányzik az API kulcsot tartalmazó file");
+        }
+        
+        var queryString = 
+            documentType == "A11"
+                ? baseUrl + "?securityToken=" + securityToken +
+                  "&documentType=" + documentType +
+                  "&in_Domain=" + inDomain +
+                  "&out_Domain=" + outDomain +
+                  "&periodStart=" + periodStartUtc +
+                  "&periodEnd=" + periodEndUtc
+                : baseUrl + "?securityToken=" + securityToken +
+                  "&documentType=" + documentType +
+                  "&processType=" + processType +
+                  "&in_Domain=" + inDomain +
+                  "&periodStart=" + periodStartUtc +
+                  "&periodEnd=" + periodEndUtc;
+        
+        System.Diagnostics.Debug.WriteLine(queryString);
+
+        using var httpClient = new HttpClient();
+        var response = await httpClient.GetAsync(queryString);
+        var apiResponse = await response.Content.ReadAsStringAsync();
+        return apiResponse;
+    }
+
+    public async Task<List<GeneratorPowerDto>?> GetGeneratorPower(string? generator, DateTime startUtc, DateTime endUtc)
+    {
+        var pastActivity = await _repository.GetPastActivity(generator, startUtc, endUtc);
+        var pastPowerOfGenerator = pastActivity.Select
+            (activity => new GeneratorPowerDto() { 
+                TimePoint = TimeZoneInfo.ConvertTimeFromUtc(activity.PeriodStart, TimeZoneInfo.Local),
+                Power = activity.ActualPower
+            }).ToList();
+
+        var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(startUtc, endUtc);
+
+        for (var i = pastPowerOfGenerator.Count; i < numberOfDataPoints; i++)
+        {
+            pastPowerOfGenerator.Add(new GeneratorPowerDto());
+        }
+        return pastPowerOfGenerator;
+    }
+
+    public async Task<List<PowerOfPowerPlantModel>> GetPowerStampsListOfPowerPlant(string id, int numberOfDataPoints, List<DateTime> timeStamps)
+    {
+        List<PowerOfPowerPlantModel> powerStamps = new();
+        for (var i = 0; i < numberOfDataPoints; i++)
+        {
+            PowerOfPowerPlantModel powerStamp = new()
+            {
+                Start = TimeZoneInfo.ConvertTimeFromUtc(timeStamps[0].AddMinutes(i * 15), TimeZoneInfo.Local),
+                Power = 0
+            };
+            powerStamps.Add(powerStamp);
         }
 
-        public async Task<string> ApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
+        var generators = await _repository.GetGeneratorNamesOfPowerPlant(id);
+        foreach (var generator in generators)
         {
-            var periodStartUtc = _dateHelper.EditTime(startUtc);
-            var periodEndUtc = _dateHelper.EditTime(endUtc);
-
-            const string processType = "A16";
-            inDomain ??= "10YHU-MAVIR----U";
-            const string baseUrl = "https://web-api.tp.entsoe.eu/api";
-            var securityToken = GetApiToken();
-
-            if (securityToken != "")
-            {
-                string queryString;
-                if (documentType == "A11")
+            var generatorPowers = await GetGeneratorPower(generator, timeStamps[0], timeStamps[1]);
+            if (generatorPowers is not null)
+                foreach (var generatorPower in generatorPowers)
                 {
-                    queryString = baseUrl + "?securityToken=" + securityToken +
-                                       "&documentType=" + documentType +
-                                       "&in_Domain=" + inDomain +
-                                       "&out_Domain=" + outDomain +
-                                       "&periodStart=" + periodStartUtc +
-                                       "&periodEnd=" + periodEndUtc;
-                }
-                else
-                {
-                    queryString = baseUrl + "?securityToken=" + securityToken +
-                                            "&documentType=" + documentType +
-                                            "&processType=" + processType +
-                                            "&in_Domain=" + inDomain +
-                                            "&periodStart=" + periodStartUtc +
-                                            "&periodEnd=" + periodEndUtc;
-                }
-                System.Diagnostics.Debug.WriteLine(queryString);
-
-                using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(queryString);
-                var apiResponse = await response.Content.ReadAsStringAsync();
-                return apiResponse;
-            }
-            else
-            {
-                throw new FileNotFoundException("Hiányzik az API kulcsot tartalmazó file");
-            }
-        }
-
-        public async Task<List<GeneratorPowerDto>?> GetGeneratorPower(string? generator, DateTime startUtc, DateTime endUtc)
-        {
-            var pastActivity = await _repository.GetPastActivity(generator, startUtc, endUtc);
-            var pastPowerOfGenerator = pastActivity.Select
-                (activity => new GeneratorPowerDto() { 
-                    TimePoint = TimeZoneInfo.ConvertTimeFromUtc(activity.PeriodStart, TimeZoneInfo.Local),
-                    Power = activity.ActualPower
-                }).ToList();
-
-            var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(startUtc, endUtc);
-
-            for (var i = pastPowerOfGenerator.Count; i < numberOfDataPoints; i++)
-            {
-                pastPowerOfGenerator.Add(new GeneratorPowerDto());
-            }
-            return pastPowerOfGenerator;
-        }
-
-        public async Task<List<PowerOfPowerPlantModel>> GetPowerStampsListOfPowerPlant(string id, int numberOfDataPoints, List<DateTime> timeStamps)
-        {
-            List<PowerOfPowerPlantModel> powerStamps = new();
-            for (var i = 0; i < numberOfDataPoints; i++)
-            {
-                PowerOfPowerPlantModel powerStamp = new()
-                {
-                    Start = TimeZoneInfo.ConvertTimeFromUtc(timeStamps[0].AddMinutes(i * 15), TimeZoneInfo.Local),
-                    Power = 0
-                };
-                powerStamps.Add(powerStamp);
-            }
-
-            var generators = await _repository.GetGeneratorNamesOfPowerPlant(id);
-            foreach (var generator in generators)
-            {
-                var generatorPowers = await GetGeneratorPower(generator, timeStamps[0], timeStamps[1]);
-                if (generatorPowers is not null)
-                    foreach (var generatorPower in generatorPowers)
+                    var generatorPowerTimePointLocal = generatorPower.TimePoint;
+                    var matches = powerStamps.Where(x => x.Start == generatorPowerTimePointLocal).ToList();
+                    foreach (var match in matches)
                     {
-                        var generatorPowerTimePointLocal = generatorPower.TimePoint;
-                        var matches = powerStamps.Where(x => x.Start == generatorPowerTimePointLocal).ToList();
-                        foreach (var match in matches)
-                        {
-                            match.Power += generatorPower.Power;
-                        }
+                        match.Power += generatorPower.Power;
                     }
-            }
-            return powerStamps;
+                }
         }
+        return powerStamps;
+    }
 
-        private string GetApiToken()
+    private string GetApiToken()
+    {
+        var securityToken = "";
+        try
         {
-            var securityToken = "";
-            try
-            {
-                securityToken = _configuration["APIToken"];
-            }
-            catch (IOException ioException)
-            {
-                Console.WriteLine(ioException.Message);
-            }
-            return securityToken;
+            securityToken = _configuration["APIToken"];
         }
+        catch (IOException ioException)
+        {
+            Console.WriteLine(ioException.Message);
+        }
+        return securityToken;
     }
 }

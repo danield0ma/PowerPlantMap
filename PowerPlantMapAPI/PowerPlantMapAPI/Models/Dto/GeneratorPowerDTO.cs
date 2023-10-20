@@ -1,9 +1,7 @@
-﻿namespace PowerPlantMapAPI.Models.DTO
+﻿namespace PowerPlantMapAPI.Models.DTO;
+
+public class GeneratorPowerDto
 {
-    public class GeneratorPowerDto
-    {
-        public DateTime TimePoint { get; set; }
-        public int Power { get; set; }
-        
-    }
+    public DateTime TimePoint { get; set; }
+    public int Power { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace PowerPlantMapAPI.Models.DTO
+﻿namespace PowerPlantMapAPI.Models.DTO;
+
+public class FeatureGeometryDto
 {
-    public class FeatureGeometryDto
-    {
-        public string? Type { get; set; }
-        public List<float>? Coordinates { get; set; }
-    }
+    public string? Type { get; set; }
+    public List<float>? Coordinates { get; set; }
 }

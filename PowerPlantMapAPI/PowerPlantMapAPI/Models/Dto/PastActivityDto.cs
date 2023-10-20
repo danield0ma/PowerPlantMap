@@ -1,9 +1,8 @@
-﻿namespace PowerPlantMapAPI.Models.DTO
+﻿namespace PowerPlantMapAPI.Models.DTO;
+
+public class PastActivityDto
 {
-    public class PastActivityDto
-    {
-        public string? GeneratorId { get; set; }
-        public DateTime PeriodStart { get; set; }
-        public int ActualPower { get; set; }
-    }
+    public string? GeneratorId { get; set; }
+    public DateTime PeriodStart { get; set; }
+    public int ActualPower { get; set; }
 }

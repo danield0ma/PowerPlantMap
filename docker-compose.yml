@@ -20,8 +20,6 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/powerplantmap.tech.pfx
     volumes:
       - /etc/letsencrypt/live/powerplantmap.tech:/https/:ro
-    networks:
-      - default
 
   database:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -33,8 +31,6 @@ services:
       - MSSQL_PID=Standard
     volumes:
       - PPM:/var/opt/mssql
-    networks:
-      - default
 
 volumes:
   PPM:

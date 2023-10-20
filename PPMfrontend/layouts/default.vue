@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- <div v-if="isMap"> -->
-        <Header id="head" />
+        <PpmHeader id="head" />
         <Nuxt id="body" />
         <!-- </div>
     <div v-else>
@@ -15,19 +15,21 @@
 </template>
 
 <script>
-import Header from "../components/Header";
+import PpmHeader from "../components/PpmHeader";
 export default {
+    name: "Default",
+
     components: {
-        Header,
+        PpmHeader,
     },
 
     computed: {
         isMap() {
-            return this.$route.path == "/map";
+            return this.$route.path === "/map";
         },
 
         notMap() {
-            return this.$route.path != "/map";
+            return this.$route.path !== "/map";
         },
     },
 };
