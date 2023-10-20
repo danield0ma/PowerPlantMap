@@ -1,30 +1,30 @@
 import Vue from "vue";
 import { Line } from "vue-chartjs/legacy";
 import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Filler
+    Chart as ChartJS,
+    Title,
+    Tooltip,
+    Legend,
+    BarElement,
+    CategoryScale,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Filler,
 } from "chart.js";
 
 ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  PointElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  LineElement,
-  Filler
+    Title,
+    Tooltip,
+    Legend,
+    PointElement,
+    BarElement,
+    CategoryScale,
+    LinearScale,
+    LineElement,
+    Filler
 );
 
 Vue.component("line-chart", {
-  extends: Line,
+    extends: Line,
 });
