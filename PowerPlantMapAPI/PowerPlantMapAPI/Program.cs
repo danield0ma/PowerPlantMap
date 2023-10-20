@@ -1,3 +1,5 @@
+using PowerPlantMapAPI.Helpers;
+using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI
@@ -14,8 +16,7 @@ namespace PowerPlantMapAPI
                 options.AddDefaultPolicy(
                     policy =>
                     {
-                        policy//.WithOrigins("http://localhost:3000")
-                               //.AllowCredentials()
+                        policy//.AllowCredentials()
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowAnyOrigin();
@@ -23,6 +24,10 @@ namespace PowerPlantMapAPI
             });
 
             builder.Services.AddScoped<IPowerService, PowerService>();
+            builder.Services.AddScoped<IDateHelper, DateHelper>();
+            builder.Services.AddScoped<IPowerRepository, PowerRepository>();
+            builder.Services.AddScoped<IPowerHelper, PowerHelper>();
+            builder.Services.AddScoped<IXmlHelper, XmlHelper>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

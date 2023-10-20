@@ -1,0 +1,58 @@
+name: Build, Test and Deploy
+run-name: Build, Test and Deploy the app
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./PPMfrontend
+      - run: node --version
+      - run: npm --version
+      - name: Build the app
+        run: npm run build
+        working-directory: ./PPMfrontend
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "6.0.414"
+      - name: Change sdk version
+        run: dotnet new globaljson --sdk-version 6.0.414 --force && dotnet --version
+        working-directory: ./PowerPlantMapAPI
+      - name: Show current branch, list SDKs and show current version
+        run: |
+          git branch --show-current
+          dotnet --list-sdks
+          dotnet --version
+        working-directory: ./PowerPlantMapAPI
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./PowerPlantMapAPI
+      - name: Build app
+        run: dotnet build
+        working-directory: ./PowerPlantMapAPI
+        env:
+          APPSETTINGS: ${{ secrets.APPSETTINGS }}
+      - name: Run tests
+        run: dotnet test
+        working-directory: ./PowerPlantMapAPI
+
+      - name: Deploy to server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+          ssh -i "~/.ssh/id_rsa" root@powerplantmap.tech "cd /Projects/PowerPlantMap && docker-compose down && git pull && docker-compose up --build -d && exit"

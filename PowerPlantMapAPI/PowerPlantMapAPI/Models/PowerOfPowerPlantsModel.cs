@@ -1,11 +1,10 @@
 ﻿using PowerPlantMapAPI.Models.DTO;
 
-namespace PowerPlantMapAPI.Models
+namespace PowerPlantMapAPI.Models;
+
+public class PowerOfPowerPlantsModel
 {
-    public class PowerOfPowerPlantsModel
-    {
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
-        public List<PowerDTO> Data { get; set; }
-    }
+    public DateTime Start { get; set; }
+    public DateTime End { get; set; }
+    public List<PowerOfPowerPlantDto>? Data { get; set; }
 }

@@ -1,15 +1,13 @@
-﻿using PowerPlantMapAPI.Models.DTO;
+﻿using Microsoft.AspNetCore.Mvc;
+using PowerPlantMapAPI.Models;
 
-namespace PowerPlantMapAPI.Services
+namespace PowerPlantMapAPI.Services;
+
+public interface IPowerService
 {
-    public interface IPowerService
-    {
-        Task<CurrentLoadDTO> GetCurrentLoad(string periodStart, string periodEnd);
-        Task<IEnumerable<CurrentLoadDTO>> GetLoadHistory(DateTime periodStart, DateTime periodEnd);
-        string EditTime(DateTime start);
-        Task<List<DateTime>> GetStartAndEnd(bool initData);
-        Task<IEnumerable<PowerDTO>> getPPData(string docType, string periodStart, string periodEnd);
-        Task<IEnumerable<PowerDTO>> getImportData(bool export, string periodStart, string periodEnd);
-        Task<string> InitData(DateTime? periodStart, DateTime? periodEnd);
-    }
+    Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics();
+    Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null);
+    Task<IEnumerable<PowerOfPowerPlantModel>> GetPowerOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null);
+    Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null, DateTime? start = null, DateTime? end = null);
+    Task<string> InitData(DateTime? periodStart, DateTime? periodEnd);
 }
