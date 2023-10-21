@@ -13,11 +13,14 @@ namespace PowerPlantMapAPI.Controllers
         private readonly IPowerService _powerService;
         private readonly IDateService _dateService;
         private readonly IEmailService _emailService;
-        public PowerController(IPowerService powerService, IDateService dateService, IEmailService emailService)
+        private readonly IStatisticsService _statisticsService;
+        
+        public PowerController(IPowerService powerService, IDateService dateService, IEmailService emailService, IStatisticsService statisticsService)
         {
             _powerService = powerService;
             _dateService = dateService;
             _emailService = emailService;
+            _statisticsService = statisticsService;
         }
 
         [HttpGet("[action]")]
@@ -60,6 +63,12 @@ namespace PowerPlantMapAPI.Controllers
         public string SendTestEmail(string? to, string? subject, string? body)
         {
             return _emailService.SendEmail(to, subject, body);
+        }
+        
+        [HttpGet("[action]")]
+        public async Task<List<DailyStatisticsDto>> GenerateDailyStatistics()
+        {
+            return await _statisticsService.CreateAndSendDailyStatistics();
         }
     }
 }
