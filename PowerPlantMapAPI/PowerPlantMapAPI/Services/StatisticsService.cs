@@ -29,26 +29,58 @@ public class StatisticsService : IStatisticsService
         var powerPlants = await _powerRepository.GetPowerPlantNames();
         foreach (var powerPlant in powerPlants)
         {
-            var generatorsOfPowerPlant = await _powerRepository.GetGeneratorNamesOfPowerPlant(powerPlant);
-            foreach (var generator in generatorsOfPowerPlant)
+            var powerPlantMaxPower = 0;
+            var powerPlantCurrentAvgPower = 0.0;
+            var blocData = "<ul>";
+
+            var powerPlantDetails = await _powerRepository.GetPowerPlantDetails(powerPlant);
+            var blocs = powerPlantDetails.
+                GroupBy(x => x.BlocId).
+                Select(group => group.First()).
+                ToList();
+            foreach (var bloc in blocs)
             {
-                if (generator is not null)
+                var blocMaxPower = 0;
+                var blocCurrentAvgPower = 0.0;
+                var generatorData = "<ul>";
+
+                var generators = powerPlantDetails.Where(x => x.BlocId == bloc.BlocId);
+                foreach (var generator in generators)
                 {
-                    var maxPowerOfGenerator = await _powerRepository.GetMaxPowerOfGenerator(generator);
-                    var pastActivity = await _powerRepository.GetPastActivity(generator, start, end);
-                
-                    //calculate
+                    if (generator is null) continue;
+                    var maxPowerOfGenerator = await _powerRepository.GetMaxPowerOfGenerator(generator.GeneratorId);
+                    blocMaxPower += maxPowerOfGenerator;
+                    var pastActivity = await _powerRepository.GetPastActivity(generator.GeneratorId, start, end);
+
                     var avgPowerOfGenerator = pastActivity.Select(x => x.ActualPower).Average();
+                    blocCurrentAvgPower += avgPowerOfGenerator;
                     var avgUsageOfGenerator = Math.Round(avgPowerOfGenerator / maxPowerOfGenerator * 100, 2);
 
                     DailyStatisticsDto stat = new()
                     {
-                        GeneratorName = generator,
+                        GeneratorName = generator.GeneratorId,
                         AverageUsage = avgUsageOfGenerator
                     };
                     statistics.Add(stat);
-                    result += $"<li>{generator}: {avgUsageOfGenerator}%</li>";
+                    generatorData += $"<li>{generator.GeneratorId}: {avgUsageOfGenerator}%</li>";
                 }
+
+                powerPlantMaxPower += blocMaxPower;
+                powerPlantCurrentAvgPower += blocCurrentAvgPower;
+                
+                var avgUsageOfBloc = Math.Round(blocCurrentAvgPower / blocMaxPower * 100, 2);
+                blocData += $"<li>{bloc.BlocId}: {avgUsageOfBloc}%</li>";
+                if (generators.Count() > 1)
+                {
+                    blocData += $"{generatorData}</ul>";
+                }
+            }
+            
+            var avgUsageOfPowerPlant = Math.Round(powerPlantCurrentAvgPower / powerPlantMaxPower * 100, 2);
+            result += $"<li>{powerPlant}: {avgUsageOfPowerPlant}%</li>";
+            if (blocs.Count() > 1)
+            {
+                result += $"{blocData}</ul>";
             }
         }
 
