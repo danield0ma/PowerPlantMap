@@ -1,7 +1,7 @@
-CREATE PROCEDURE [dbo].[GetMaxPowerOfGenerator] @generatorId nvarchar(20)
+CREATE PROCEDURE [dbo].[GetMaxPowerOfGenerator] @GeneratorId nvarchar(20)
 
 AS
 
 SELECT MaxCapacity
 FROM Generators
-WHERE GeneratorID = @generatorId
+WHERE GeneratorId = @GeneratorId

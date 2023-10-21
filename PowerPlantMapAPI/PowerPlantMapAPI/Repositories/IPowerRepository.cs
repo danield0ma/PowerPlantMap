@@ -7,6 +7,7 @@ public interface IPowerRepository
     Task<List<string>> GetPowerPlantNames();
     Task<List<string>> GetGeneratorNames();
     Task<List<string?>> GetGeneratorNamesOfPowerPlant(string powerPlant);
+    Task<int> GetMaxPowerOfGenerator(string generator);
     Task<List<PowerPlantDataDto>> GetDataOfPowerPlants();
     Task<PowerPlantDataDto> GetDataOfPowerPlant(string id);
     Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id);

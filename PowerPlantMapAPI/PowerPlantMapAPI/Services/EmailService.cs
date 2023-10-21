@@ -19,7 +19,7 @@ public class EmailService: IEmailService
         request.AddParameter("from", "PowerPlantMap <noreply@powerplantmap.tech>");
         request.AddParameter("to", to);
         request.AddParameter("subject", subject);
-        request.AddParameter("text", body);
+        request.AddParameter("html", body);
 
         var response = client.Execute(request);
 

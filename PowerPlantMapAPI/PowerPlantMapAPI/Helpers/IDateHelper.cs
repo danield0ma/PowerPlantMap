@@ -6,4 +6,5 @@ public interface IDateHelper
     string EditTime(DateTime start);
     Task<List<DateTime>> GetInitDataTimeInterval();
     int CalculateTheNumberOfIntervals(DateTime start, DateTime end);
+    List<DateTime> GetStartAndEndTimeOfDailyStatistics();
 }

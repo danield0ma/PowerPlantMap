@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using PowerPlantMapAPI.Models;
+using PowerPlantMapAPI.Models.DTO;
 using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers
@@ -11,9 +12,13 @@ namespace PowerPlantMapAPI.Controllers
     public class PowerController : ControllerBase
     {
         private readonly IPowerService _powerService;
-        public PowerController(IPowerService powerService)
+        private readonly IEmailService _emailService;
+        private readonly IStatisticsService _statisticsService;
+        public PowerController(IPowerService powerService, IEmailService emailService, IStatisticsService statisticsService)
         {
             _powerService = powerService;
+            _emailService = emailService;
+            _statisticsService = statisticsService;
         }
 
         [HttpGet("[action]")]
