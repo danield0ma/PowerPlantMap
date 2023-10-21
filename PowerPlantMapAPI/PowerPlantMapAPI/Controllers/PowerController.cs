@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using PowerPlantMapAPI.Models.DTO;
+using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers
@@ -11,16 +11,9 @@ namespace PowerPlantMapAPI.Controllers
     public class PowerController : ControllerBase
     {
         private readonly IPowerService _powerService;
-        private readonly IDateService _dateService;
-        private readonly IEmailService _emailService;
-        private readonly IStatisticsService _statisticsService;
-        
-        public PowerController(IPowerService powerService, IDateService dateService, IEmailService emailService, IStatisticsService statisticsService)
+        public PowerController(IPowerService powerService)
         {
             _powerService = powerService;
-            _dateService = dateService;
-            _emailService = emailService;
-            _statisticsService = statisticsService;
         }
 
         [HttpGet("[action]")]
@@ -30,27 +23,27 @@ namespace PowerPlantMapAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<IEnumerable<FeatureDTO>>> GetPowerPlantBasics()
+        public async Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics()
         {
             return await _powerService.GetPowerPlantBasics();
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string Id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
+        public async Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null)
         {
-            return await _powerService.GetDetailsOfPowerPlant(Id, Date, Start, End);
+            return await _powerService.GetDetailsOfPowerPlant(id, date, start, end);
         }
 
         [HttpGet("[action]")]
-        public async Task<IEnumerable<PowerStampDTO>> GetPowerOfPowerPlant(string Id, DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
+        public async Task<IEnumerable<PowerOfPowerPlantModel>> GetPowerOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null)
         {
-            return await _powerService.GetPowerOfPowerPlant(Id, Date, Start, End);
+            return await _powerService.GetPowerOfPowerPlant(id, date, start, end);
         }
 
         [HttpGet("[action]")]
-        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? Date = null, DateTime? Start = null, DateTime? End = null)
+        public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null, DateTime? start = null, DateTime? end = null)
         {
-            return await _powerService.GetPowerOfPowerPlants(Date, Start, End);
+            return await _powerService.GetPowerOfPowerPlants(date, start, end);
         }
 
         [HttpGet("[action]")]

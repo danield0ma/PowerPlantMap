@@ -1,18 +1,16 @@
-﻿using PowerPlantMapAPI.Models;
+﻿using PowerPlantMapAPI.Models.DTO;
 
-namespace PowerPlantMapAPI.Repositories
+namespace PowerPlantMapAPI.Repositories;
+
+public interface IPowerRepository
 {
-    public interface IPowerRepository
-    {
-        Task<List<string>> GetPowerPlants();
-        Task<List<string>> GetGenerators();
-        Task<int> GetMaxPowerOfGenerator(string generator);
-        Task<List<string>> GetGeneratorsOfPowerPlant(string powerPlant);
-        Task<List<PowerPlantDataModel>> GetPowerPlantBasics();
-        Task<PowerPlantDataModel> GetBasicsOfPowerPlant(string id);
-        Task<List<PowerPlantDetailsModel>> GetPowerPlantDetails(string id);
-        Task<List<DateTime>> GetLastDataTime();
-        Task<List<PastActivityModel>> GetPastActivity(string generator, DateTime start, DateTime end);
-        Task AddPastActivity(string generatorId, DateTime start, int power);
-    }
+    Task<List<string>> GetPowerPlantNames();
+    Task<List<string>> GetGeneratorNames();
+    Task<List<string?>> GetGeneratorNamesOfPowerPlant(string powerPlant);
+    Task<List<PowerPlantDataDto>> GetDataOfPowerPlants();
+    Task<PowerPlantDataDto> GetDataOfPowerPlant(string id);
+    Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id);
+    Task<List<DateTime>> GetLastDataTime();
+    Task<List<PastActivityDto>> GetPastActivity(string? generator, DateTime start, DateTime end);
+    Task AddPastActivity(string generatorId, DateTime start, int power);
 }

@@ -1,371 +1,232 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 using PowerPlantMapAPI.Models;
 using PowerPlantMapAPI.Models.DTO;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Helpers;
-using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Linq;
-using System.Reflection.Metadata;
-using System.Threading.Tasks;
-using System.Drawing;
 
-namespace PowerPlantMapAPI.Services
+namespace PowerPlantMapAPI.Services;
+
+public class PowerService : IPowerService
 {
-    public class PowerService : IPowerService
+    private readonly IPowerRepository _powerRepository;
+    private readonly IDateHelper _dateHelper;
+    private readonly IPowerHelper _powerHelper;
+    private readonly IXmlHelper _xmlHelper;
+
+    public PowerService(
+        IDateHelper dateHelper, 
+        IPowerRepository repository,
+        IPowerHelper powerHelper,
+        IXmlHelper xmlHelper)
     {
-        private readonly IDateService _dateService;
-        private readonly IPowerRepository _powerRepository;
-        private readonly IPowerHelper _powerHelper;
+        _dateHelper = dateHelper;
+        _powerRepository = repository;
+        _powerHelper = powerHelper;
+        _xmlHelper = xmlHelper;
+    }
 
-        public PowerService(IDateService dateService, IPowerRepository repository, IPowerHelper powerHelper)
+    public async Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics()
+    {
+        var powerPlantBasics = new List<PowerPlantBasicsModel>();
+        var dataOfPowerPlants = await _powerRepository.GetDataOfPowerPlants();
+
+        foreach (var dataOfPowerPlant in dataOfPowerPlants)
         {
-            _dateService = dateService;
-            _powerRepository = repository;
-            _powerHelper = powerHelper;
-        }
-
-        public async Task<ActionResult<IEnumerable<FeatureDTO>>> GetPowerPlantBasics()
-        {
-            List<PowerPlantDataModel> PowerPlants = await _powerRepository.GetPowerPlantBasics();
-
-            List<FeatureDTO> PowerPlantBasics = new List<FeatureDTO>();
-
-            foreach (var PowerPlant in PowerPlants)
+            var feature = new PowerPlantBasicsModel();
+            var properties = new FeaturePropertyDto
             {
-                FeatureDTO feature = new FeatureDTO();
-
-                FeaturePropertyDTO properties = new FeaturePropertyDTO();
-                properties.id = PowerPlant.PowerPlantID;
-                properties.name = PowerPlant.name;
-                properties.description = PowerPlant.description;
-                properties.img = PowerPlant.image;
-                feature.properties = properties;
-
-                FeatureGeometryDTO geometry = new FeatureGeometryDTO();
-                geometry.type = "Point";
-                List<float> coordinates = new List<float>();
-                coordinates.Add(PowerPlant.latitude);
-                coordinates.Add(PowerPlant.longitude);
-                geometry.coordinates = coordinates;
-                feature.geometry = geometry;
-
-                PowerPlantBasics.Add(feature);
-            }
-
-            return PowerPlantBasics;
-        }
-
-        public async Task<PowerPlantDataModel> GetBasicsOfPowerPlant(string id)
-        {
-            return await _powerRepository.GetBasicsOfPowerPlant(id);
-        }
-
-        public async Task<ActionResult<PowerPlantDetailsDTO>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
-        {
-            PowerPlantDetailsDTO PowerPlant = new()
-            {
-                PowerPlantID = id
+                Id = dataOfPowerPlant.PowerPlantId,
+                Name = dataOfPowerPlant.Name,
+                Description = dataOfPowerPlant.Description,
+                Img = dataOfPowerPlant.Image
             };
-            PowerPlantDataModel basicsOfPowerPlant = await GetBasicsOfPowerPlant(id);
+            feature.Properties = properties;
 
-            PowerPlant.name = basicsOfPowerPlant.name;
-            PowerPlant.description = basicsOfPowerPlant.description;
-            PowerPlant.OperatorCompany = basicsOfPowerPlant.OperatorCompany;
-            PowerPlant.webpage = basicsOfPowerPlant.webpage;
-            PowerPlant.Color = basicsOfPowerPlant.color;
-            PowerPlant.Address = basicsOfPowerPlant.address;
-            PowerPlant.IsCountry = basicsOfPowerPlant.IsCountry;
-            PowerPlant.longitude = Math.Round(basicsOfPowerPlant.longitude, 4);
-            PowerPlant.latitude = Math.Round(basicsOfPowerPlant.latitude, 4);
-
-            List<PowerPlantDetailsModel> powerPlantDetails = await _powerRepository.GetPowerPlantDetails(id);
-
-            List<DateTime> timeStampsUtc = await _dateService.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
-            PowerPlant.DataStart = timeStampsUtc[0];
-            PowerPlant.DataEnd = timeStampsUtc[1];
-
-            if (date != null)
+            var coordinates = new List<float>
             {
-                string msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
-                System.Diagnostics.Debug.WriteLine(msg);
-            }
-
-            int PPMaxPower = 0, PPCurrentPower = 0, i = 0;
-            List<BlocDTO> blocs = new();
-            while (i < powerPlantDetails.Count)
+                dataOfPowerPlant.Latitude,
+                dataOfPowerPlant.Longitude
+            };
+            var geometry = new FeatureGeometryDto
             {
-                BlocDTO bloc = new()
+                Type = "Point",
+                Coordinates = coordinates
+            };
+            feature.Geometry = geometry;
+            powerPlantBasics.Add(feature);
+        }
+
+        return powerPlantBasics;
+    }
+    
+    public async Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
+    {
+        var powerPlantData = await _powerRepository.GetDataOfPowerPlant(id);
+        
+        PowerPlantDetailsModel detailsOfPowerPlant = new()
+        {
+            PowerPlantId = id,
+            Name = powerPlantData.Name,
+            Description = powerPlantData.Description,
+            OperatorCompany = powerPlantData.OperatorCompany,
+            Webpage = powerPlantData.Webpage,
+            Color = powerPlantData.Color,
+            Address = powerPlantData.Address,
+            IsCountry = powerPlantData.IsCountry,
+            Longitude = Math.Round(powerPlantData.Longitude, 4),
+            Latitude = Math.Round(powerPlantData.Latitude, 4)
+        };
+        
+        var timeStampsUtc = await _dateHelper.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
+        detailsOfPowerPlant.DataStart = timeStampsUtc[0];
+        detailsOfPowerPlant.DataEnd = timeStampsUtc[1];
+        
+        if (date != null || startLocal != null && endLocal != null)
+        {
+            var msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
+            System.Diagnostics.Debug.WriteLine(msg);
+        }
+
+        int maxPowerOfPowerPlant = 0, currentPowerOfPowerPlant = 0;
+        List<BlocDto> blocsOfPowerPlant = new();
+        
+        var powerPlantDetails = await _powerRepository.GetPowerPlantDetails(id);
+
+        foreach (var powerPlantDetail in powerPlantDetails.GroupBy(x => x.BlocId ).Select(group => group.First()).ToList())
+        {
+            BlocDto bloc = new()
+            {
+                BlocId = powerPlantDetail.BlocId,
+                BlocType = powerPlantDetail.BlocType,
+                MaxBlocCapacity = powerPlantDetail.MaxBlocCapacity,
+                CommissionDate = powerPlantDetail.CommissionDate
+            };
+
+            List<GeneratorDto> generators = new();
+            int currentPower = 0, maxPower = 0;
+
+            foreach (var item in powerPlantDetails.Where(x => x.BlocId == powerPlantDetail.BlocId).ToList())
+            {
+                GeneratorDto generator = new()
                 {
-                    BlocID = powerPlantDetails[i].BlocId,
-                    BlocType = powerPlantDetails[i].BlocType,
-                    MaxBlocCapacity = powerPlantDetails[i].MaxBlocCapacity,
-                    ComissionDate = powerPlantDetails[i].ComissionDate
+                    GeneratorId = item.GeneratorId,
+                    MaxCapacity = item.MaxCapacity,
+                    PastPower = await _powerHelper.GetGeneratorPower(item.GeneratorId, timeStampsUtc[0], timeStampsUtc[1])
                 };
-
-                List<GeneratorDTO> generators = new();
-                int CurrentPower = 0, MaxPower = 0;
-                while (i < powerPlantDetails.Count && powerPlantDetails[i].BlocId == bloc.BlocID)
-                {
-                    GeneratorDTO generator = new()
-                    {
-                        GeneratorID = powerPlantDetails[i].GeneratorID,
-                        MaxCapacity = powerPlantDetails[i].MaxCapacity
-                    };
-                    generator.PastPower = await _powerHelper.GetGeneratorPower(generator.GeneratorID, timeStampsUtc[0], timeStampsUtc[1]);
-                    generators.Add(generator);
-                    CurrentPower += generator.PastPower[generator.PastPower.Count - 1].Power;
-                    MaxPower += generator.MaxCapacity;
-                    i++;
-                }
-                bloc.CurrentPower = CurrentPower;
-                bloc.MaxPower = MaxPower;
-                bloc.Generators = generators;
-                blocs.Add(bloc);
-
-                PPCurrentPower += CurrentPower;
-                PPMaxPower += MaxPower;
-            }
-
-            PowerPlant.Blocs = blocs;
-            PowerPlant.CurrentPower = PPCurrentPower;
-            PowerPlant.MaxPower = PPMaxPower;
-
-            return PowerPlant;
-        }
-
-        public async Task<IEnumerable<PowerStampDTO>> GetPowerOfPowerPlant(string id, DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
-        {
-            List<DateTime> timeStampsUtc = await _dateService.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
-            int numberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(timeStampsUtc[0], timeStampsUtc[1]);
-            List<PowerStampDTO> powerStamps = await _powerHelper.GetPowerStampsListOfPowerPlant(id, numberOfDataPoints, timeStampsUtc);
-            return powerStamps;
-        }
-
-        public async Task<PowerOfPowerPlantsDTO> GetPowerOfPowerPlants(DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
-        {
-            PowerOfPowerPlantsDTO powerOfPowerPlants = new PowerOfPowerPlantsDTO();
-            List<string> powerPlants = await _powerRepository.GetPowerPlants();
-
-            List<DateTime> timeStampsUtc = await _dateService.HandleWhichDateFormatIsBeingUsed(date, startLocal, endLocal);
-            powerOfPowerPlants.Start = timeStampsUtc[0]; //Utc
-            powerOfPowerPlants.End = timeStampsUtc[1]; //Utc
-
-            if (date != null)
-            {
-                string msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
-                System.Diagnostics.Debug.WriteLine(msg);
-            }
-
-            int numberOfDataPoints = _dateService.CalculateTheNumberOfIntervals(powerOfPowerPlants.Start, powerOfPowerPlants.End);
-
-            List<PowerOfPowerPlantDTO> data = new();
-
-            foreach (string powerPlant in powerPlants)
-            {
-                PowerOfPowerPlantDTO powerOfPowerPlant = new();
-                powerOfPowerPlant.PowerPlantName = powerPlant;
-                powerOfPowerPlant.PowerStamps = await _powerHelper.GetPowerStampsListOfPowerPlant(powerPlant, numberOfDataPoints, timeStampsUtc);
-                data.Add(powerOfPowerPlant);
-            }
-
-            powerOfPowerPlants.Data = data;
-            return powerOfPowerPlants;
-        }
-
-        public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
-        {
-            List<DateTime> timeStampsUtc = new();
-            if (periodStart is DateTime time && periodEnd is DateTime time1)
-            {
-                periodStart = DateTime.SpecifyKind(time, DateTimeKind.Local);
-                periodEnd = DateTime.SpecifyKind(time1, DateTimeKind.Local);
-                timeStampsUtc.Add(TimeZoneInfo.ConvertTimeToUtc(periodStart.Value, TimeZoneInfo.Local));
-                timeStampsUtc.Add(TimeZoneInfo.ConvertTimeToUtc(periodEnd.Value, TimeZoneInfo.Local));
-            }
-            else
-            {
-                timeStampsUtc = await _dateService.GetInitDataTimeInterval();
-            }
-
-            if ((timeStampsUtc[1] - timeStampsUtc[0]).TotalHours <= 24)
-            {
-                var task1 = Task.Run(async () => await GetPPData("A73", timeStampsUtc));
-                var task2 = Task.Run(async () => await GetPPData("A75", timeStampsUtc));
-                var task3 = Task.Run(async () => await GetImportData("10YHU-MAVIR----U", timeStampsUtc));
-
-                await Task.WhenAll(task1, task2, task3);
-            }
-            else
-            {
-                DateTime currentTime = timeStampsUtc[0];
-                while (currentTime < timeStampsUtc[1])
-                {
-                    DateTime End = currentTime.AddHours(24);
-                    if (End > timeStampsUtc[1])
-                    {
-                        End = timeStampsUtc[1];
-                    }
-
-                    await InitData(currentTime, End);
-                    currentTime = currentTime.AddHours(24);
-                }
-            }
-
-            List<DateTime> LastData = await _powerRepository.GetLastDataTime();
-            return timeStampsUtc[0] + " - " + timeStampsUtc[1] + " --> " + LastData[0];
-        }
-
-        private async Task GetPPData(string docType, List<DateTime> timeStampsUtc)
-        {
-            if (docType == "A73" || docType == "A75")
-            {
-                try
-                {
-                    List<string> Generators = await _powerRepository.GetGenerators();
-
-                    XDocument document = XDocument.Parse(await _powerHelper.APIquery(docType, timeStampsUtc[0], timeStampsUtc[1]));
-                    XNamespace ns = document?.Root.Name.Namespace;
-
-                    if (document is not null && document?.Root is not null && document?.Root?.Elements(ns + "TimeSeries") is not null)
-                    {
-                        foreach (var TimeSeries in document?.Root?.Elements(ns + "TimeSeries"))
-                        {
-                            DateTime startTimePointUtc = timeStampsUtc[0];
-                            string? generatorName = "";
-                            if (docType == "A73")
-                            {
-                                generatorName = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "PowerSystemResources")?.Element(ns + "name")?.Value;
-                            }
-                            if (docType == "A75")
-                            {
-                                generatorName = TimeSeries?.Element(ns + "MktPSRType")?.Element(ns + "psrType")?.Value;
-                            }
-
-                            if (generatorName is not null && Generators.Contains(generatorName))
-                            {
-                                XElement Period = TimeSeries.Element(ns + "Period");
-                                List<int> power = new List<int>();
-                                if (Period is not null)
-                                {
-                                    foreach (XElement Point in Period.Elements(ns + "Point"))
-                                    {
-                                        int currentPower = Convert.ToInt32(Point?.Element(ns + "quantity")?.Value);
-                                        await _powerRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
-                                        startTimePointUtc = startTimePointUtc.AddMinutes(15);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception Exception)
-                {
-                    Console.WriteLine(Exception);
-                }
-            }
-            else
-            {
-                throw new NotImplementedException("Unimplemented DocumentType was given");
-            }
-        }
-
-        private async Task GetImportData(string homeCountry, List<DateTime> timeStampsUtc)
-        {
-            List<string> neighbourCountries = new()
-            {
-                "10YSK-SEPS-----K",
-                "10YAT-APG------L",
-                "10YSI-ELES-----O",
-                "10YHR-HEP------M",
-                "10YCS-SERBIATSOV",
-                "10YRO-TEL------P",
-                "10Y1001C--00003F"
-            };
-
-            List<string> problematicCountries = new()
-            {
-                "10YSK-SEPS-----K",
-                "10YHR-HEP------M",
-                "10YCS-SERBIATSOV",
-                "10Y1001C--00003F"
-            };
-
-            foreach (string countryCode in neighbourCountries)
-            {
-                DateTime startTimePointUtc = timeStampsUtc[0];
-                DateTime queryStartTimeUtc = timeStampsUtc[0];
-                DateTime queryEndTimeUtc = timeStampsUtc[1];
                 
-                if (problematicCountries.Contains(countryCode))
-                {
-                    queryStartTimeUtc = queryStartTimeUtc.AddMinutes(queryStartTimeUtc.Minute * -1);
-                    queryEndTimeUtc = queryEndTimeUtc.AddMinutes(queryEndTimeUtc.Minute * -1);
-                }
-
-                try
-                {
-                    XDocument importedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", queryStartTimeUtc, queryEndTimeUtc, homeCountry, countryCode));
-                    XDocument exportedEnergyData = XDocument.Parse(await _powerHelper.APIquery("A11", queryStartTimeUtc, queryEndTimeUtc, countryCode, homeCountry));
-
-                    XNamespace importNameSpace = importedEnergyData.Root.Name.Namespace;
-                    XNamespace exportNameSpace = exportedEnergyData.Root.Name.Namespace;
-
-                    var importTimeSeries = importedEnergyData?.Root?.Element(importNameSpace + "TimeSeries");
-                    var exportTimeSeries = exportedEnergyData?.Root?.Element(exportNameSpace + "TimeSeries");
-
-                    if (importTimeSeries?.Elements() is not null && exportTimeSeries?.Elements() is not null)
-                    {
-                        var importPeriod = importTimeSeries?.Element(importNameSpace + "Period");
-                        var exportPeriod = exportTimeSeries?.Element(exportNameSpace + "Period");
-
-                        List<PowerStampDTO> powerStamps = new List<PowerStampDTO>();
-
-                        if (importPeriod?.Elements(importNameSpace + "Point") is not null && exportPeriod?.Elements(exportNameSpace + "Point") is not null)
-                        {
-                            for (int i = 0; i < importPeriod.Elements(importNameSpace + "Point").Count(); i++)
-                            {
-                                XElement importPoint = importPeriod.Elements(importNameSpace + "Point").ToList()[i];
-                                XElement exportPoint = exportPeriod.Elements(importNameSpace + "Point").ToList()[i];
-
-                                int importValue = Convert.ToInt32(importPoint?.Element(importNameSpace + "quantity")?.Value);
-                                int exportValue = Convert.ToInt32(exportPoint?.Element(exportNameSpace + "quantity")?.Value);
-                                exportValue *= -1;
-
-                                int currentPower = importValue + exportValue;
-
-                                int numberOfTimesTheValueHasToBeSaved = 1;
-                                if (problematicCountries.Contains(countryCode))
-                                {
-                                    numberOfTimesTheValueHasToBeSaved = 4;
-                                }
-
-                                for (int j = 0; j < numberOfTimesTheValueHasToBeSaved; j++)
-                                {
-                                    await _powerRepository.AddPastActivity(countryCode, startTimePointUtc, currentPower);
-                                    startTimePointUtc = startTimePointUtc.AddMinutes(15);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                generators.Add(generator);
+                currentPower += generator.PastPower![generator.PastPower.Count - 1].Power;
+                maxPower += generator.MaxCapacity;
             }
-        }
+            
+            bloc.CurrentPower = currentPower;
+            bloc.MaxPower = maxPower;
+            bloc.Generators = generators;
+            blocsOfPowerPlant.Add(bloc);
 
-        private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(List<DateTime> TimeStamps)
+            currentPowerOfPowerPlant += currentPower;
+            maxPowerOfPowerPlant += maxPower;
+        }
+        
+        detailsOfPowerPlant.Blocs = blocsOfPowerPlant;
+        detailsOfPowerPlant.CurrentPower = currentPowerOfPowerPlant;
+        detailsOfPowerPlant.MaxPower = maxPowerOfPowerPlant;
+
+        return detailsOfPowerPlant;
+    }
+
+    public async Task<IEnumerable<PowerOfPowerPlantModel>> GetPowerOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null)
+    {
+        var timeStampsUtc = await _dateHelper.HandleWhichDateFormatIsBeingUsed(date, start, end);
+        var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(timeStampsUtc[0], timeStampsUtc[1]);
+        var powerStamps = await _powerHelper.GetPowerStampsListOfPowerPlant(id, numberOfDataPoints, timeStampsUtc);
+        return powerStamps;
+    }
+
+    public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null, DateTime? start = null, DateTime? end = null)
+    {
+        var powerOfPowerPlants = new PowerOfPowerPlantsModel();
+        var powerPlants = await _powerRepository.GetPowerPlantNames();
+
+        var timeStampsUtc = await _dateHelper.HandleWhichDateFormatIsBeingUsed(date, start, end);
+        powerOfPowerPlants.Start = timeStampsUtc[0]; //Utc
+        powerOfPowerPlants.End = timeStampsUtc[1]; //Utc
+
+        if (date != null)
         {
-            List<PastActivityModel> PastActivity = await _powerRepository.GetPastActivity("PA_gép1", TimeStamps[0], TimeStamps[1]);
-
-            if (PastActivity.Count < 10)
-            {
-                return await InitData(TimeStamps[0].AddHours(-2), TimeStamps[1].AddHours(2));
-            }
-            return "no InitData";
+            var msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
+            System.Diagnostics.Debug.WriteLine(msg);
         }
+
+        var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(powerOfPowerPlants.Start, powerOfPowerPlants.End);
+
+        List<PowerOfPowerPlantDto> data = new();
+
+        foreach (var powerPlant in powerPlants)
+        {
+            PowerOfPowerPlantDto powerOfPowerPlant = new()
+            {
+                PowerPlantName = powerPlant,
+                PowerStamps = await _powerHelper.GetPowerStampsListOfPowerPlant(powerPlant, numberOfDataPoints, timeStampsUtc)
+            };
+            data.Add(powerOfPowerPlant);
+        }
+
+        powerOfPowerPlants.Data = data;
+        return powerOfPowerPlants;
+    }
+
+    public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
+    {
+        List<DateTime> timeStampsUtc = new();
+        if (periodStart is { } time && periodEnd is { } time1)
+        {
+            periodStart = DateTime.SpecifyKind(time, DateTimeKind.Local);
+            periodEnd = DateTime.SpecifyKind(time1, DateTimeKind.Local);
+            timeStampsUtc.Add(TimeZoneInfo.ConvertTimeToUtc(periodStart.Value, TimeZoneInfo.Local));
+            timeStampsUtc.Add(TimeZoneInfo.ConvertTimeToUtc(periodEnd.Value, TimeZoneInfo.Local));
+        }
+        else
+        {
+            timeStampsUtc = await _dateHelper.GetInitDataTimeInterval();
+        }
+
+        if ((timeStampsUtc[1] - timeStampsUtc[0]).TotalHours <= 24)
+        {
+            var task1 = Task.Run(async () => await _xmlHelper.GetPowerPlantData("A73", timeStampsUtc));
+            var task2 = Task.Run(async () => await _xmlHelper.GetPowerPlantData("A75", timeStampsUtc));
+            var task3 = Task.Run(async () => await _xmlHelper.GetImportAndExportData("10YHU-MAVIR----U", timeStampsUtc));
+
+            await Task.WhenAll(task1, task2, task3);
+        }
+        else
+        {
+            var currentTime = timeStampsUtc[0];
+            while (currentTime < timeStampsUtc[1])
+            {
+                var end = currentTime.AddHours(24);
+                if (end > timeStampsUtc[1])
+                {
+                    end = timeStampsUtc[1];
+                }
+
+                await InitData(currentTime, end);
+                currentTime = currentTime.AddHours(24);
+            }
+        }
+
+        var lastData = await _powerRepository.GetLastDataTime();
+        return timeStampsUtc[0] + " - " + timeStampsUtc[1] + " --> " + lastData[0];
+    }
+
+    private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(IReadOnlyList<DateTime> timeStamps)
+    {
+        var pastActivity = await _powerRepository.GetPastActivity("PA_gép1", timeStamps[0], timeStamps[1]);
+
+        if (pastActivity.Count < 10)
+        {
+            return await InitData(timeStamps[0].AddHours(-2), timeStamps[1].AddHours(2));
+        }
+        return "no InitData";
     }
 }
