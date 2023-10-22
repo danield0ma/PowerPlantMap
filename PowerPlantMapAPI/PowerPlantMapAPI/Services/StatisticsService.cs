@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Globalization;
+using System.Text;
 using PowerPlantMapAPI.Helpers;
 using PowerPlantMapAPI.Models.DTO;
 using PowerPlantMapAPI.Repositories;
@@ -27,6 +29,7 @@ public class StatisticsService : IStatisticsService
                         startAndEndTimeOfDailyStatistics[0].Day;
         var start = startAndEndTimeOfDailyStatistics[0];
         var end = startAndEndTimeOfDailyStatistics[1];
+        var generatedEnergySum = 0.0;
         var result = new StringBuilder($"<html><body><h3>Napi erőműstatisztika - {date}</h3><ul>");
 
         // var powerPlants = await _powerRepository.GetPowerPlantNames();
@@ -60,9 +63,9 @@ public class StatisticsService : IStatisticsService
                     var maxPowerOfGenerator = await _powerRepository.GetMaxPowerOfGenerator(generator.GeneratorId);
                     var pastActivity = await _powerRepository.GetPastActivity(generator.GeneratorId, start, end);
                     
-                    var avgPowerOfGenerator = Math.Round(pastActivity.Select(x => x.ActualPower).Average(), 2);
-                    var generatedEnergyByGenerator = Math.Round(pastActivity.Sum(activity => activity.ActualPower * 0.25), 2);
-                    var avgUsageOfGenerator = Math.Round(avgPowerOfGenerator / maxPowerOfGenerator * 100, 2);
+                    var avgPowerOfGenerator = Math.Round(pastActivity.Select(x => x.ActualPower).Average(), 3);
+                    var generatedEnergyByGenerator = Math.Round(pastActivity.Sum(activity => activity.ActualPower * 0.25), 3);
+                    var avgUsageOfGenerator = Math.Round(avgPowerOfGenerator / maxPowerOfGenerator * 100, 3);
 
                     DailyStatisticsDto stat = new()
                     {
@@ -73,47 +76,75 @@ public class StatisticsService : IStatisticsService
                         AverageUsage = avgUsageOfGenerator
                     };
                     statistics.Add(stat);
-                    generatorData.Append($"<li>{generator.GeneratorId}: {avgUsageOfGenerator}% - ");
-                    generatorData.Append($"{avgPowerOfGenerator}MW/{maxPowerOfGenerator}MW -> {generatedEnergyByGenerator}MWh</li>");
+                    generatorData.Append($"<li>{generator.GeneratorId}: {Format(avgUsageOfGenerator)}% - ");
+                    generatorData.Append($"{Format(avgPowerOfGenerator)} MW/{Format(maxPowerOfGenerator)} MW -> {Format(generatedEnergyByGenerator)}  MWh</li>");
                     
                     blocMaxPower += maxPowerOfGenerator;
-                    blocCurrentAvgPower += Math.Round(avgPowerOfGenerator, 2);
-                    blocGeneratedEnergy += Math.Round(generatedEnergyByGenerator, 2);
+                    blocCurrentAvgPower += Math.Round(avgPowerOfGenerator, 3);
+                    blocGeneratedEnergy += Math.Round(generatedEnergyByGenerator, 3);
                 }
 
-                var avgUsageOfBloc = Math.Round(blocCurrentAvgPower / blocMaxPower * 100, 2);
-                blocData.Append($"<li>{bloc.BlocId}: {avgUsageOfBloc}% - ");
-                blocData.Append($"{Math.Round(blocCurrentAvgPower, 2)}MW/{blocMaxPower}MW -> {blocGeneratedEnergy}MWh</li>");
+                var avgUsageOfBloc = Math.Round(blocCurrentAvgPower / blocMaxPower * 100, 3);
+                blocData.Append($"<li>{bloc.BlocId}: {Format(avgUsageOfBloc)}% - ");
+                blocData.Append($"{Format(Math.Round(blocCurrentAvgPower, 3))} MW/{Format(blocMaxPower)} MW -> {Format(blocGeneratedEnergy)}  MWh</li>");
                 if (generators.Count > 1)
                 {
                     blocData.Append($"{generatorData}</ul>");
                 }
                 
                 powerPlantMaxPower += blocMaxPower;
-                powerPlantCurrentAvgPower += Math.Round(blocCurrentAvgPower, 2);
-                powerPlantGeneratedEnergy += Math.Round(blocGeneratedEnergy, 2);
+                powerPlantCurrentAvgPower += Math.Round(blocCurrentAvgPower, 3);
+                powerPlantGeneratedEnergy += Math.Round(blocGeneratedEnergy, 3);
             }
             
-            var avgUsageOfPowerPlant = Math.Round(powerPlantCurrentAvgPower / powerPlantMaxPower * 100, 2);
-            result.Append($"<li>{powerPlant.Description}: {avgUsageOfPowerPlant}% - ");
-            result.Append($"{Math.Round(powerPlantCurrentAvgPower, 2)}MW/{powerPlantMaxPower}MW -> {powerPlantGeneratedEnergy}MWh</li>");
+            var avgUsageOfPowerPlant = Math.Round(powerPlantCurrentAvgPower / powerPlantMaxPower * 100, 3);
+            result.Append($"<li>{powerPlant.Description}: {Format(avgUsageOfPowerPlant)}% - ");
+            result.Append($"{Format(Math.Round(powerPlantCurrentAvgPower, 3))} MW/{Format(powerPlantMaxPower)} MW ->;");
+            result.Append($"{Format(powerPlantGeneratedEnergy)}  MWh</li>");
             if (blocs.Count > 1 ||
                 powerPlantDetails.Where(x => x.BlocId == blocs[0].BlocId).ToList().Count > 1)
             {
                 result.Append($"{blocData}</ul>");
             }
+            generatedEnergySum += powerPlantGeneratedEnergy;
         }
-        result.Append($"</ul><h3>Import-Export statisztika - {date}</h3><ul>");
-        foreach (var powerPlant in powerPlants.Where(x => x.IsCountry).ToList())
-        {
-            result.Append($"<li>{powerPlant.PowerPlantId}</li>");
-        }
+        result.Append($"</ul><h3>Összes termelt energia: {Format(generatedEnergySum)}  MWh</h3>");
 
-        result.Append("</ul></body></html>");
+        var importSum = 0.0;
+        var exportSum = 0.0;
+        result.Append($"<h3>\nImport-Export statisztika - {date}</h3><table>");
+        result.Append("<thead><td>Ország</td><td>Importált energia</td><td>Exportált energia</td><td>Szaldó</td></thead>");
+        foreach (var country in powerPlants.Where(x => x.IsCountry).ToList())
+        {
+            if (country.PowerPlantId is null) continue;
+            var generator = await _powerRepository.GetGeneratorNamesOfPowerPlant(country.PowerPlantId);
+            var pastActivity = await _powerRepository.GetPastActivity(generator[0], start, end);
+            var importedEnergy = Math.Round(pastActivity.
+                Where(x => x.ActualPower > 0).
+                Sum(x => x.ActualPower * 0.25), 3);
+            var exportedEnergy = Math.Abs(Math.Round(pastActivity.
+                Where(x => x.ActualPower < 0).
+                Sum(x => x.ActualPower * 0.25), 3));
+            
+            result.Append($"<tr><td>{country.Name}</td><td>{Format(importedEnergy)}  MWh</td><td>{Format(exportedEnergy)}  MWh</td>");
+            result.Append($"<td>{Format(importedEnergy - exportedEnergy)}  MWh</td></tr>");
+
+            importSum += importedEnergy;
+            exportSum += exportedEnergy;
+        }
+        
+        result.Append($"<tr><td>Összesen</td><td>{Format(importSum)}  MWh</td><td>{Format(exportSum)}  MWh</td>");
+        result.Append($"<td><strong>{Format(importSum - exportSum)}  MWh</strong></td></tr>");
+        result.Append("</table></body></html>");
         _emailService.SendEmail("daniel2.doma@gmail.com",
                             $"Napi erőműstatisztika - {date}",
                             result.ToString());
         return statistics;
+    }
+
+    private static string Format(double number)
+    {
+        return number.ToString("N", CultureInfo.CurrentCulture).TrimEnd('0').TrimEnd(',');
     }
 
     // private async Task UpdateMaxPowerCapacitiesOfPowerPlants()

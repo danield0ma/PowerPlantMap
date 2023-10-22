@@ -1,3 +1,4 @@
+using System.Globalization;
 using PowerPlantMapAPI.Helpers;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
@@ -34,7 +35,19 @@ namespace PowerPlantMapAPI
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();            
+            builder.Services.AddSwaggerGen();
+            
+            var customCulture = new CultureInfo("hu-HU")
+            {
+                NumberFormat =
+                {
+                    NumberGroupSeparator = " ",
+                    NumberDecimalDigits = 3,
+                    NumberDecimalSeparator = ","
+                }
+            };
+            CultureInfo.DefaultThreadCurrentCulture = customCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = customCulture;
 
             var app = builder.Build();
 
