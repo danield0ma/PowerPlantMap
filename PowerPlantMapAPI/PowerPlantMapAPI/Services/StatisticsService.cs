@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using PowerPlantMapAPI.Helpers;
 using PowerPlantMapAPI.Models.DTO;
@@ -30,9 +29,10 @@ public class StatisticsService : IStatisticsService
         var start = startAndEndTimeOfDailyStatistics[0];
         var end = startAndEndTimeOfDailyStatistics[1];
         var generatedEnergySum = 0.0;
-        var result = new StringBuilder($"<html><body><h3>Napi erőműstatisztika - {date}</h3><ul>");
-
-        // var powerPlants = await _powerRepository.GetPowerPlantNames();
+        var style = "#frame {border-style: solid; border-width: thin; border-color: #dadce0; border-radius: 8px; padding: 40px 20px; margin: 40px 20px; text-align: left}" +
+                    "#outer {padding-bottom: 20px; max-width: 850px; min-width: 600px; margin: auto; }";
+        var result = new StringBuilder($"<html><head><style>{style}</style></head><body><table id=\"outer\"><tbody><tr><td><div id=\"frame\"><h3>Napi erőműstatisztika - {date}</h3><ul>");
+        
         var powerPlants = await _powerRepository.GetDataOfPowerPlants();
         foreach (var powerPlant in powerPlants.Where(x => x.IsCountry == false).ToList())
         {
@@ -99,7 +99,7 @@ public class StatisticsService : IStatisticsService
             
             var avgUsageOfPowerPlant = Math.Round(powerPlantCurrentAvgPower / powerPlantMaxPower * 100, 3);
             result.Append($"<li>{powerPlant.Description}: {Format(avgUsageOfPowerPlant)}% - ");
-            result.Append($"{Format(Math.Round(powerPlantCurrentAvgPower, 3))} MW/{Format(powerPlantMaxPower)} MW ->;");
+            result.Append($"{Format(Math.Round(powerPlantCurrentAvgPower, 3))} MW/{Format(powerPlantMaxPower)} MW -> ");
             result.Append($"{Format(powerPlantGeneratedEnergy)}  MWh</li>");
             if (blocs.Count > 1 ||
                 powerPlantDetails.Where(x => x.BlocId == blocs[0].BlocId).ToList().Count > 1)
@@ -134,8 +134,9 @@ public class StatisticsService : IStatisticsService
         }
         
         result.Append($"<tr><td>Összesen</td><td>{Format(importSum)}  MWh</td><td>{Format(exportSum)}  MWh</td>");
-        result.Append($"<td><strong>{Format(importSum - exportSum)}  MWh</strong></td></tr>");
-        result.Append("</table></body></html>");
+        result.Append($"<td><strong>{Format(importSum - exportSum)}  MWh</strong></td></tr></table>");
+        const string url = "https://image-charts.com/chart?chs=190x190&chd=t:60,40&cht=p3&chl=Hello%7CWorld&chan&chf=ps0-0,lg,45,ffeb3b,0.2,f44336,1|ps0-1,lg,45,8bc34a,0.2,009688,1";
+        result.Append($"<img src={url} /></div></td></tr></tbody></table></body></html>");
         _emailService.SendEmail("daniel2.doma@gmail.com",
                             $"Napi erőműstatisztika - {date}",
                             result.ToString());
