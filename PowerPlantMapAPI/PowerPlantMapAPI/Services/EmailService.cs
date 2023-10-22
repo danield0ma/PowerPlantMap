@@ -11,7 +11,7 @@ public class EmailService: IEmailService
         _configuration = configuration;
     }
 
-    public string SendEmail(string to, string subject, string body)
+    public string SendEmail(string? to, string? subject, string? body)
     {
         var client = new RestClient($"https://api.eu.mailgun.net/v3/{_configuration["Email:MailgunDomain"]}");
         var request = new RestRequest("messages", Method.Post);
