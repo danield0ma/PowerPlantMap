@@ -1,26 +1,25 @@
 using FakeItEasy;
+using PowerPlantMapAPI.Helpers;
 using PowerPlantMapAPI.Repositories;
-using PowerPlantMapAPI.Services;
 using Xunit;
 
-namespace PowerPlantMapAPI.Tests
+namespace PowerPlantMapAPI.Tests;
+
+public class DateServiceTests
 {
-    public class DateServiceTests
+    private readonly IPowerRepository _powerRepository;
+
+    public DateServiceTests()
     {
-        private readonly IPowerRepository _powerRepository;
+        _powerRepository = A.Fake<IPowerRepository>();
+    }
 
-        public DateServiceTests()
-        {
-            _powerRepository = A.Fake<IPowerRepository>();
-        }
-
-        [Fact]
-        public void EditTimeIsLengthCorrect()
-        {
-            DateService DateService = new DateService(_powerRepository);
-            DateTime time = DateTime.Now;
-            string start = DateService.EditTime(time);
-            Assert.Equal(12, start.Length);
-        }
+    [Fact]
+    public void EditTimeIsLengthCorrect()
+    {
+        var dateHelper = new DateHelper(_powerRepository);
+        var currentTimeUtc = DateTime.UtcNow;
+        var start = dateHelper.EditTime(currentTimeUtc);
+        Assert.Equal(12, start.Length);
     }
 }

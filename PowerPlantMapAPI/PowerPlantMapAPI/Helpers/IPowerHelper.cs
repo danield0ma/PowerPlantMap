@@ -1,12 +1,11 @@
-﻿using PowerPlantMapAPI.Models.DTO;
-using System.Xml;
+﻿using PowerPlantMapAPI.Models;
+using PowerPlantMapAPI.Models.DTO;
 
-namespace PowerPlantMapAPI.Helpers
+namespace PowerPlantMapAPI.Helpers;
+
+public interface IPowerHelper
 {
-    public interface IPowerHelper
-    {
-        Task<string> APIquery(string documentType, DateTime start, DateTime end, string? inDomain = null, string? outDomain = null);
-        Task<List<GeneratorPowerDTO>> GetGeneratorPower(string generator, DateTime start, DateTime end);
-        Task<List<PowerStampDTO>> GetPowerStampsListOfPowerPlant(string Id, int NumberOfDataPoints, List<DateTime> TimeStamps);
-    }
+    Task<string> ApiQuery(string documentType, DateTime start, DateTime end, string? inDomain = null, string? outDomain = null);
+    Task<List<GeneratorPowerDto>?> GetGeneratorPower(string? generator, DateTime start, DateTime end);
+    Task<List<PowerOfPowerPlantModel>> GetPowerStampsListOfPowerPlant(string id, int numberOfDataPoints, List<DateTime> timeStamps);
 }

@@ -1,97 +1,96 @@
 ﻿using Dapper;
-using PowerPlantMapAPI.Models;
 using System.Data;
 using System.Data.SqlClient;
+using PowerPlantMapAPI.Models.DTO;
 
-namespace PowerPlantMapAPI.Repositories
+namespace PowerPlantMapAPI.Repositories;
+
+public class PowerRepository : IPowerRepository
 {
-    public class PowerRepository : IPowerRepository
+    private readonly string _connectionString;
+    public PowerRepository(IConfiguration configuration)
     {
-        private readonly string connectionString;
+        _connectionString = configuration.GetConnectionString(configuration["ConnectionStringToBeUsed"]);
+    }
+    
+    public async Task<List<string>> GetPowerPlantNames()
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var powerPlants = (List<string>)await connection.QueryAsync<string>
+            ("GetPowerPlantNames", commandType: CommandType.StoredProcedure);
+        return powerPlants;
+    }
+    
+    public async Task<List<string>> GetGeneratorNames()
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var generators = (List<string>)await connection.QueryAsync<string>
+            ("GetGeneratorNames", commandType: CommandType.StoredProcedure);
+        return generators;
+    }
 
-        public PowerRepository(IConfiguration configuration)
+    public async Task<List<string?>> GetGeneratorNamesOfPowerPlant(string powerPlant)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { PowerPlantId = powerPlant };
+        List<string?> generators = ((List<string>)await connection.QueryAsync<string>
+            ("GetGeneratorsOfPowerPlant", parameters, commandType: CommandType.StoredProcedure))!;
+        return generators;
+    }
+
+    public async Task<List<PowerPlantDataDto>> GetDataOfPowerPlants()
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        return (List<PowerPlantDataDto>)await connection.QueryAsync<PowerPlantDataDto>
+            ("[GetDataOfPowerPlants]", CommandType.StoredProcedure);
+    }
+
+    public async Task<PowerPlantDataDto> GetDataOfPowerPlant(string id)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { Id = id };
+        var basicsOfPowerPlant = (List<PowerPlantDataDto>)await connection.QueryAsync<PowerPlantDataDto>
+            ("[GetDataOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
+        return basicsOfPowerPlant[0];
+    }
+
+    public async Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { PowerPlantId = id };
+        return (List<PowerPlantDetailsDto>)await connection.
+            QueryAsync<PowerPlantDetailsDto>("GetPowerPlantDetails",
+            parameters, commandType: CommandType.StoredProcedure);
+    }
+    
+    public async Task<List<DateTime>> GetLastDataTime()
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var lastData = (List<DateTime>)await connection.QueryAsync<DateTime>
+            ("GetLastDataTime", commandType: CommandType.StoredProcedure);
+        return lastData;
+    }
+    
+    public async Task<List<PastActivityDto>> GetPastActivity(string? generator, DateTime start, DateTime end)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { GeneratorId = generator, PeriodStart = start, PeriodEnd = end };
+        var pastActivity = (List<PastActivityDto>)await connection.QueryAsync<PastActivityDto>
+            ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
+        return pastActivity;
+    }
+
+    public async Task AddPastActivity(string generatorId, DateTime startDateTime, int power)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { GeneratorId = generatorId, PeriodStart = startDateTime, ActualPower = power };
+        try
         {
-            connectionString = configuration.GetConnectionString(configuration["ConnectionStringToBeUsed"]);
+            await connection.QueryAsync("AddPastActivity", parameters, commandType: CommandType.StoredProcedure);
         }
-
-        public async Task<List<PowerPlantDataModel>> QueryPowerPlantBasics()
+        catch (Exception exception)
         {
-            using var connection = new SqlConnection(connectionString);
-            return (List<PowerPlantDataModel>)await connection.QueryAsync<PowerPlantDataModel>("[PowerPlantBasics]", CommandType.StoredProcedure);
-        }
-
-        public async Task<PowerPlantDataModel> QueryBasicsOfPowerPlant(string id)
-        {
-            using var connection = new SqlConnection(connectionString);
-            var parameters = new { id };
-            List<PowerPlantDataModel> PP = (List<PowerPlantDataModel>)await connection.QueryAsync<PowerPlantDataModel>
-                ("[GetBasicsOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
-            return PP[0];
-        }
-
-        public async Task<List<PowerPlantDetailsModel>> QueryPowerPlantDetails(string id)
-        {
-            using var connection = new SqlConnection(connectionString);
-            var parameters = new { PowerPlantID = id };
-            return (List<PowerPlantDetailsModel>)await connection.
-                QueryAsync<PowerPlantDetailsModel>("GetPowerPlantDetails",
-                parameters, commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task<List<PastActivityModel>> QueryPastActivity(string generator, DateTime start, DateTime end)
-        {
-            using var connection = new SqlConnection(connectionString);
-            var parameters = new { GID = generator, start, end };
-            List<PastActivityModel> PastActivity = (List<PastActivityModel>)await connection.QueryAsync<PastActivityModel>
-                ("GetPastActivity", parameters, commandType: CommandType.StoredProcedure);
-            return PastActivity;
-        }
-
-        public async Task<List<string>> QueryPowerPlants()
-        {
-            using var connection = new SqlConnection(connectionString);
-            List<string> powerPlants = (List<string>)await connection.QueryAsync<string>("GetPowerPlants", commandType: CommandType.StoredProcedure);
-            return powerPlants;
-        }
-
-        public async Task<List<string>> QueryGeneratorsOfPowerPlant(string PowerPlant)
-        {
-            using var connection = new SqlConnection(connectionString);
-            var parameters = new { PPID = PowerPlant };
-            List<string> generators = (List<string>)await connection.QueryAsync<string>
-                ("GetGeneratorsOfPowerPlant", parameters, commandType: CommandType.StoredProcedure);
-            return generators;
-        }
-
-        public async Task<List<DateTime>> QueryLastDataTime()
-        {
-            using var connection = new SqlConnection(connectionString);
-            var parameter = new { PPID = "PKS" };
-            List<DateTime> LastData = (List<DateTime>)await connection.QueryAsync<DateTime>
-                ("GetLastDataTime", parameter, commandType: CommandType.StoredProcedure);
-            return LastData;
-        }
-
-        public async Task<List<string>> QueryGenerators()
-        {
-            using var connection = new SqlConnection(connectionString);
-            List<string> generators = (List<string>)await connection.QueryAsync<string>
-                ("GetGenerators", commandType: CommandType.StoredProcedure);
-            return generators;
-        }
-
-        public async Task InsertData(string generatorId, DateTime startDateTime, int power)
-        {
-            using var connection = new SqlConnection(connectionString);
-            var parameters = new { GID = generatorId, start = startDateTime, power };
-            try
-            {
-                await connection.QueryAsync("AddPastActivity", parameters, commandType: CommandType.StoredProcedure);
-            }
-            catch (Exception E)
-            {
-                System.Diagnostics.Debug.WriteLine("While inserting into the db: ", E.Message);
-            }
+            System.Diagnostics.Debug.WriteLine("While inserting into the db: ", exception.Message);
         }
     }
 }
