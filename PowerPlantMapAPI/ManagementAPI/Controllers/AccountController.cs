@@ -1,24 +1,38 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ManagementAPI.Data.Dto;
+using ManagementAPI.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ManagementAPI.Controllers
+namespace ManagementAPI.Controllers;
+
+[Authorize]
+[EnableCors]
+[Route("API/[controller]/[action]")]
+[ApiController]
+public class AccountController : ControllerBase
 {
-    [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+    private readonly IAccountService _accountService;
+    private readonly ITokenService _tokenService;
+    
+    public AccountController(IAccountService accountService, ITokenService tokenService)
     {
-        [HttpGet]
-        [AllowAnonymous]
-        public string GetUsers()
+        _accountService = accountService;
+        _tokenService = tokenService;
+    }
+    
+    [AllowAnonymous]
+    [HttpPost]
+    public async Task<ActionResult<TokenDto>> LoginAsync([FromBody] LoginDto loginDto)
+    {
+        var user = await _accountService.LoginAsync(loginDto);
+        if (user is null)
         {
-            return "Admin";
+            return Unauthorized();
         }
 
-        [HttpGet]
-        public string GetPassword()
-        {
-            return "Admin123";
-        }
+        var token = _tokenService.CreateToken(user);
+
+        return Ok(token);
     }
 }
