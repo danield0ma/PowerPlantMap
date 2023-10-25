@@ -1,7 +1,6 @@
-﻿using PowerPlantMapAPI.Models.DTO;
-using PowerPlantMapAPI.Models;
+﻿using PowerPlantMapAPI.Data;
+using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Repositories;
-using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Helpers;
 

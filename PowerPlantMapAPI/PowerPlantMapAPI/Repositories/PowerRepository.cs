@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using System.Data;
 using System.Data.SqlClient;
-using PowerPlantMapAPI.Models.DTO;
+using PowerPlantMapAPI.Data.Dto;
 
 namespace PowerPlantMapAPI.Repositories;
 

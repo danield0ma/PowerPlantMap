@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using PowerPlantMapAPI.Models;
+using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers

@@ -1,4 +1,4 @@
-﻿namespace PowerPlantMapAPI.Models;
+﻿namespace PowerPlantMapAPI.Data;
 
 public class PowerOfPowerPlantModel
 {

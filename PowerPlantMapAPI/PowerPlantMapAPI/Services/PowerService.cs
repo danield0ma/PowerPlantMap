@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PowerPlantMapAPI.Models;
-using PowerPlantMapAPI.Models.DTO;
+using PowerPlantMapAPI.Data;
+using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Helpers;
 

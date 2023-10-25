@@ -1,5 +1,5 @@
-﻿using PowerPlantMapAPI.Models;
-using PowerPlantMapAPI.Models.DTO;
+﻿using PowerPlantMapAPI.Data;
+using PowerPlantMapAPI.Data.Dto;
 
 namespace PowerPlantMapAPI.Helpers;
 

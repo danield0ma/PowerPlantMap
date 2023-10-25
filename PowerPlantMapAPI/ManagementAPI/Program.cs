@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ManagementAPI.Repositories;
 using ManagementAPI.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);

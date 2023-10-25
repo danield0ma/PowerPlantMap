@@ -1,4 +1,4 @@
-﻿using PowerPlantMapAPI.Models.DTO;
+﻿using PowerPlantMapAPI.Data.Dto;
 
 namespace PowerPlantMapAPI.Repositories;
 

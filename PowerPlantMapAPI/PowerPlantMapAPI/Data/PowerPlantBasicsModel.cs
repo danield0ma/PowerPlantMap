@@ -1,6 +1,6 @@
-﻿using PowerPlantMapAPI.Models.DTO;
+﻿using PowerPlantMapAPI.Data.Dto;
 
-namespace PowerPlantMapAPI.Models;
+namespace PowerPlantMapAPI.Data;
 
 public class PowerPlantBasicsModel
 {

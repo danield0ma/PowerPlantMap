@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PowerPlantMapAPI.Models;
+using PowerPlantMapAPI.Data;
 
 namespace PowerPlantMapAPI.Services;
 
