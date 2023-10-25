@@ -24,4 +24,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.33.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PowerPlantMapAPI\PowerPlantMapAPI.csproj" />
+  </ItemGroup>
+
 </Project>
