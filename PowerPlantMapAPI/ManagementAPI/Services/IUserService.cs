@@ -9,4 +9,5 @@ public interface IUserService
     Task<ApplicationUser?> GetByEmailAsync(string email);
     Task<IEnumerable<ApplicationUser>> GetAll();
     Task<bool> AddUserAsync(CreateUserDto newUser);
+    Task<bool> DeleteUserAsync(string userName);
 }

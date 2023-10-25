@@ -37,4 +37,9 @@ public class UserService : IUserService
             PasswordHash = newUser.Password
         });
     }
+    
+    public async Task<bool> DeleteUserAsync(string userName)
+    {
+        return await _userRepository.DeleteUserAsync(userName);
+    }
 }

@@ -38,4 +38,16 @@ public class UserRepository: IUserRepository
         await _context.SaveChangesAsync();
         return true;
     }
+    
+    public async Task<bool> DeleteUserAsync(string userName)
+    {
+        var user = await GetByUserNameAsync(userName);
+        if (user is null)
+        {
+            return false;
+        }
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

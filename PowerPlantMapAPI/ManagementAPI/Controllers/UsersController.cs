@@ -2,15 +2,13 @@
 using ManagementAPI.Data.Dto;
 using ManagementAPI.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManagementAPI.Controllers;
 
-[EnableCors]
-[Authorize]
-[Route("API/[controller]/[action]")]
+[Route("API/[controller]")]
 [ApiController]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -20,42 +18,33 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
     
-    [HttpGet]
-    public async Task<ApplicationUser?> GetByUserNameAsync(string userName)
+    [HttpGet("GetByUserNameAsync")]
+    [Authorize]
+    public async Task<ActionResult<ApplicationUser?>> GetByUserNameAsync(string userName)
     {
-        return await _userService.GetByUserNameAsync(userName);
+        var user = await _userService.GetByUserNameAsync(userName);
+        return user is null ? NoContent() : Ok(user);
     }
     
-    [HttpGet]
-    public async Task<ApplicationUser?> GetByEmailAsync(string email)
+    [HttpGet("GetByEmailAsync")]
+    [Authorize]
+    public async Task<ActionResult<ApplicationUser?>> GetByEmailAsync(string email)
     {
-        return await _userService.GetByUserNameAsync(email);
-    }
-    
-    [Authorize(Roles = "admin")]
-    [HttpGet]
-    public async Task<IEnumerable<ApplicationUser>> GetAll()
-    {
-        return await _userService.GetAll();
+        var user = await _userService.GetByUserNameAsync(email);
+        return user is null ? NoContent() : Ok(user);
     }
 
-    [AllowAnonymous]
-    [HttpGet]
-    public string GetPassword()
+    [HttpGet("GetAllAsync")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAsync()
     {
-        return "Admin123";
+        var users = await _userService.GetAll();
+        return Ok(users);
     }
     
+    [HttpPost("CreateUserAsync")]
     [AllowAnonymous]
-    [HttpGet]
-    public string GetPasswordHash()
-    {
-        return "Asdadfafasasffasfassfkjhsfadmin123";
-    }
-    
-    [AllowAnonymous]
-    [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
+    public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserDto createUserDto)
     {
         if (await _userService.AddUserAsync(createUserDto))
         {
@@ -65,5 +54,13 @@ public class UsersController : ControllerBase
         {
             return BadRequest();
         }
+    }
+
+    [HttpDelete("DeleteUserAsync")]
+    [Authorize]
+    public async Task<IActionResult> DeleteUserAsync(string userName)
+    {
+        var result = await _userService.DeleteUserAsync(userName);
+        return result ? Ok() : NoContent();
     }
 }
