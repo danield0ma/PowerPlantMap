@@ -47,12 +47,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPowerPlantService, PowerPlantService>();
 builder.Services.AddScoped<IPowerService, PowerService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
 builder.Services.AddScoped<IPowerRepository, PowerRepository>();
 builder.Services.AddScoped<IPowerHelper, PowerHelper>();
@@ -60,7 +57,7 @@ builder.Services.AddScoped<IXmlHelper, XmlHelper>();
 builder.Services.AddScoped<IDateHelper, DateHelper>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("PPM_Management")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString(builder.Configuration["ManagementConnectionStringToBeUsed"])));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -87,9 +84,9 @@ builder.Services.AddAuthentication(options => //JwtBearerDefaults.Authentication
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = false,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Issuer"],
