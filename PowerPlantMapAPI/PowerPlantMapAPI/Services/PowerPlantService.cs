@@ -16,4 +16,20 @@ public class PowerPlantService : IPowerPlantService
     {
         return await _powerPlantRepository.Get();
     }
+    
+    public async Task<PowerPlantDataDto?> GetById(string id)
+    {
+        return await _powerPlantRepository.GetById(id);
+    }
+    
+    public async Task<bool> AddPowerPlant(PowerPlantDataDto powerPlantToBeAdded)
+    {
+        return await _powerPlantRepository.AddPowerPlant(powerPlantToBeAdded);
+    }
+    
+    public async Task<bool> DeletePowerPlant(string id)
+    {
+        return await _powerPlantRepository.DeletePowerPlant(id);
+    }
+    
 }
