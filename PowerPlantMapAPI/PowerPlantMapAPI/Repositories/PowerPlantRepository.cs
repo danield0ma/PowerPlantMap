@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System.Data;
 using System.Data.SqlClient;
+using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Data.Dto;
 
 namespace PowerPlantMapAPI.Repositories;
@@ -31,12 +32,19 @@ public class PowerPlantRepository : IPowerPlantRepository
                 parameters, commandType: CommandType.StoredProcedure);
     }
     
-    public async Task<IEnumerable<PowerPlantDataDto?>> Get()
+    public async Task<List<AllDataOfPowerPlantDto>> GetPowerPlantsModel()
     {
         await using var connection = new SqlConnection(_connectionString);
-        var dataOfPowerPlants = (List<PowerPlantDataDto>)await connection.QueryAsync<PowerPlantDataDto>
-            ("GetDataOfPowerPlants", commandType: CommandType.StoredProcedure);
-        return dataOfPowerPlants;
+        return (List<AllDataOfPowerPlantDto>)await connection.
+            QueryAsync<AllDataOfPowerPlantDto>("GetPowerPlantsModel", commandType: CommandType.StoredProcedure);
+    }
+    
+    public async Task<List<AllDataOfPowerPlantDto>> GetPowerPlantModel(string id)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { PowerPlantId = id };
+        return (List<AllDataOfPowerPlantDto>)await connection.
+            QueryAsync<AllDataOfPowerPlantDto>("GetPowerPlantModel", parameters, commandType: CommandType.StoredProcedure);
     }
 
     public async Task<PowerPlantDataDto?> GetById(string id)

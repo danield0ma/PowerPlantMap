@@ -17,63 +17,71 @@ public class PowerPlantService : IPowerPlantService
     public async Task<IEnumerable<PowerPlantModel?>> Get()
     {
         List<PowerPlantModel?> powerPlants = new();
-        var powerPlantNames = await _powerPlantRepository.GetPowerPlantNames();
-        foreach (var powerPlantName in powerPlantNames)
+        var allDataOfPowerPlants = await _powerPlantRepository.GetPowerPlantsModel();
+
+        foreach (var allDataOfPowerPlant in allDataOfPowerPlants.
+            GroupBy(x => x.PowerPlantId).
+            Select(group => group.First()).ToList())
         {
-            powerPlants.Add(await GetById(powerPlantName));
+            var powerPlant = MapToPowerPlantModel(allDataOfPowerPlant);
+            var currentPowerPlants = allDataOfPowerPlants.
+                Where(y => y.PowerPlantId == allDataOfPowerPlant.PowerPlantId).ToList();
+            foreach (var currentPowerPlant in currentPowerPlants)
+            {
+                var blocsOfPowerPlant = new List<BlocDataDto>();
+                foreach (var currentBloc in currentPowerPlants.
+                    GroupBy(z => z.BlocId ).Select(group => group.First()).ToList())
+                {
+                    var blocData = MapToBlocDataDto(allDataOfPowerPlant);
+                    List<GeneratorDataDto> generatorsOfBloc = new();
+                    foreach (var item in currentPowerPlants.
+                        Where(x => x.BlocId == currentBloc.BlocId).ToList())
+                    {
+                        GeneratorDataDto generatorDetails = new()
+                        {
+                            GeneratorId = item.GeneratorId,
+                            MaxCapacity = item.MaxCapacity,
+                        };
+                        generatorsOfBloc.Add(generatorDetails);
+                    }
+                    blocData.Generators = generatorsOfBloc;
+                    blocsOfPowerPlant.Add(blocData);
+                }
+                powerPlant.Blocs = blocsOfPowerPlant;
+            }
+            powerPlants.Add(powerPlant);
         }
         return powerPlants;
     }
     
     public async Task<PowerPlantModel?> GetById(string id)
     {
-        var powerPlant = await _powerPlantRepository.GetById(id);
-        var result = new PowerPlantModel()
-        {
-            PowerPlantId = powerPlant?.PowerPlantId,
-            Name = powerPlant?.Name,
-            Description = powerPlant?.Description,
-            OperatorCompany = powerPlant?.OperatorCompany,
-            Webpage = powerPlant?.Webpage,
-            Image = powerPlant?.Image,
-            Longitude = powerPlant!.Longitude,
-            Latitude = powerPlant.Latitude,
-            Color = powerPlant.Color,
-            Address = powerPlant.Address,
-            IsCountry = powerPlant.IsCountry
-        };
+        var allDataOfPowerPlant = await _powerPlantRepository.GetPowerPlantModel(id);
+        var powerPlant = MapToPowerPlantModel(allDataOfPowerPlant.FirstOrDefault()!);
         
-        List<BlocDataDto> blocs = new();
-        var powerPlantDetails = await _powerPlantRepository.GetPowerPlantDetails(id);
-        foreach (var powerPlantDetail in powerPlantDetails.
+        List<BlocDataDto> blocsOfPowerPlant = new();
+        foreach (var powerPlantDetail in allDataOfPowerPlant.
                      GroupBy(x => x.BlocId ).
                      Select(group => group.First()).ToList())
         {
-            BlocDataDto blocData = new()
-            {
-                BlocId = powerPlantDetail.BlocId,
-                BlocType = powerPlantDetail.BlocType,
-                MaxBlocCapacity = powerPlantDetail.MaxBlocCapacity,
-                CommissionDate = powerPlantDetail.CommissionDate
-            };
-
-            List<GeneratorDataDto> generators = new();
-            foreach (var item in powerPlantDetails.
-                         Where(x => x.BlocId == powerPlantDetail.BlocId).ToList())
+            var blocData = MapToBlocDataDto(allDataOfPowerPlant.FirstOrDefault()!);
+            List<GeneratorDataDto> generatorsOfBloc = new();
+            foreach (var item in allDataOfPowerPlant.
+                Where(x => x.BlocId == powerPlantDetail.BlocId).ToList())
             {
                 GeneratorDataDto generatorDetails = new()
                 {
                     GeneratorId = item.GeneratorId,
                     MaxCapacity = item.MaxCapacity,
                 };
-                generators.Add(generatorDetails);
+                generatorsOfBloc.Add(generatorDetails);
             }
-            blocData.Generators = generators;
-            blocs.Add(blocData);
+            blocData.Generators = generatorsOfBloc;
+            blocsOfPowerPlant.Add(blocData);
         }
-        result.Blocs = blocs;
+        powerPlant.Blocs = blocsOfPowerPlant;
         
-        return result;
+        return powerPlant;
     }
     
     public async Task<bool> AddPowerPlant(CreatePowerPlantDto powerPlantToBeAdded)
@@ -120,5 +128,34 @@ public class PowerPlantService : IPowerPlantService
     public async Task<bool> DeletePowerPlant(string id)
     {
         return await _powerPlantRepository.DeletePowerPlant(id);
+    }
+
+    private PowerPlantModel MapToPowerPlantModel(AllDataOfPowerPlantDto allDataOfPowerPlant)
+    {
+        return new PowerPlantModel()
+        {
+            PowerPlantId = allDataOfPowerPlant.PowerPlantId,
+            Name = allDataOfPowerPlant.Name,
+            Description = allDataOfPowerPlant.Description,
+            OperatorCompany = allDataOfPowerPlant.OperatorCompany,
+            Webpage = allDataOfPowerPlant.Webpage,
+            Image = allDataOfPowerPlant.Image,
+            Longitude = allDataOfPowerPlant.Longitude,
+            Latitude = allDataOfPowerPlant.Latitude,
+            Color = allDataOfPowerPlant.Color,
+            Address = allDataOfPowerPlant.Address,
+            IsCountry = allDataOfPowerPlant.IsCountry
+        };
+    }
+    
+    private BlocDataDto MapToBlocDataDto(AllDataOfPowerPlantDto bloc)
+    {
+        return new BlocDataDto()
+        {
+            BlocId = bloc.BlocId,
+            BlocType = bloc.BlocType,
+            MaxBlocCapacity = bloc.MaxBlocCapacity,
+            CommissionDate = bloc.CommissionDate
+        };
     }
 }
