@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Services;
@@ -35,19 +36,17 @@ public class PowerPlantController : ControllerBase
     
     [HttpPost]
     [AllowAnonymous]
-    public async Task<ActionResult> Add(PowerPlantDataDto powerPlantDataDto)
+    public async Task<ActionResult> AddPowerPlant(CreatePowerPlantDto createPowerPlantDto)
     {
-        var result = await _powerPlantService.AddPowerPlant(powerPlantDataDto);
-        return result ? Ok() : BadRequest();
-    }
-    
-    [HttpPost]
-    [AllowAnonymous]
-    public ActionResult AddFullPowerPlant(CreatePowerPlantDto createPowerPlantDto)
-    {
-        return Ok("test");
-        // var result = await _powerPlantService.AddPowerPlant(createPowerPlantDto);
-        // return result ? Ok() : BadRequest();
+        try
+        {
+            await _powerPlantService.AddPowerPlant(createPowerPlantDto);
+        }
+        catch (DuplicateNameException e)
+        {
+            return BadRequest(e.Message);
+        }
+        return Ok();
     }
     
     [HttpDelete]
