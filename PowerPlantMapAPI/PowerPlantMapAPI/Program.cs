@@ -49,7 +49,7 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPowerPlantService, PowerPlantService>();
-builder.Services.AddScoped<IPowerDataService, PowerDataDataService>();
+builder.Services.AddScoped<IPowerDataService, PowerDataService>();
 builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
 builder.Services.AddScoped<IPowerDataRepository, PowerDataDataRepository>();
 builder.Services.AddScoped<IPowerHelper, PowerHelper>();

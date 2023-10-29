@@ -6,14 +6,14 @@ using PowerPlantMapAPI.Helpers;
 
 namespace PowerPlantMapAPI.Services;
 
-public class PowerDataDataService : IPowerDataService
+public class PowerDataService : IPowerDataService
 {
     private readonly IPowerDataRepository _powerDataRepository;
     private readonly IDateHelper _dateHelper;
     private readonly IPowerHelper _powerHelper;
     private readonly IXmlHelper _xmlHelper;
 
-    public PowerDataDataService(
+    public PowerDataService(
         IDateHelper dateHelper, 
         IPowerDataRepository dataRepository,
         IPowerHelper powerHelper,
