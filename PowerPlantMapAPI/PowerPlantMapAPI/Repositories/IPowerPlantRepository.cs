@@ -4,6 +4,8 @@ namespace PowerPlantMapAPI.Repositories;
 
 public interface IPowerPlantRepository
 {
+    Task<List<string>> GetPowerPlantNames();
+    Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id);
     Task<IEnumerable<PowerPlantDataDto?>> Get();
     Task<PowerPlantDataDto?> GetById(string id);
     Task<bool> AddGenerator(GeneratorDataDto generator);

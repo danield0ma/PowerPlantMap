@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Services;
 
@@ -20,7 +21,7 @@ public class PowerPlantController : ControllerBase
         
     [HttpGet]
     [AllowAnonymous]
-    public async Task<ActionResult<PowerPlantDataDto?>> Get()
+    public async Task<ActionResult<IEnumerable<PowerPlantModel?>?>> Get()
     {
         var powerPlants = await _powerPlantService.Get();
         return Ok(powerPlants);
@@ -28,7 +29,7 @@ public class PowerPlantController : ControllerBase
     
     [HttpGet]
     [AllowAnonymous]
-    public async Task<ActionResult<PowerPlantDataDto?>> GetById(string id)
+    public async Task<ActionResult<PowerPlantModel?>> GetById(string id)
     {
         var powerPlant = await _powerPlantService.GetById(id);
         return powerPlant is null ? NoContent() : Ok(powerPlant);

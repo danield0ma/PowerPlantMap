@@ -13,14 +13,6 @@ public class PowerDataDataRepository : IPowerDataRepository
         _connectionString = configuration.GetConnectionString(configuration["ConnectionStringToBeUsed"]);
     }
     
-    public async Task<List<string>> GetPowerPlantNames()
-    {
-        await using var connection = new SqlConnection(_connectionString);
-        var powerPlants = (List<string>)await connection.QueryAsync<string>
-            ("GetPowerPlantNames", commandType: CommandType.StoredProcedure);
-        return powerPlants;
-    }
-    
     public async Task<List<string>> GetGeneratorNames()
     {
         await using var connection = new SqlConnection(_connectionString);
@@ -52,15 +44,6 @@ public class PowerDataDataRepository : IPowerDataRepository
         var basicsOfPowerPlant = (List<PowerPlantDataDto>)await connection.QueryAsync<PowerPlantDataDto>
             ("[GetDataOfPowerPlant]", parameters, commandType: CommandType.StoredProcedure);
         return basicsOfPowerPlant[0];
-    }
-
-    public async Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id)
-    {
-        await using var connection = new SqlConnection(_connectionString);
-        var parameters = new { PowerPlantId = id };
-        return (List<PowerPlantDetailsDto>)await connection.
-            QueryAsync<PowerPlantDetailsDto>("GetPowerPlantDetails",
-            parameters, commandType: CommandType.StoredProcedure);
     }
     
     public async Task<List<DateTime>> GetLastDataTime()

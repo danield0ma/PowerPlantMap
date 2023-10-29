@@ -14,6 +14,23 @@ public class PowerPlantRepository : IPowerPlantRepository
         _connectionString = configuration.GetConnectionString("PPM");
     }
     
+    public async Task<List<string>> GetPowerPlantNames()
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var powerPlants = (List<string>)await connection.QueryAsync<string>
+            ("GetPowerPlantNames", commandType: CommandType.StoredProcedure);
+        return powerPlants;
+    }
+    
+    public async Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { PowerPlantId = id };
+        return (List<PowerPlantDetailsDto>)await connection.
+            QueryAsync<PowerPlantDetailsDto>("GetPowerPlantDetails",
+                parameters, commandType: CommandType.StoredProcedure);
+    }
+    
     public async Task<IEnumerable<PowerPlantDataDto?>> Get()
     {
         await using var connection = new SqlConnection(_connectionString);
@@ -34,7 +51,7 @@ public class PowerPlantRepository : IPowerPlantRepository
     public async Task<bool> AddGenerator(GeneratorDataDto generator)
     {
         await using var connection = new SqlConnection(_connectionString);
-        var parameters = new { GeneratorId = generator.GeneratorId, MaxCapacity = generator.MaxCapacity };
+        var parameters = new { generator.GeneratorId, generator.MaxCapacity };
         try
         {
             var numberOfRowsAffected = await connection.ExecuteAsync("AddGenerator", parameters, commandType: CommandType.StoredProcedure); 
@@ -68,10 +85,10 @@ public class PowerPlantRepository : IPowerPlantRepository
         await using var connection = new SqlConnection(_connectionString);
         var parameters = new
         {
-            BlocId = bloc.BlocId,
-            BlocType = bloc.BlocType,
-            MaxBlocCapacity = bloc.MaxBlocCapacity,
-            CommissionDate = bloc.CommissionDate
+            bloc.BlocId,
+            bloc.BlocType,
+            bloc.MaxBlocCapacity,
+            bloc.CommissionDate
         };
         try
         {
@@ -106,17 +123,17 @@ public class PowerPlantRepository : IPowerPlantRepository
         await using var connection = new SqlConnection(_connectionString);
         var parameters = new
         {
-            PowerPlantId = powerPlantToBeAdded.PowerPlantId,
-            Name = powerPlantToBeAdded.Name,
-            Description = powerPlantToBeAdded.Description,
-            OperatorCompany = powerPlantToBeAdded.OperatorCompany,
-            Webpage = powerPlantToBeAdded.Webpage,
-            Image = powerPlantToBeAdded.Image,
-            Longitude = powerPlantToBeAdded.Longitude,
-            Latitude = powerPlantToBeAdded.Latitude,
-            Color = powerPlantToBeAdded.Color,
-            Address = powerPlantToBeAdded.Address,
-            IsCountry = powerPlantToBeAdded.IsCountry
+            powerPlantToBeAdded.PowerPlantId,
+            powerPlantToBeAdded.Name,
+            powerPlantToBeAdded.Description,
+            powerPlantToBeAdded.OperatorCompany,
+            powerPlantToBeAdded.Webpage,
+            powerPlantToBeAdded.Image,
+            powerPlantToBeAdded.Longitude,
+            powerPlantToBeAdded.Latitude,
+            powerPlantToBeAdded.Color,
+            powerPlantToBeAdded.Address,
+            powerPlantToBeAdded.IsCountry
         };
         try
         {

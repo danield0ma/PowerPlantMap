@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Data.Dto;
 
@@ -13,14 +14,66 @@ public class PowerPlantService : IPowerPlantService
         _powerPlantRepository = powerPlantRepository;
     }
     
-    public async Task<IEnumerable<PowerPlantDataDto?>> Get()
+    public async Task<IEnumerable<PowerPlantModel?>> Get()
     {
-        return await _powerPlantRepository.Get();
+        List<PowerPlantModel?> powerPlants = new();
+        var powerPlantNames = await _powerPlantRepository.GetPowerPlantNames();
+        foreach (var powerPlantName in powerPlantNames)
+        {
+            powerPlants.Add(await GetById(powerPlantName));
+        }
+        return powerPlants;
     }
     
-    public async Task<PowerPlantDataDto?> GetById(string id)
+    public async Task<PowerPlantModel?> GetById(string id)
     {
-        return await _powerPlantRepository.GetById(id);
+        var powerPlant = await _powerPlantRepository.GetById(id);
+        var result = new PowerPlantModel()
+        {
+            PowerPlantId = powerPlant?.PowerPlantId,
+            Name = powerPlant?.Name,
+            Description = powerPlant?.Description,
+            OperatorCompany = powerPlant?.OperatorCompany,
+            Webpage = powerPlant?.Webpage,
+            Image = powerPlant?.Image,
+            Longitude = powerPlant!.Longitude,
+            Latitude = powerPlant.Latitude,
+            Color = powerPlant.Color,
+            Address = powerPlant.Address,
+            IsCountry = powerPlant.IsCountry
+        };
+        
+        List<BlocDataDto> blocs = new();
+        var powerPlantDetails = await _powerPlantRepository.GetPowerPlantDetails(id);
+        foreach (var powerPlantDetail in powerPlantDetails.
+                     GroupBy(x => x.BlocId ).
+                     Select(group => group.First()).ToList())
+        {
+            BlocDataDto blocData = new()
+            {
+                BlocId = powerPlantDetail.BlocId,
+                BlocType = powerPlantDetail.BlocType,
+                MaxBlocCapacity = powerPlantDetail.MaxBlocCapacity,
+                CommissionDate = powerPlantDetail.CommissionDate
+            };
+
+            List<GeneratorDataDto> generators = new();
+            foreach (var item in powerPlantDetails.
+                         Where(x => x.BlocId == powerPlantDetail.BlocId).ToList())
+            {
+                GeneratorDataDto generatorDetails = new()
+                {
+                    GeneratorId = item.GeneratorId,
+                    MaxCapacity = item.MaxCapacity,
+                };
+                generators.Add(generatorDetails);
+            }
+            blocData.Generators = generators;
+            blocs.Add(blocData);
+        }
+        result.Blocs = blocs;
+        
+        return result;
     }
     
     public async Task<bool> AddPowerPlant(CreatePowerPlantDto powerPlantToBeAdded)
