@@ -41,6 +41,15 @@ public class PowerPlantController : ControllerBase
         return result ? Ok() : BadRequest();
     }
     
+    [HttpPost]
+    [AllowAnonymous]
+    public ActionResult AddFullPowerPlant(CreatePowerPlantDto createPowerPlantDto)
+    {
+        return Ok("test");
+        // var result = await _powerPlantService.AddPowerPlant(createPowerPlantDto);
+        // return result ? Ok() : BadRequest();
+    }
+    
     [HttpDelete]
     [AllowAnonymous]
     public async Task<ActionResult> Delete(string id)

@@ -18,5 +18,5 @@ public class PowerPlantDetailsModel
     public string? Color { get; set; }
     public string? Address { get; set; }
     public bool IsCountry { get; set; }
-    public List<BlocDto>? Blocs { get; set; }
+    public List<BlocDetailsDto>? Blocs { get; set; }
 }

@@ -88,13 +88,13 @@ public class PowerDataDataService : IPowerDataService
         }
 
         int maxPowerOfPowerPlant = 0, currentPowerOfPowerPlant = 0;
-        List<BlocDto> blocsOfPowerPlant = new();
+        List<BlocDetailsDto> blocsOfPowerPlant = new();
         
         var powerPlantDetails = await _powerDataRepository.GetPowerPlantDetails(id);
 
         foreach (var powerPlantDetail in powerPlantDetails.GroupBy(x => x.BlocId ).Select(group => group.First()).ToList())
         {
-            BlocDto bloc = new()
+            BlocDetailsDto blocDetails = new()
             {
                 BlocId = powerPlantDetail.BlocId,
                 BlocType = powerPlantDetail.BlocType,
@@ -102,27 +102,27 @@ public class PowerDataDataService : IPowerDataService
                 CommissionDate = powerPlantDetail.CommissionDate
             };
 
-            List<GeneratorDto> generators = new();
+            List<GeneratorDetailsDto> generators = new();
             int currentPower = 0, maxPower = 0;
 
             foreach (var item in powerPlantDetails.Where(x => x.BlocId == powerPlantDetail.BlocId).ToList())
             {
-                GeneratorDto generator = new()
+                GeneratorDetailsDto generatorDetails = new()
                 {
                     GeneratorId = item.GeneratorId,
                     MaxCapacity = item.MaxCapacity,
                     PastPower = await _powerHelper.GetGeneratorPower(item.GeneratorId, timeStampsUtc[0], timeStampsUtc[1])
                 };
                 
-                generators.Add(generator);
-                currentPower += generator.PastPower![generator.PastPower.Count - 1].Power;
-                maxPower += generator.MaxCapacity;
+                generators.Add(generatorDetails);
+                currentPower += generatorDetails.PastPower![generatorDetails.PastPower.Count - 1].Power;
+                maxPower += generatorDetails.MaxCapacity;
             }
             
-            bloc.CurrentPower = currentPower;
-            bloc.MaxPower = maxPower;
-            bloc.Generators = generators;
-            blocsOfPowerPlant.Add(bloc);
+            blocDetails.CurrentPower = currentPower;
+            blocDetails.MaxPower = maxPower;
+            blocDetails.Generators = generators;
+            blocsOfPowerPlant.Add(blocDetails);
 
             currentPowerOfPowerPlant += currentPower;
             maxPowerOfPowerPlant += maxPower;
