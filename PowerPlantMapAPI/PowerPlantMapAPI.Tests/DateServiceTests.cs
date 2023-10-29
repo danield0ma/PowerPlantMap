@@ -7,17 +7,17 @@ namespace PowerPlantMapAPI.Tests;
 
 public class DateServiceTests
 {
-    private readonly IPowerRepository _powerRepository;
+    private readonly IPowerDataRepository _powerDataRepository;
 
     public DateServiceTests()
     {
-        _powerRepository = A.Fake<IPowerRepository>();
+        _powerDataRepository = A.Fake<IPowerDataRepository>();
     }
 
     [Fact]
     public void EditTimeIsLengthCorrect()
     {
-        var dateHelper = new DateHelper(_powerRepository);
+        var dateHelper = new DateHelper(_powerDataRepository);
         var currentTimeUtc = DateTime.UtcNow;
         var start = dateHelper.EditTime(currentTimeUtc);
         Assert.Equal(12, start.Length);

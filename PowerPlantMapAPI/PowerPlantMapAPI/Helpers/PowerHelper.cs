@@ -7,13 +7,13 @@ namespace PowerPlantMapAPI.Helpers;
 public class PowerHelper : IPowerHelper
 {
     private readonly IDateHelper _dateHelper;
-    private readonly IPowerRepository _repository;
+    private readonly IPowerDataRepository _dataRepository;
     private readonly IConfiguration _configuration;
 
-    public PowerHelper(IDateHelper dateHelper, IPowerRepository repository, IConfiguration configuration)
+    public PowerHelper(IDateHelper dateHelper, IPowerDataRepository dataRepository, IConfiguration configuration)
     {
         _dateHelper = dateHelper;
-        _repository = repository;
+        _dataRepository = dataRepository;
         _configuration = configuration;
     }
 
@@ -57,7 +57,7 @@ public class PowerHelper : IPowerHelper
 
     public async Task<List<GeneratorPowerDto>?> GetGeneratorPower(string? generator, DateTime startUtc, DateTime endUtc)
     {
-        var pastActivity = await _repository.GetPastActivity(generator, startUtc, endUtc);
+        var pastActivity = await _dataRepository.GetPastActivity(generator, startUtc, endUtc);
         var pastPowerOfGenerator = pastActivity.Select
             (activity => new GeneratorPowerDto() { 
                 TimePoint = TimeZoneInfo.ConvertTimeFromUtc(activity.PeriodStart, TimeZoneInfo.Local),
@@ -86,7 +86,7 @@ public class PowerHelper : IPowerHelper
             powerStamps.Add(powerStamp);
         }
 
-        var generators = await _repository.GetGeneratorNamesOfPowerPlant(id);
+        var generators = await _dataRepository.GetGeneratorNamesOfPowerPlant(id);
         foreach (var generator in generators)
         {
             var generatorPowers = await GetGeneratorPower(generator, timeStamps[0], timeStamps[1]);

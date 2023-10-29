@@ -5,11 +5,11 @@ namespace PowerPlantMapAPI.Helpers;
 
 public class DateHelper : IDateHelper
 {
-    private readonly IPowerRepository _repository;
+    private readonly IPowerDataRepository _dataRepository;
 
-    public DateHelper(IPowerRepository repository)
+    public DateHelper(IPowerDataRepository dataRepository)
     {
-        _repository = repository;
+        _dataRepository = dataRepository;
     }
 
     public async Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
@@ -41,7 +41,7 @@ public class DateHelper : IDateHelper
         }
         else
         {
-            var lastDataTimeUtcArray = await _repository.GetLastDataTime();
+            var lastDataTimeUtcArray = await _dataRepository.GetLastDataTime();
             var lastDataTimeUtc = lastDataTimeUtcArray[0];
             var startUtc = lastDataTimeUtc.AddDays(-1);
             lastDataTimeUtc = DateTime.SpecifyKind(lastDataTimeUtc, DateTimeKind.Utc);
@@ -91,7 +91,7 @@ public class DateHelper : IDateHelper
         
         endUtc = DateTime.SpecifyKind(endUtc, DateTimeKind.Utc);
         var startUtc = endUtc.AddHours(-48);
-        var lastDataUtc = await _repository.GetLastDataTime();
+        var lastDataUtc = await _dataRepository.GetLastDataTime();
         if (lastDataUtc[0] > startUtc)
         {
             startUtc = lastDataUtc[0];

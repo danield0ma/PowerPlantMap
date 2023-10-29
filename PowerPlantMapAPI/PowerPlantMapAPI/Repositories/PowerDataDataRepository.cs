@@ -5,10 +5,10 @@ using PowerPlantMapAPI.Data.Dto;
 
 namespace PowerPlantMapAPI.Repositories;
 
-public class PowerRepository : IPowerRepository
+public class PowerDataDataRepository : IPowerDataRepository
 {
     private readonly string _connectionString;
-    public PowerRepository(IConfiguration configuration)
+    public PowerDataDataRepository(IConfiguration configuration)
     {
         _connectionString = configuration.GetConnectionString(configuration["ConnectionStringToBeUsed"]);
     }

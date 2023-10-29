@@ -2,7 +2,7 @@
 
 namespace PowerPlantMapAPI.Repositories;
 
-public interface IPowerRepository
+public interface IPowerDataRepository
 {
     Task<List<string>> GetPowerPlantNames();
     Task<List<string>> GetGeneratorNames();

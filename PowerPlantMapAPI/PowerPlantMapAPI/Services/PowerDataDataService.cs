@@ -6,21 +6,21 @@ using PowerPlantMapAPI.Helpers;
 
 namespace PowerPlantMapAPI.Services;
 
-public class PowerService : IPowerService
+public class PowerDataDataService : IPowerDataService
 {
-    private readonly IPowerRepository _powerRepository;
+    private readonly IPowerDataRepository _powerDataRepository;
     private readonly IDateHelper _dateHelper;
     private readonly IPowerHelper _powerHelper;
     private readonly IXmlHelper _xmlHelper;
 
-    public PowerService(
+    public PowerDataDataService(
         IDateHelper dateHelper, 
-        IPowerRepository repository,
+        IPowerDataRepository dataRepository,
         IPowerHelper powerHelper,
         IXmlHelper xmlHelper)
     {
         _dateHelper = dateHelper;
-        _powerRepository = repository;
+        _powerDataRepository = dataRepository;
         _powerHelper = powerHelper;
         _xmlHelper = xmlHelper;
     }
@@ -28,7 +28,7 @@ public class PowerService : IPowerService
     public async Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics()
     {
         var powerPlantBasics = new List<PowerPlantBasicsModel>();
-        var dataOfPowerPlants = await _powerRepository.GetDataOfPowerPlants();
+        var dataOfPowerPlants = await _powerDataRepository.GetDataOfPowerPlants();
 
         foreach (var dataOfPowerPlant in dataOfPowerPlants)
         {
@@ -61,7 +61,7 @@ public class PowerService : IPowerService
     
     public async Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
     {
-        var powerPlantData = await _powerRepository.GetDataOfPowerPlant(id);
+        var powerPlantData = await _powerDataRepository.GetDataOfPowerPlant(id);
         
         PowerPlantDetailsModel detailsOfPowerPlant = new()
         {
@@ -90,7 +90,7 @@ public class PowerService : IPowerService
         int maxPowerOfPowerPlant = 0, currentPowerOfPowerPlant = 0;
         List<BlocDto> blocsOfPowerPlant = new();
         
-        var powerPlantDetails = await _powerRepository.GetPowerPlantDetails(id);
+        var powerPlantDetails = await _powerDataRepository.GetPowerPlantDetails(id);
 
         foreach (var powerPlantDetail in powerPlantDetails.GroupBy(x => x.BlocId ).Select(group => group.First()).ToList())
         {
@@ -146,7 +146,7 @@ public class PowerService : IPowerService
     public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null, DateTime? start = null, DateTime? end = null)
     {
         var powerOfPowerPlants = new PowerOfPowerPlantsModel();
-        var powerPlants = await _powerRepository.GetPowerPlantNames();
+        var powerPlants = await _powerDataRepository.GetPowerPlantNames();
 
         var timeStampsUtc = await _dateHelper.HandleWhichDateFormatIsBeingUsed(date, start, end);
         powerOfPowerPlants.Start = timeStampsUtc[0]; //Utc
@@ -215,13 +215,13 @@ public class PowerService : IPowerService
             }
         }
 
-        var lastData = await _powerRepository.GetLastDataTime();
+        var lastData = await _powerDataRepository.GetLastDataTime();
         return timeStampsUtc[0] + " - " + timeStampsUtc[1] + " --> " + lastData[0];
     }
 
     private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(IReadOnlyList<DateTime> timeStamps)
     {
-        var pastActivity = await _powerRepository.GetPastActivity("PA_gép1", timeStamps[0], timeStamps[1]);
+        var pastActivity = await _powerDataRepository.GetPastActivity("PA_gép1", timeStamps[0], timeStamps[1]);
 
         if (pastActivity.Count < 10)
         {

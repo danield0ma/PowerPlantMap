@@ -5,12 +5,12 @@ namespace PowerPlantMapAPI.Helpers;
 
 public class XmlHelper: IXmlHelper
 {
-    private readonly IPowerRepository _powerRepository;
+    private readonly IPowerDataRepository _powerDataRepository;
     private readonly IPowerHelper _powerHelper;
 
-    public XmlHelper(IPowerRepository repository, IPowerHelper powerHelper)
+    public XmlHelper(IPowerDataRepository dataRepository, IPowerHelper powerHelper)
     {
-        _powerRepository = repository;
+        _powerDataRepository = dataRepository;
         _powerHelper = powerHelper;
     }
     
@@ -20,7 +20,7 @@ public class XmlHelper: IXmlHelper
         {
             try
             {
-                var generators = await _powerRepository.GetGeneratorNames();
+                var generators = await _powerDataRepository.GetGeneratorNames();
 
                 var document = XDocument.Parse(await _powerHelper.ApiQuery(docType, timeStampsUtc[0], timeStampsUtc[1]));
                 var ns = document.Root?.Name.Namespace;
@@ -46,7 +46,7 @@ public class XmlHelper: IXmlHelper
                         foreach (var point in period.Elements(ns + "Point"))
                         {
                             var currentPower = Convert.ToInt32(point.Element(ns + "quantity")?.Value);
-                            await _powerRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
+                            await _powerDataRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
                             startTimePointUtc = startTimePointUtc.AddMinutes(15);
                         }
                     }
@@ -135,7 +135,7 @@ public class XmlHelper: IXmlHelper
 
                                for (var j = 0; j < numberOfTimesTheValueHasToBeSaved; j++)
                                {
-                                   await _powerRepository.AddPastActivity(countryCode, startTimePointUtc, currentPower);
+                                   await _powerDataRepository.AddPastActivity(countryCode, startTimePointUtc, currentPower);
                                    startTimePointUtc = startTimePointUtc.AddMinutes(15);
                                }
                            }

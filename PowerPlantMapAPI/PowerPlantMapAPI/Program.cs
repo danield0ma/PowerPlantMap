@@ -49,9 +49,9 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPowerPlantService, PowerPlantService>();
-builder.Services.AddScoped<IPowerService, PowerService>();
+builder.Services.AddScoped<IPowerDataService, PowerDataDataService>();
 builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
-builder.Services.AddScoped<IPowerRepository, PowerRepository>();
+builder.Services.AddScoped<IPowerDataRepository, PowerDataDataRepository>();
 builder.Services.AddScoped<IPowerHelper, PowerHelper>();
 builder.Services.AddScoped<IXmlHelper, XmlHelper>();
 builder.Services.AddScoped<IDateHelper, DateHelper>();

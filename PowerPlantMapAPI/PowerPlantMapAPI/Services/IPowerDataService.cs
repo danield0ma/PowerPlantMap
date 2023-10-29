@@ -3,7 +3,7 @@ using PowerPlantMapAPI.Data;
 
 namespace PowerPlantMapAPI.Services;
 
-public interface IPowerService
+public interface IPowerDataService
 {
     Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics();
     Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null);

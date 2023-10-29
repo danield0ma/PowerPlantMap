@@ -8,12 +8,12 @@ namespace PowerPlantMapAPI.Controllers
     [EnableCors]
     [Route("API/[controller]/[action]")]
     [ApiController]
-    public class PowerController : ControllerBase
+    public class PowerDataController : ControllerBase
     {
-        private readonly IPowerService _powerService;
-        public PowerController(IPowerService powerService)
+        private readonly IPowerDataService _powerDataService;
+        public PowerDataController(IPowerDataService powerDataService)
         {
-            _powerService = powerService;
+            _powerDataService = powerDataService;
         }
 
         [HttpGet]
@@ -25,31 +25,31 @@ namespace PowerPlantMapAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics()
         {
-            return await _powerService.GetPowerPlantBasics();
+            return await _powerDataService.GetPowerPlantBasics();
         }
 
         [HttpGet]
         public async Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null)
         {
-            return await _powerService.GetDetailsOfPowerPlant(id, date, start, end);
+            return await _powerDataService.GetDetailsOfPowerPlant(id, date, start, end);
         }
 
         [HttpGet]
         public async Task<IEnumerable<PowerOfPowerPlantModel>> GetPowerOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null)
         {
-            return await _powerService.GetPowerOfPowerPlant(id, date, start, end);
+            return await _powerDataService.GetPowerOfPowerPlant(id, date, start, end);
         }
 
         [HttpGet]
         public async Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null, DateTime? start = null, DateTime? end = null)
         {
-            return await _powerService.GetPowerOfPowerPlants(date, start, end);
+            return await _powerDataService.GetPowerOfPowerPlants(date, start, end);
         }
 
         [HttpGet]
         public async Task<string> InitData(DateTime? start = null, DateTime? end = null)
         {
-            return await _powerService.InitData(start, end);
+            return await _powerDataService.InitData(start, end);
         }
     }
 }

@@ -62,18 +62,14 @@ public class AccountController : ControllerBase
             Email = registerDto.Email
         };
 
-        if (registerDto.Password != null)
-        {
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
+        if (registerDto.Password is null) return BadRequest(new { message = "Password can't be null" });
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
 
-            if (result.Succeeded)
-            {
-                return Ok(new { message = "User registered successfully" });
-            }
-        
-            return BadRequest(new { message = "User registration failed", errors = result.Errors });
+        if (result.Succeeded)
+        {
+            return Ok(new { message = "User registered successfully" });
         }
-        return BadRequest(new { message = "Password can't be null" });
+        return BadRequest(new { message = "User registration failed", errors = result.Errors });
     }
     
     [AllowAnonymous]

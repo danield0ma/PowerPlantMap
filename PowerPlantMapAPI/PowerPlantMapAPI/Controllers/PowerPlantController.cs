@@ -5,7 +5,7 @@ using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers;
 
-[Route("API/[controller]")]
+[Route("API/[controller]/[action]")]
 [ApiController]
 [Authorize]
 public class PowerPlantController : ControllerBase
@@ -17,7 +17,7 @@ public class PowerPlantController : ControllerBase
         _powerPlantService = powerPlantService;
     }
         
-    [HttpGet("Get")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<PowerPlantDataDto?>> Get()
     {
@@ -25,7 +25,7 @@ public class PowerPlantController : ControllerBase
         return Ok(powerPlants);
     }
     
-    [HttpGet("GetById")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<PowerPlantDataDto?>> GetById(string id)
     {
@@ -33,7 +33,7 @@ public class PowerPlantController : ControllerBase
         return powerPlant is null ? NoContent() : Ok(powerPlant);
     }
     
-    [HttpPost("Add")]
+    [HttpPost]
     [AllowAnonymous]
     public async Task<ActionResult> Add(PowerPlantDataDto powerPlantDataDto)
     {
@@ -41,7 +41,7 @@ public class PowerPlantController : ControllerBase
         return result ? Ok() : BadRequest();
     }
     
-    [HttpDelete("Delete")]
+    [HttpDelete]
     [AllowAnonymous]
     public async Task<ActionResult> Delete(string id)
     {
