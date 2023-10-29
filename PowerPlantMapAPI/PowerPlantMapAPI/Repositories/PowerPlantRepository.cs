@@ -46,15 +46,6 @@ public class PowerPlantRepository : IPowerPlantRepository
         return (List<AllDataOfPowerPlantDto>)await connection.
             QueryAsync<AllDataOfPowerPlantDto>("GetPowerPlantModel", parameters, commandType: CommandType.StoredProcedure);
     }
-
-    public async Task<PowerPlantDataDto?> GetById(string id)
-    {
-        await using var connection = new SqlConnection(_connectionString);
-        var parameters = new { id };
-        var dataOfPowerPlant = await connection.QueryAsync<PowerPlantDataDto>
-            ("GetDataOfPowerPlant", parameters, commandType: CommandType.StoredProcedure);
-        return dataOfPowerPlant.FirstOrDefault();
-    }
     
     public async Task<bool> AddGenerator(GeneratorDataDto generator)
     {
@@ -153,6 +144,22 @@ public class PowerPlantRepository : IPowerPlantRepository
             Console.WriteLine(e);
         }
         return false;
+    }
+
+    public async Task<bool> DeleteGenerator(string id)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { GeneratorId = id };
+        var numberOfRows = await connection.ExecuteAsync("DeleteGenerator", parameters, commandType: CommandType.StoredProcedure);
+        return numberOfRows > 0;
+    }
+
+    public async Task<bool> DeleteBloc(string id)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { BlocId = id };
+        var numberOfRows = await connection.ExecuteAsync("DeleteBloc", parameters, commandType: CommandType.StoredProcedure);
+        return numberOfRows > 0;
     }
     
     public async Task<bool> DeletePowerPlant(string id)

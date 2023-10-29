@@ -23,16 +23,32 @@ public class PowerPlantController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<PowerPlantModel?>?>> Get()
     {
-        var powerPlants = await _powerPlantService.Get();
-        return Ok(powerPlants);
+        try
+        {
+            var powerPlants = await _powerPlantService.Get();
+            return Ok(powerPlants);
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine(e);
+            return NoContent();
+        }
     }
     
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<PowerPlantModel?>> GetById(string id)
     {
-        var powerPlant = await _powerPlantService.GetById(id);
-        return powerPlant is null ? NoContent() : Ok(powerPlant);
+        try
+        {
+            var powerPlant = await _powerPlantService.GetById(id);
+            return powerPlant is null ? NoContent() : Ok(powerPlant);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return NoContent();
+        }
     }
     
     [HttpPost]

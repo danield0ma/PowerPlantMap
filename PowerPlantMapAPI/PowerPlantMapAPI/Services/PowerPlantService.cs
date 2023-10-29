@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Microsoft.AspNetCore.Mvc;
 using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Data.Dto;
@@ -18,7 +19,8 @@ public class PowerPlantService : IPowerPlantService
     {
         List<PowerPlantModel?> powerPlants = new();
         var allDataOfPowerPlants = await _powerPlantRepository.GetPowerPlantsModel();
-
+        if (allDataOfPowerPlants.FirstOrDefault() is null) throw new ArgumentException("PowerPlant not found!");
+        
         foreach (var allDataOfPowerPlant in allDataOfPowerPlants.
             GroupBy(x => x.PowerPlantId).
             Select(group => group.First()).ToList())
@@ -57,6 +59,8 @@ public class PowerPlantService : IPowerPlantService
     public async Task<PowerPlantModel?> GetById(string id)
     {
         var allDataOfPowerPlant = await _powerPlantRepository.GetPowerPlantModel(id);
+        if (allDataOfPowerPlant.FirstOrDefault() is null) throw new ArgumentException("PowerPlant not found!");
+        
         var powerPlant = MapToPowerPlantModel(allDataOfPowerPlant.FirstOrDefault()!);
         
         List<BlocDataDto> blocsOfPowerPlant = new();
@@ -127,12 +131,27 @@ public class PowerPlantService : IPowerPlantService
     
     public async Task<bool> DeletePowerPlant(string id)
     {
+        var powerPlantDetails = await _powerPlantRepository.GetPowerPlantDetails(id);
+        var generatorsOfPowerPlant = powerPlantDetails.Select(x=>x.GeneratorId).ToList();
+        var blocsOfPowerPlant = powerPlantDetails.Select(x=>x.BlocId).ToList();
+        
+        foreach (var generator in generatorsOfPowerPlant)
+        {
+            await _powerPlantRepository.DeleteGenerator(generator!);
+        }
+        
+        foreach (var bloc in blocsOfPowerPlant)
+        {
+            await _powerPlantRepository.DeleteBloc(bloc!);
+        }
+        
         return await _powerPlantRepository.DeletePowerPlant(id);
     }
 
-    private PowerPlantModel MapToPowerPlantModel(AllDataOfPowerPlantDto allDataOfPowerPlant)
+    private PowerPlantModel MapToPowerPlantModel(AllDataOfPowerPlantDto? allDataOfPowerPlant)
     {
-        return new PowerPlantModel()
+        if (allDataOfPowerPlant is null) return new PowerPlantModel();
+        return new PowerPlantModel
         {
             PowerPlantId = allDataOfPowerPlant.PowerPlantId,
             Name = allDataOfPowerPlant.Name,
@@ -148,8 +167,9 @@ public class PowerPlantService : IPowerPlantService
         };
     }
     
-    private BlocDataDto MapToBlocDataDto(AllDataOfPowerPlantDto bloc)
+    private BlocDataDto MapToBlocDataDto(AllDataOfPowerPlantDto? bloc)
     {
+        if (bloc is null) return new BlocDataDto();
         return new BlocDataDto()
         {
             BlocId = bloc.BlocId,
