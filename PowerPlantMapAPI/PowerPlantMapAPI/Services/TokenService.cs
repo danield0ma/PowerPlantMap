@@ -16,14 +16,19 @@ public class TokenService : ITokenService
         _configuration = configuration;
     }
 
-    public TokenDto CreateToken(ApplicationUser user)
+    public TokenDto CreateToken(ApplicationUser user, IList<string> roles)
     {
+        var role = "user";
+        if (roles.Contains("admin"))
+        {
+            role = "admin";
+        }
+        
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, user.UserName) //TODO query role
+            new Claim(ClaimTypes.Role, role)
         };
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

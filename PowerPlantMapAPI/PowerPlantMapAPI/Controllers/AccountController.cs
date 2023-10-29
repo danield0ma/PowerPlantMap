@@ -79,8 +79,10 @@ public class AccountController : ControllerBase
         var user = await _userManager.FindByNameAsync(loginDto.UserName);
 
         if (user is null || !await _userManager.CheckPasswordAsync(user, loginDto.Password)) return Unauthorized();
+
+        var roles = await _userManager.GetRolesAsync(user);
         
-        var token = _tokenService.CreateToken(user);
+        var token = _tokenService.CreateToken(user, roles);
         return Ok(token);
     }
     

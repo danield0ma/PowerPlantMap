@@ -5,5 +5,5 @@ namespace PowerPlantMapAPI.Services;
 
 public interface ITokenService
 {
-    TokenDto CreateToken(ApplicationUser user);
+    TokenDto CreateToken(ApplicationUser user, IList<string> roles);
 }
