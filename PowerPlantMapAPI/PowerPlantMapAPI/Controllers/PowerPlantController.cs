@@ -66,6 +66,24 @@ public class PowerPlantController : ControllerBase
         return Ok();
     }
     
+    // [HttpPut]
+    // [AllowAnonymous]
+    // public async Task<ActionResult> UpdatePowerPlant(RegisterDto updateUserDto)
+    // {
+    //     
+    //     
+    //     try
+    //     {
+    //         await _powerPlantService.UpdatePowerPlant(updatePowerPlantDto);
+    //         return Ok();
+    //     }
+    //     catch (ArgumentException e)
+    //     {
+    //         Console.WriteLine(e.Message);
+    //         return BadRequest(e.Message);
+    //     }
+    // }
+    
     [HttpDelete]
     [AllowAnonymous]
     public async Task<ActionResult> Delete(string id)

@@ -27,6 +27,14 @@ public class AccountController : ControllerBase
     }
     
     [Authorize]
+    [HttpGet("GetAllAsync")]
+    public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAsync()
+    {
+        var users = await _userManager.Users.ToListAsync();
+        return Ok(users);
+    }
+    
+    [Authorize]
     [HttpGet("GetByUserNameAsync")]
     public async Task<ActionResult<ApplicationUser?>> GetByUserNameAsync(string userName)
     {
@@ -40,14 +48,6 @@ public class AccountController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(email);
         return user is null ? NoContent() : Ok(user);
-    }
-    
-    [Authorize]
-    [HttpGet("GetAllAsync")]
-    public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAsync()
-    {
-        var users = await _userManager.Users.ToListAsync();
-        return Ok(users);
     }
     
     [AllowAnonymous]
@@ -64,12 +64,25 @@ public class AccountController : ControllerBase
 
         if (registerDto.Password is null) return BadRequest(new { message = "Password can't be null" });
         var result = await _userManager.CreateAsync(user, registerDto.Password);
+        var queriedUser = await _userManager.FindByNameAsync(registerDto.UserName!);
 
         if (result.Succeeded)
         {
+            // var token = await _userManager.GenerateEmailConfirmationTokenAsync(queriedUser!);
+            // send email with token
             return Ok(new { message = "User registered successfully" });
         }
         return BadRequest(new { message = "User registration failed", errors = result.Errors });
+    }
+    
+    [AllowAnonymous]
+    [HttpPost("ConfirmEmailAsync")]
+    public async Task<IActionResult> ConfirmEmailAsync(string userName, string token)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user is null) return BadRequest();
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        return result.Succeeded ? Ok() : NoContent();
     }
     
     [AllowAnonymous]
@@ -94,7 +107,48 @@ public class AccountController : ControllerBase
         return Ok();
     }
     
-    [Authorize]
+    [AllowAnonymous]
+    [HttpPut("ChangeUserNameAsync")]
+    public async Task<IActionResult> ChangeUserNameAsync(string currentUserName, string newUserName)
+    {
+        var user = await _userManager.FindByNameAsync(currentUserName);
+        if (user is null) return BadRequest();
+        var result = await _userManager.SetUserNameAsync(user, newUserName);
+        return result.Succeeded ? Ok() : NoContent();
+    }
+    
+    [AllowAnonymous]
+    [HttpPut("InitiateChangeEmailAsync")]
+    public async Task<IActionResult> InitiateChangeEmailAsync(string userName, string newEmail)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user is null) return BadRequest();
+        var result = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+        //Send email with token
+        return Ok();
+    }
+    
+    [AllowAnonymous]
+    [HttpPut("ChangeEmailAsync")]
+    public async Task<IActionResult> ChangeEmailAsync(string userName, string newEmail, string token)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user is null) return BadRequest();
+        var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+        return result.Succeeded ? Ok() : NoContent();
+    }
+    
+    [AllowAnonymous]
+    [HttpPut("ChangePasswordAsync")]
+    public async Task<IActionResult> ChangePasswordAsync(string userName, string currentPassword, string newPassword)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user is null) return BadRequest();
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        return result.Succeeded ? Ok() : NoContent();
+    }
+    
+    [AllowAnonymous]
     [HttpDelete("DeleteUserAsync")]
     public async Task<IActionResult> DeleteUserAsync(string userName)
     {
