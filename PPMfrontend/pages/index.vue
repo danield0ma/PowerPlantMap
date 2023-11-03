@@ -62,7 +62,9 @@ export default {
 
     async asyncData() {
         const BASE_PATH = "https://powerplantmap.tech:5001/";
-        const basics = await fetch(`${BASE_PATH}API/Power/getPowerPlantBasics`);
+        const basics = await fetch(
+            `${BASE_PATH}API/PowerData/getPowerPlantBasics`
+        );
         const features = await basics.json();
         const gj = {
             type: "geojson",
@@ -73,7 +75,7 @@ export default {
         };
 
         const powers = await fetch(
-            `${BASE_PATH}API/Power/getPowerOfPowerPlants`
+            `${BASE_PATH}API/PowerData/getPowerOfPowerPlants`
         );
         const powerOfPowerPlants = await powers.json();
 
@@ -112,7 +114,7 @@ export default {
         async getLoad() {
             if (this.getDate != null) {
                 const powerOfPowerPlantsResponse = await fetch(
-                    `${this.BASE_PATH}API/Power/getPowerOfPowerPlants?date=${this.getDate}`
+                    `${this.BASE_PATH}API/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
                 );
                 this.powerOfPowerPlants =
                     await powerOfPowerPlantsResponse.json();
@@ -163,7 +165,7 @@ export default {
 
         async getPowerPlantBasics() {
             const res = await fetch(
-                `${this.BASE_PATH}API/Power/getPowerPlantBasics`
+                `${this.BASE_PATH}API/PowerData/getPowerPlantBasics`
             );
             const features = await res.json();
 
@@ -187,10 +189,10 @@ export default {
                 const res =
                     this.getDate === null
                         ? await fetch(
-                              `${this.BASE_PATH}API/Power/getDetailsOfPowerPlant?id=${id}`
+                              `${this.BASE_PATH}API/PowerData/getDetailsOfPowerPlant?id=${id}`
                           )
                         : await fetch(
-                              `${this.BASE_PATH}API/Power/getDetailsOfPowerPlant?id=${id}&date=${this.getDate}`
+                              `${this.BASE_PATH}API/PowerData/getDetailsOfPowerPlant?id=${id}&date=${this.getDate}`
                           );
                 const data = await res.json();
                 await this.$store.dispatch("power/setLeftContent", data);
