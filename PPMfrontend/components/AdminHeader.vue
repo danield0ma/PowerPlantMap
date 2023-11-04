@@ -23,13 +23,17 @@ export default {
 </script>
 
 <style>
+body {
+    background-color: gray;
+}
+
 .outerDiv {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 0;
     padding: 0 2rem;
-    /* background: rgba(255, 255, 255, 0.75); */
+    background-color: gray;
 }
 
 #innerDiv {
@@ -47,7 +51,7 @@ ul p {
     padding: 1rem;
     text-decoration: none;
     margin: 0;
-    color: chartreuse;
+    color: blueviolet;
 }
 
 a:hover {

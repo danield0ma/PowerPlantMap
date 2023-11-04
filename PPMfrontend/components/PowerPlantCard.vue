@@ -1,29 +1,25 @@
 <template>
     <div class="CardContainer">
         <div class="Card">
-            <div style="display: flex; justify-content: space-between">
-                <div style="display: flex; align-items: center">
-                    <img
-                        :src="'/' + this.powerPlant.image"
-                        width="35rem"
-                        height="35rem"
-                    />
-                    <p>{{ this.powerPlant.description }}</p>
-                </div>
-                <div>
-                    <font-awesome-icon
-                        :icon="['fas', 'trash']"
-                        :size="iconSize"
-                        class="faicon red"
-                        v-on:click="toggleShowDetails"
-                    />
-                    <font-awesome-icon
-                        :icon="['fas', 'edit']"
-                        :size="iconSize"
-                        class="faicon green"
-                        v-on:click="toggleShowDetails"
-                    />
-                </div>
+            <img
+                :src="'/' + this.powerPlant.image"
+                width="35rem"
+                height="35rem"
+            />
+            <p>{{ this.powerPlant.description }}</p>
+            <div style="display: flex; flex-direction: column">
+                <font-awesome-icon
+                    :icon="['fas', 'trash']"
+                    :size="iconSize"
+                    class="faicon red"
+                    v-on:click="toggleShowDetails"
+                />
+                <font-awesome-icon
+                    :icon="['fas', 'edit']"
+                    :size="iconSize"
+                    class="faicon green"
+                    v-on:click="toggleShowDetails"
+                />
             </div>
             <div v-if="showDetails">
                 <label for="id">Erőmű azonosító:</label>
@@ -97,13 +93,20 @@ export default {
     border: 1px solid black;
     border-radius: 5px;
     padding: 1rem;
-    margin: 1rem;
-    width: 40vw;
+    margin: 0.25rem 0.5rem;
+    min-height: 100px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
+}
+
+.Card:hover {
+    background-color: lightgray;
 }
 
 p {
-    padding-bottom: 0;
-    /* padding-top: 0.25rem; */
+    padding: 0 1rem;
     text-align: center;
 }
 
