@@ -2,11 +2,11 @@
     <div class="Admin">
         <div class="container">
             <div class="Card" style="flex-direction: column">
-                <h5>Ország kiválasztása</h5>
+                <h5>Ország választása</h5>
                 <select v-model="selectedCountry">
                     <option
                         v-for="country in countries"
-                        :key="country"
+                        :key="country.name"
                         :value="country"
                     >
                         {{ country.name }}
@@ -38,6 +38,7 @@
                 />
             </div>
         </div>
+        <AddPowerPlant :powerPlant={} v-if="showModal" @close="showModal = false" />
         <h1 v-on:click="toggleShowPowerPlants">Erőművek</h1>
         <transition name="fade" mode="out-in">
             <div class="grid" v-if="showPowerPlants">
@@ -77,7 +78,6 @@
                 </div>
             </div>
         </transition>
-        <AddPowerPlant v-if="addNewPowerPlant" />
     </div>
 </template>
 
@@ -98,7 +98,7 @@ export default {
         return {
             powerPlants: [],
             BASE_PATH: "https://powerplantmap.tech:5001/",
-            addNewPowerPlant: false,
+            showModal: false,
             showPowerPlants: true,
             showCountries: true,
             showUnknownPowerPlants: true,
@@ -108,7 +108,7 @@ export default {
                 { name: "Ausztria", img: "/austria.png" },
             ],
             isOpen: true,
-            selectedCountry: {},
+            selectedCountry: { name: "Magyarország", img: "/hu.png" },
         };
     },
 
@@ -148,7 +148,7 @@ export default {
         },
 
         toggleAddNewPowerPlant() {
-            this.addNewPowerPlant = !this.addNewPowerPlant;
+            this.showModal = !this.showModal;
         },
 
         toggleShowPowerPlants() {

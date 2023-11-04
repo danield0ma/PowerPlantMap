@@ -3,22 +3,22 @@
         <div class="Card">
             <img
                 :src="'/' + this.powerPlant.image"
-                width="35rem"
-                height="35rem"
+                width="45rem"
+                height="45rem"
             />
             <p>{{ this.powerPlant.description }}</p>
             <div style="display: flex; flex-direction: column">
                 <font-awesome-icon
                     :icon="['fas', 'trash']"
-                    :size="iconSize"
+                    :size="'lg'"
                     class="faicon red"
                     v-on:click="toggleShowDetails"
                 />
                 <font-awesome-icon
                     :icon="['fas', 'edit']"
-                    :size="iconSize"
+                    :size="'lg'"
                     class="faicon green"
-                    v-on:click="toggleShowDetails"
+                    v-on:click="showModal = true"
                 />
             </div>
             <div v-if="showDetails">
@@ -56,10 +56,16 @@
                 </div>
             </div>
         </div>
+        <AddPowerPlant
+            :powerPlant="this.powerPlant"
+            v-if="showModal"
+            @close="showModal = false"
+        />
     </div>
 </template>
 
 <script>
+import AddPowerPlant from "./AddPowerPlant.vue";
 export default {
     name: "PowerPlantCard",
 
@@ -67,10 +73,13 @@ export default {
         powerPlant: Object,
     },
 
+    components: { AddPowerPlant },
+
     data() {
         return {
             showDetails: false,
-            iconSize: "1.5x",
+            iconSize: "16px",
+            showModal: false,
         };
     },
 
@@ -106,8 +115,9 @@ export default {
 }
 
 p {
-    padding: 0 1rem;
+    padding: 0 0.5rem;
     text-align: center;
+    font-size: 18px;
 }
 
 .faicon {

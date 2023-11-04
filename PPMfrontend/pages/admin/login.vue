@@ -6,7 +6,7 @@
                     <img src="/electricity.png" width="60rem" />
                     <h1>Bejelentkezés</h1>
                 </div>
-                <form @submit.prevent="login">
+                <form onsubmit="login">
                     <div class="form-group">
                         <label for="email">Felhasználónév:</label>
                         <input
@@ -50,11 +50,7 @@ export default {
         };
     },
     methods: {
-        login() {
-            // Implement your login logic here
-            // You can use this.email and this.password to access the user's input
-            // For example, you can send a request to a server for authentication
-        },
+        login() {},
     },
 };
 </script>
