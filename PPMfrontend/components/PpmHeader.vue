@@ -50,11 +50,8 @@ ul p {
     color: blue;
 }
 
-nuxt-link {
+a:hover {
     text-decoration: none;
-}
-
-router-link:hover {
-    text-decoration: none;
+    color: darkblue;
 }
 </style>

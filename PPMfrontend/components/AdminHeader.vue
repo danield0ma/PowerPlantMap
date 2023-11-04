@@ -47,14 +47,11 @@ ul p {
     padding: 1rem;
     text-decoration: none;
     margin: 0;
-    color: blue;
+    color: chartreuse;
 }
 
-nuxt-link {
+a:hover {
     text-decoration: none;
-}
-
-router-link:hover {
-    text-decoration: none;
+    color: darkgreen;
 }
 </style>

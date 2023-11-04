@@ -1,7 +1,16 @@
 <template>
     <div class="Admin">
-        <div style="height: 3.5rem; position: absolute"></div>
-
+        <div class="container">
+            <div class="Card">
+                <h3>Új létrehozása</h3>
+                <font-awesome-icon
+                    :icon="['fas', 'add']"
+                    :size="iconSize"
+                    class="faicon green"
+                    v-on:click="toggleShowDetails"
+                />
+            </div>
+        </div>
         <div
             v-for="currentPowerPlant in powerPlants"
             :key="currentPowerPlant.powerPlantId"
@@ -49,11 +58,12 @@ body {
     background-color: #808080;
     overflow-y: auto;
     margin-top: 3.5rem;
-    /* text-align: center;
-    align-content: center; */
     height: calc(100vh - 3.5rem);
-    /* display: flex; */
     justify-content: center;
-    /* align-items: center; vertical */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
 }
 </style>
