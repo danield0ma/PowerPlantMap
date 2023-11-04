@@ -1,16 +1,7 @@
 <template>
     <div>
-        <!-- <div v-if="isMap"> -->
         <PpmHeader id="head" />
         <Nuxt id="body" />
-        <!-- </div>
-    <div v-else>
-      <Header />
-      <Nuxt />
-    </div> -->
-        <!-- <Header id="head" />
-    <Nuxt id="body" v-show="isMap" />
-    <Nuxt v-show="notMap" /> -->
     </div>
 </template>
 
@@ -21,16 +12,6 @@ export default {
 
     components: {
         PpmHeader,
-    },
-
-    computed: {
-        isMap() {
-            return this.$route.path === "/map";
-        },
-
-        notMap() {
-            return this.$route.path !== "/map";
-        },
     },
 };
 </script>
