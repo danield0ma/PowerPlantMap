@@ -53,4 +53,8 @@ ul p {
 nuxt-link {
     text-decoration: none;
 }
+
+router-link:hover {
+    text-decoration: none;
+}
 </style>

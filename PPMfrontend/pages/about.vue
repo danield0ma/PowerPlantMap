@@ -1,7 +1,6 @@
 <template>
-    <div>
-        <div style="height: 3.5rem; position: absolute"></div>
-        <h1>About</h1>
+    <div class="About">
+        <h1>About PowerPlantMap</h1>
     </div>
 </template>
 
@@ -21,5 +20,13 @@ export default {
 body {
     margin: 0;
     padding: 0;
+}
+
+.About {
+    background-color: #808080;
+    overflow-y: auto;
+    padding-top: 4rem;
+    text-align: center;
+    margin: auto;
 }
 </style>

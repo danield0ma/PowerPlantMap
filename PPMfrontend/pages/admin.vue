@@ -1,21 +1,16 @@
 <template>
-    <div>
-        <div style="height: 3.5rem; position: absolute"></div>
-        <h1>Admin</h1>
-        <div v-for="powerPlant in powerPlants" :key="powerPlant.powerPlantId">
-            <h2>{{ powerPlant.name }}</h2>
-            <p>{{ powerPlant.powerPlantId }}</p>
-            <p>{{ powerPlant.description }}</p>
-            <p>{{ powerPlant.latitude }}</p>
-            <p>{{ powerPlant.longitude }}</p>
+    <div class="Admin">
+        <div v-for="currentPowerPlant in powerPlants" :key="currentPowerPlant.powerPlantId">
+            <PowerPlantCard :powerPlant="currentPowerPlant"></PowerPlantCard>
         </div>
     </div>
 </template>
 
 <script>
+import PowerPlantCard from "../components/PowerPlantCard.vue";
 export default {
     name: "Admin",
-
+    components: {PowerPlantCard},
     head() {
         return {
             title: "Admin View - PowerPlantMap",
@@ -32,8 +27,8 @@ export default {
     async asyncData() {
         const BASE_PATH = "https://powerplantmap.tech:5001/";
         const res = await fetch(`${BASE_PATH}API/PowerPlant/Get`);
-        const powerPlants = await res.json();
-        return powerPlants;
+        const powerPlants =  await res.json();
+        return { powerPlants };
     },
 };
 </script>
@@ -42,5 +37,13 @@ export default {
 body {
     margin: 0;
     padding: 0;
+}
+
+.Admin {
+    background-color: #808080;
+    overflow-y: auto;
+    padding-top: 4rem;
+    text-align: center;
+    margin: auto;
 }
 </style>
