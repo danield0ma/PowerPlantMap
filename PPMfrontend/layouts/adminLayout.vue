@@ -1,17 +1,17 @@
 <template>
     <div>
-        <PpmHeader id="head" class="scrollable-header" />
+        <AdminHeader id="head" class="scrollable-header" />
         <Nuxt id="body" />
     </div>
 </template>
 
 <script>
-import PpmHeader from "../components/PpmHeader";
+import AdminHeader from "../components/AdminHeader";
 export default {
-    name: "Default",
+    name: "AdminLayout",
 
     components: {
-        PpmHeader,
+        AdminHeader,
     },
 
     mounted() {
@@ -21,9 +21,9 @@ export default {
         window.addEventListener("scroll", () => {
             const currentScrollPos = window.pageY;
             if (prevScrollPos > currentScrollPos) {
-                PpmHeader.style.top = "0"; // Show the header when scrolling up
+                header.style.top = "0"; // Show the header when scrolling up
             } else {
-                PpmHeader.style.top = "-100px"; // Hide the header when scrolling down
+                header.style.top = "-100px"; // Hide the header when scrolling down
             }
             prevScrollPos = currentScrollPos;
         });

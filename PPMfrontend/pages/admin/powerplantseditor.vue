@@ -1,19 +1,25 @@
 <template>
     <div class="Admin">
-        <div v-for="currentPowerPlant in powerPlants" :key="currentPowerPlant.powerPlantId">
+        <div style="height: 3.5rem; position: absolute"></div>
+
+        <div
+            v-for="currentPowerPlant in powerPlants"
+            :key="currentPowerPlant.powerPlantId"
+        >
             <PowerPlantCard :powerPlant="currentPowerPlant"></PowerPlantCard>
         </div>
     </div>
 </template>
 
 <script>
-import PowerPlantCard from "../components/PowerPlantCard.vue";
+import PowerPlantCard from "../../components/PowerPlantCard.vue";
 export default {
-    name: "Admin",
-    components: {PowerPlantCard},
+    name: "PowerPlantEditor",
+    layout: "adminLayout",
+    components: { PowerPlantCard },
     head() {
         return {
-            title: "Admin View - PowerPlantMap",
+            title: "PowerPlant Editor - PowerPlantMap",
         };
     },
 
@@ -27,13 +33,13 @@ export default {
     async asyncData() {
         const BASE_PATH = "https://powerplantmap.tech:5001/";
         const res = await fetch(`${BASE_PATH}API/PowerPlant/Get`);
-        const powerPlants =  await res.json();
+        const powerPlants = await res.json();
         return { powerPlants };
     },
 };
 </script>
 
-<style>
+<style scoped>
 body {
     margin: 0;
     padding: 0;
@@ -42,8 +48,12 @@ body {
 .Admin {
     background-color: #808080;
     overflow-y: auto;
-    padding-top: 4rem;
-    text-align: center;
-    margin: auto;
+    margin-top: 3.5rem;
+    /* text-align: center;
+    align-content: center; */
+    height: calc(100vh - 3.5rem);
+    /* display: flex; */
+    justify-content: center;
+    /* align-items: center; vertical */
 }
 </style>

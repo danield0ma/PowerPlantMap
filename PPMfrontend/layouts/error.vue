@@ -1,6 +1,6 @@
 <template>
     <div class="not-found">
-        <img src="electricity.png" width="60rem" />
+        <img src="/electricity.png" width="60rem" />
         <h1>404 - Not Found</h1>
         <p>A keresett oldal sajnos nem található.</p>
         <nuxt-link to="/">Vissza a kezdőoldalra</nuxt-link>
@@ -14,6 +14,11 @@ export default {
     data() {
         return {
             statusCode: 404,
+        };
+    },
+    head() {
+        return {
+            title: "Not Found",
         };
     },
 };
