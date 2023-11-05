@@ -82,7 +82,15 @@ export default {
         };
     },
 
+    mounted() {
+        this.$parent.$on('openModal', this.handleModalOpeningFromParent);
+    },
+
     methods: {
+        handleModalOpeningFromParent() {
+            this.showModal = true;
+        },
+
         deletePowerPlant() {
             console.log("Delete: " + this.powerPlant.powerPlantId);
         },

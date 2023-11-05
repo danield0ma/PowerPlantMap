@@ -4,11 +4,11 @@
         <div class="shade-content"></div>
         <div class="modal-content" v-on:click.stop>
             <div class="modal-body">
-                <h1 v-if="isEditing">
+                <h1 v-if="this.isEditing">
                     {{ powerPlant.description }} adatainak szerkesztése
                 </h1>
                 <h1 v-else>Új erőmű létrehozása</h1>
-                <div class="text-left d-flex justify-content-around">
+                <div class="row text-left d-flex justify-content-around">
                     <div class="col-md-5 card">
                         <h5 class="text-center">Erőmű adatai</h5>
                         <div class="form-group">
@@ -19,7 +19,6 @@
                                 id="id"
                                 v-model="powerPlant.powerPlantId"
                                 required
-                                disabled
                             />
                         </div>
                         <div class="form-group">
@@ -88,7 +87,7 @@
                                 type="text"
                                 class="form-control"
                                 id="color"
-                                v-model="'#' + powerPlant.color"
+                                v-model="powerPlant.color"
                                 required
                             />
                         </div>
@@ -105,20 +104,22 @@
                     </div>
                     <div class="col-md-5 card">
                         <h5 class="text-center">Erőmű blokkjai</h5>
-                        <div v-if="isEditing">
+                        <div v-if="powerPlant.blocs !== '[]'">
                             <div
                                 v-for="bloc in powerPlant.blocs"
-                                :key="bloc.blocId"
+                                :key="bloc.id"
                                 class="card"
                             >
                                 <div
-                                    class="d-flex justify-content-center align-items-center"
+                                    class="d-flex justify-content-between align-items-center"
                                 >
-                                    <h5 class="text-center">
+                                    <h5 class="text-center flex-grow-1">
                                         {{ bloc.blocId }}
                                     </h5>
                                     <font-awesome-icon
                                         :icon="['fas', 'trash']"
+                                        :size="'lg'"
+                                        v-on:click="removeBloc(bloc)"
                                         class="faicon red"
                                     />
                                 </div>
@@ -169,12 +170,24 @@
                                 <h5 class="text-center">Blokk generátorai</h5>
                                 <div
                                     v-for="generator in bloc.generators"
-                                    :key="generator.generatorId"
+                                    :key="generator.id"
                                     class="card"
                                 >
-                                    <h5 class="text-center">
-                                        {{ generator.generatorId }}
-                                    </h5>
+                                    <div
+                                        class="d-flex justify-content-between align-items-center"
+                                    >
+                                        <h5 class="text-center flex-grow-1">
+                                            {{ generator.generatorId }}
+                                        </h5>
+                                        <font-awesome-icon
+                                            :icon="['fas', 'trash']"
+                                            :size="'lg'"
+                                            v-on:click="
+                                                removeGenerator(bloc, generator)
+                                            "
+                                            class="faicon red"
+                                        />
+                                    </div>
                                     <div class="form-group">
                                         <label for="generatorId"
                                             >Generátor azonosítója:</label
@@ -200,21 +213,23 @@
                                             required
                                         />
                                     </div>
-                                    <button
-                                        class="btn btn-success d-flex justify-content-center align-items-center p-0"
-                                    >
-                                        Generátor hozzáadása
-                                        <font-awesome-icon
-                                            :icon="['fas', 'plus']"
-                                            class="faicon white"
-                                        />
-                                    </button>
                                 </div>
+                                <button
+                                    class="btn btn-success d-flex justify-content-center align-items-center p-0 ml-2 mr-2"
+                                    v-on:click="addGenerator(bloc)"
+                                >
+                                    Generátor hozzáadása
+                                    <font-awesome-icon
+                                        :icon="['fas', 'plus']"
+                                        class="faicon white"
+                                    />
+                                </button>
                             </div>
                         </div>
-                        <div v-else class="pt-3"></div>
+                        <!-- <div v-else class="pt-3"></div> -->
                         <button
                             class="btn btn-success d-flex justify-content-center align-items-center p-0 ml-2 mr-2"
+                            v-on:click="addBloc"
                         >
                             Blokk hozzáadása
                             <font-awesome-icon
@@ -254,25 +269,75 @@ export default {
     data() {
         return {
             isEditing: false,
-            //         Id: "",
-            //         Name: "",
-            //         Description: "",
-            //         OperatorCompany: "",
-            //         Webpage: "",
-            //         Longitude: "",
-            //         Latitude: "",
-            //         Color: "",
-            //         Address: "",
-            //         IsCountry: "",
-            //         Blocs: [],
+            // powerPlant: {},
         };
     },
 
     mounted() {
-        this.isEditing = "name" in this.powerPlant;
+        this.editing = this.powerPlant.powerPlantId !== "";
+
+        if (this.isEditing) {
+            this.powerPlant.blocs.map((bloc, index) => {
+                bloc.id = index;
+                bloc.generators.map((generator, index) => {
+                    generator.id = index;
+                });
+            });
+        }
     },
 
     methods: {
+        addBloc() {
+            console.log(this.powerPlant);
+            const newBloc = {
+                id: this.powerPlant.blocs.length,
+                blocId: "",
+                blocType: "",
+                commissionDate: "",
+                maxBlocCapacity: "",
+                generators: [],
+            };
+
+            if (this.powerPlant.blocs.length > 0) {
+                this.powerPlant.blocs.push(newBloc);
+            } else {
+                this.powerPlant.blocs = [newBloc];
+            }
+
+            this.addGenerator(
+                this.powerPlant.blocs[this.powerPlant.blocs.length - 1]
+            );
+            console.log(this.powerPlant);
+        },
+
+        removeBloc(bloc) {
+            console.log(this.powerPlant);
+            const index = this.powerPlant.blocs.indexOf(bloc);
+            if (index > -1) {
+                this.powerPlant.blocs.splice(index, 1);
+            }
+            console.log(this.powerPlant);
+        },
+
+        addGenerator(bloc) {
+            console.log(this.powerPlant);
+            bloc.generators.push({
+                id: bloc.generators.length,
+                generatorId: "",
+                maxCapacity: "",
+            });
+            console.log(this.powerPlant);
+        },
+
+        removeGenerator(bloc, generator) {
+            console.log(this.powerPlant);
+            const index = bloc.generators.indexOf(generator);
+            if (index > -1) {
+                bloc.generators.splice(index, 1);
+            }
+            console.log(this.powerPlant);
+        },
+
         savePowerPlant() {
             // console.log(
             //     this.Id,
@@ -343,6 +408,7 @@ h5 {
 .modal-body {
     max-height: calc(90vh - 20px);
     overflow: auto;
+    overflow-x: hidden;
     padding: 10px;
 }
 

@@ -38,8 +38,33 @@
                 />
             </div>
         </div>
-        <AddPowerPlant
-            :powerPlant="{}"
+        <PowerPlantModal
+            :powerPlant="{
+                powerPlantId: '',
+                name: '',
+                description: '',
+                operatorCompany: '',
+                webpage: '',
+                longitude: 0,
+                latitude: 0,
+                color: '',
+                address: '',
+                isCountry: false,
+                blocs: [
+                    {
+                        blocId: '',
+                        blocType: '',
+                        maxBlocCapacity: 0,
+                        commissionDate: '',
+                        generators: [
+                            {
+                                generatorId: '',
+                                maxCapacity: 0,
+                            },
+                        ],
+                    },
+                ],
+            }"
             v-if="showModal"
             @close="showModal = false"
         />
@@ -52,6 +77,7 @@
                 >
                     <PowerPlantCard
                         :powerPlant="currentPowerPlant"
+                        @click="$emit('openModal')"
                     ></PowerPlantCard>
                 </div>
             </div>
@@ -91,7 +117,7 @@ import PowerPlantModal from "../../components/PowerPlants/PowerPlantModal";
 export default {
     name: "PowerPlantEditor",
     layout: "adminLayout",
-    components: { PowerPlantCard, AddPowerPlant: PowerPlantModal },
+    components: { PowerPlantCard, PowerPlantModal },
     head() {
         return {
             title: "PowerPlant Editor - PowerPlantMap",
