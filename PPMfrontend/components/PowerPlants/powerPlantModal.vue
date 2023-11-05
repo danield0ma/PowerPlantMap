@@ -62,6 +62,16 @@
                             />
                         </div>
                         <div class="form-group">
+                            <label for="image">Kép:</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="image"
+                                v-model="powerPlant.image"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
                             <label for="longitude">Longitude:</label>
                             <input
                                 type="text"
@@ -98,6 +108,16 @@
                                 class="form-control"
                                 id="address"
                                 v-model="powerPlant.address"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="isCountry">Ország?</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="isCountry"
+                                v-model="powerPlant.isCountry"
                                 required
                             />
                         </div>
@@ -288,7 +308,6 @@ export default {
 
     methods: {
         addBloc() {
-            console.log(this.powerPlant);
             const newBloc = {
                 id: this.powerPlant.blocs.length,
                 blocId: "",
@@ -307,46 +326,42 @@ export default {
             this.addGenerator(
                 this.powerPlant.blocs[this.powerPlant.blocs.length - 1]
             );
-            console.log(this.powerPlant);
         },
 
         removeBloc(bloc) {
-            console.log(this.powerPlant);
             const index = this.powerPlant.blocs.indexOf(bloc);
             if (index > -1) {
                 this.powerPlant.blocs.splice(index, 1);
             }
-            console.log(this.powerPlant);
         },
 
         addGenerator(bloc) {
-            console.log(this.powerPlant);
             bloc.generators.push({
                 id: bloc.generators.length,
                 generatorId: "",
                 maxCapacity: "",
             });
-            console.log(this.powerPlant);
         },
 
         removeGenerator(bloc, generator) {
-            console.log(this.powerPlant);
             const index = bloc.generators.indexOf(generator);
             if (index > -1) {
                 bloc.generators.splice(index, 1);
             }
-            console.log(this.powerPlant);
         },
 
-        savePowerPlant() {
-            // console.log(
-            //     this.Id,
-            //     this.Name,
-            //     this.Description,
-            //     this.OperatorCompany,
-            //     this.Webpage
-            // );
+        async savePowerPlant() {
             console.log(this.powerPlant);
+            await fetch(
+                "https://powerplantmap.tech:5001/API/PowerPlant/AddPowerPlant",
+                {
+                    method: "POST",
+                    body: JSON.stringify(this.powerPlant),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
         },
     },
 };

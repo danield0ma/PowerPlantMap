@@ -83,7 +83,7 @@ export default {
     },
 
     mounted() {
-        this.$parent.$on('openModal', this.handleModalOpeningFromParent);
+        this.$parent.$on("openModal", this.handleModalOpeningFromParent);
     },
 
     methods: {
@@ -91,8 +91,19 @@ export default {
             this.showModal = true;
         },
 
-        deletePowerPlant() {
-            console.log("Delete: " + this.powerPlant.powerPlantId);
+        async deletePowerPlant() {
+            if (window.confirm('Are you sure you want to delete this power plant?')) {
+                console.log("Delete: " + this.powerPlant.powerPlantId);
+                await fetch(
+                    `https://powerplantmap.tech:5001/API/PowerPlant/Delete?id=${this.powerPlant.powerPlantId}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+            }
         },
     },
 };
