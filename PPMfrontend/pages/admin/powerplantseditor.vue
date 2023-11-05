@@ -38,7 +38,11 @@
                 />
             </div>
         </div>
-        <AddPowerPlant :powerPlant={} v-if="showModal" @close="showModal = false" />
+        <AddPowerPlant
+            :powerPlant="{}"
+            v-if="showModal"
+            @close="showModal = false"
+        />
         <h1 v-on:click="toggleShowPowerPlants">Erőművek</h1>
         <transition name="fade" mode="out-in">
             <div class="grid" v-if="showPowerPlants">
@@ -82,8 +86,8 @@
 </template>
 
 <script>
-import PowerPlantCard from "../../components/PowerPlants/PowerPlantCard.vue";
-import PowerPlantModal from "../../components/PowerPlants/powerPlantModal.vue";
+import PowerPlantCard from "../../components/PowerPlants/PowerPlantCard";
+import PowerPlantModal from "../../components/PowerPlants/PowerPlantModal";
 export default {
     name: "PowerPlantEditor",
     layout: "adminLayout",
@@ -173,7 +177,7 @@ body {
 }
 
 .Admin {
-    background-color: white; /*#808080;*/
+    background-color: white;
     overflow: auto;
     max-height: calc(100vh - 3.5rem);
     margin-top: 3.5rem;
@@ -306,5 +310,19 @@ h5 {
 
 .dropdown ul.show {
     display: block;
+}
+
+.faicon {
+    cursor: pointer;
+    vertical-align: center;
+    padding: 0.5rem;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
 }
 </style>

@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import PowerPlantModal from "./powerPlantModal.vue";
+import PowerPlantModal from "./PowerPlantModal";
 export default {
     name: "PowerPlantCard",
 
@@ -130,6 +130,10 @@ p {
 }
 
 .green {
-    color: green;
+    color: green !important;
+}
+
+.blue {
+    color: blue !important;
 }
 </style>
