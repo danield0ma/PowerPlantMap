@@ -1,12 +1,12 @@
 <template>
     <div>
-        <PpmHeader id="head"/>
+        <PpmHeader id="head" />
         <Nuxt id="body" />
     </div>
 </template>
 
 <script>
-import PpmHeader from "../components/PpmHeader";
+import PpmHeader from "../components/Headers/PpmHeader";
 export default {
     name: "Default",
 

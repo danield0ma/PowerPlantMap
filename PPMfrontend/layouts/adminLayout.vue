@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import AdminHeader from "../components/AdminHeader";
+import AdminHeader from "../components/Headers/AdminHeader";
 export default {
     name: "AdminLayout",
 

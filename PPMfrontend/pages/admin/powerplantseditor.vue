@@ -82,12 +82,12 @@
 </template>
 
 <script>
-import PowerPlantCard from "../../components/PowerPlantCard.vue";
-import AddPowerPlant from "../../components/AddPowerPlant.vue";
+import PowerPlantCard from "../../components/PowerPlants/PowerPlantCard.vue";
+import PowerPlantModal from "../../components/PowerPlants/powerPlantModal.vue";
 export default {
     name: "PowerPlantEditor",
     layout: "adminLayout",
-    components: { PowerPlantCard, AddPowerPlant },
+    components: { PowerPlantCard, AddPowerPlant: PowerPlantModal },
     head() {
         return {
             title: "PowerPlant Editor - PowerPlantMap",

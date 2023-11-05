@@ -24,8 +24,8 @@
 
 <script>
 import mapboxgl from "mapbox-gl";
-import LeftPanel from "../components/LeftPanel.vue";
-import RightPanel from "../components/RightPanel.vue";
+import LeftPanel from "../components/PowerData/LeftPanel.vue";
+import RightPanel from "../components/PowerData/RightPanel.vue";
 import moment from "moment";
 
 export default {

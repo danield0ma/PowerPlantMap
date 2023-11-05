@@ -64,12 +64,15 @@
                 Address: "", -->
                 <button
                     type="submit"
-                    class="btn btn-primary"
+                    class="btn btn-success"
                     v-on:click="savePowerPlant"
                 >
                     Mentés
                 </button>
-                <button v-on:click="$emit('close')" class="btn btn-warning">
+                <button
+                    v-on:click="$emit('close')"
+                    class="btn btn-outline-secondary"
+                >
                     Bezárás
                 </button>
             </form>
@@ -79,7 +82,7 @@
 
 <script>
 export default {
-    name: "AddPowerPlant",
+    name: "PowerPlantModal",
     props: {
         powerPlant: Object,
     },

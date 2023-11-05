@@ -12,7 +12,7 @@
                     :icon="['fas', 'trash']"
                     :size="'lg'"
                     class="faicon red"
-                    v-on:click="toggleShowDetails"
+                    v-on:click="deletePowerPlant"
                 />
                 <font-awesome-icon
                     :icon="['fas', 'edit']"
@@ -21,7 +21,7 @@
                     v-on:click="showModal = true"
                 />
             </div>
-            <div v-if="showDetails">
+            <!-- <div v-if="showDetails">
                 <label for="id">Erőmű azonosító:</label>
                 <input
                     id="id"
@@ -54,9 +54,9 @@
                         <p>{{ currentBloc.maxCapacity }}</p>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
-        <AddPowerPlant
+        <PowerPlantModal
             :powerPlant="this.powerPlant"
             v-if="showModal"
             @close="showModal = false"
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import AddPowerPlant from "./AddPowerPlant.vue";
+import PowerPlantModal from "./powerPlantModal.vue";
 export default {
     name: "PowerPlantCard",
 
@@ -73,19 +73,18 @@ export default {
         powerPlant: Object,
     },
 
-    components: { AddPowerPlant },
+    components: { PowerPlantModal },
 
     data() {
         return {
-            showDetails: false,
             iconSize: "16px",
             showModal: false,
         };
     },
 
     methods: {
-        toggleShowDetails() {
-            this.showDetails = !this.showDetails;
+        deletePowerPlant() {
+            console.log("Delete: " + this.powerPlant.powerPlantId);
         },
     },
 };
