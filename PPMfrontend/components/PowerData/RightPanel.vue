@@ -22,7 +22,7 @@
                 </h4>
             </div>
             <p style="padding: 0">{{ startTime }} - {{ endTime }}</p>
-            <div>
+            <div v-on:click="showChartModal = true">
                 <client-only>
                     <line-chart
                         :chart-data="chartData()"
@@ -33,6 +33,12 @@
                     />
                 </client-only>
             </div>
+            <div v-if="showChartModal">
+                <ChartModal
+                    :powerArray="powerArray"
+                    v-on:close="showChartModal = false"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -40,15 +46,23 @@
 <script>
 import moment from "moment";
 import "chart.js";
-
+import ChartModal from "./ChartModal.vue";
 export default {
     name: "Energymix",
+
+    components: { ChartModal, },
 
     props: {
         powerArray: {
             type: Object,
             required: true,
         },
+    },
+
+    data() {
+        return {
+            showChartModal: false,
+        };
     },
 
     computed: {
