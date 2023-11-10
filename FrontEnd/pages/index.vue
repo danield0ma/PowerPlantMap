@@ -33,59 +33,36 @@ import moment from "moment";
 export default {
 	name: "MapView",
 
-	setup() {
-		const powerStore = usePowerStore();
+	// setup() {
+	// 	const BASE_PATH = "https://powerplantmap.tech:5001/";
+	// 	const gj = ref(null);
+	// 	const powerOfPowerPlants = ref(null);
 
-		const showLeftPanel = ref(powerStore.left);
-		const chosenDate = ref(powerStore.date);
-		const rightNotLoading = ref(!powerStore.rightLoading);
-		const content = ref(powerStore.content);
+	// 	const {
+	// 		data: features,
+	// 		error,
+	// 		fetch,
+	// 	} = useFetch(`${BASE_PATH}API/PowerData/GetPowerPlantBasics`);
+	// 	if (!fetch) {
+	// 		console.log(`feature: ${features}`);
+	// 	}
+	// 	gj.value = {
+	// 		type: "geojson",
+	// 		data: {
+	// 			type: "FeatureCollection",
+	// 			features,
+	// 		},
+	// 	};
+	// 	console.log(`DATA: ${gj}`);
+	// 	console.log(`DATA: ${gj.data}`);
 
-		const gj = ref(null);
-		const powerOfPowerPlants = ref(null);
-		const BASE_PATH = "https://powerplantmap.tech:5001/";
+	// 	useFetch(`${BASE_PATH}API/PowerData/GetPowerOfPowerPlants`).then((data) => {
+	// 		powerOfPowerPlants.value = data;
+	// 	});
+	// 	console.log(`powers: ${powerOfPowerPlants.data}`);
 
-		const {
-			data: basicsResponse,
-			error,
-			pending,
-			refresh,
-		} = useFetch(`${BASE_PATH}API/PowerData/GetPowerPlantBasics`);
-
-		const {
-			data: powersResponse,
-			error: error2,
-			pending: pending2,
-			refresh: refresh2,
-		} = useFetch(`${BASE_PATH}API/PowerData/GetPowerOfPowerPlants`);
-
-		watch(basicsResponse, (newBasics) => {
-			if (newBasics) {
-				gj.value = {
-					type: "geojson",
-					data: {
-						type: "FeatureCollection",
-						features: newBasics,
-					},
-				};
-			}
-		});
-
-		watch(powersResponse, (newPowers) => {
-			if (newPowers) {
-				powerOfPowerPlants.value = newPowers;
-			}
-		});
-
-		return {
-			chosenDate,
-			showLeftPanel,
-			rightNotLoading,
-			content,
-			gj,
-			powerOfPowerPlants,
-		};
-	},
+	// 	return { gj, powerOfPowerPlants };
+	// },
 
 	data() {
 		return {
@@ -94,8 +71,8 @@ export default {
 			marker: [],
 			popup: {},
 			BASE_PATH: "https://powerplantmap.tech:5001/",
-			// gj: {},
-			// powerOfPowerPlants: {},
+			gj: [],
+			powerOfPowerPlants: {},
 		};
 	},
 
@@ -110,43 +87,60 @@ export default {
 		RightPanel,
 	},
 
-	// mounted() {
-	// 	this.createMap();
-	// 	// this.getLoad();
-	// 	this.chosenDate = moment(Date(Date.now())).format("YYYY-MM-DD");
-	// },
+	async mounted() {
+		console.log("mounted");
+		await this.getData();
+		this.createMap();
+		// this.getLoad();
+		this.chosenDate = moment(Date(Date.now())).format("YYYY-MM-DD");
+	},
 
-	// async asyncData() {
-	// 	console.log("asyncData");
-	// 	const BASE_PATH = "https://powerplantmap.tech:5001/";
-	// 	const { basics, error, pending, refresh } = await useFetch(
-	// 		`${BASE_PATH}API/PowerData/GetPowerPlantBasics`
-	// 	);
-	// 	if (!basics.ok) {
-	// 		throw new Error(`HTTP error! status: ${basics.status}`);
-	// 	}
-	// 	const features = await basics.json();
-	// 	console.log(features);
-	// 	const gj = {
-	// 		type: "geojson",
-	// 		data: {
-	// 			type: "FeatureCollection",
-	// 			features,
-	// 		},
-	// 	};
+	computed: {
+		showLeftPanel() {
+			const powerStore = usePowerStore();
+			return powerStore.left;
+		},
 
-	// 	console.log(gj);
+		chosenDate() {
+			const powerStore = usePowerStore();
+			return powerStore.date;
+		},
 
-	// 	const { powers, error2, pending2, refresh2 } = await useFetch(
-	// 		`${BASE_PATH}API/PowerData/getPowerOfPowerPlants`
-	// 	);
-	// 	const powerOfPowerPlants = await powers.json();
-
-	// 	return { gj, powerOfPowerPlants };
-	// },
+		rightNotLoading() {
+			const powerStore = usePowerStore();
+			return !powerStore.rightLoading;
+		},
+	},
 
 	methods: {
+		async getData() {
+			console.log("asyncData");
+			const BASE_PATH = "https://powerplantmap.tech:5001/";
+			const res = await fetch(`${BASE_PATH}API/PowerData/GetPowerPlantBasics`);
+			const basics = await res.json();
+			console.log("basics: " + basics[0].type);
+			this.gj = {
+				type: "geojson",
+				data: {
+					type: "FeatureCollection",
+					features: basics,
+				},
+			};
+
+			const powersRes = await fetch(
+				`${BASE_PATH}API/PowerData/GetPowerOfPowerPlants`
+			);
+			const powers = await powersRes.json();
+			this.powerOfPowerPlants = powers;
+			console.log("POWER: " + this.powerOfPowerPlants.data[0].powerPlantName);
+			return;
+		},
+
 		createMap() {
+			// if (this.gj === null) {
+			// 	this.createMap();
+			// }
+
 			this.map = new mapboxgl.Map({
 				accessToken:
 					"pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
@@ -159,14 +153,17 @@ export default {
 			});
 
 			// (async () => {
-			// 	while (this.gj === null) {
+			// 	while (!this.gj || !this.gj.data || !this.gj.data.features) {
 			// 		await new Promise((resolve) => setTimeout(resolve, 100));
 			// 	}
 			// })();
 
-			// if (this.gj !== null) {
-			console.log(this.gj);
-			for (const powerPlant of this.gj.data.features) {
+			// if (this.gj.data !== undefined) {
+			console.log("MAP: " + this.gj);
+			const powerPlants = this.gj.data.features;
+			console.log(powerPlants);
+			for (const powerPlant of powerPlants) {
+				console.log("powerplant " + powerPlant.properties.img);
 				const element = document.createElement("div");
 				element.className = "marker";
 				element.style.backgroundImage = `url('${powerPlant.properties.img}')`;
