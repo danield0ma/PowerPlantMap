@@ -77,5 +77,14 @@ export default {
     },
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
-    build: {},
+    build: {
+        extend(config, ctx) {
+            // Add a rule to handle JavaScript files
+            config.module.rules.push({
+                test: /\.js$/,
+                loader: "babel-loader",
+                exclude: /(node_modules)/,
+            });
+        },
+    },
 };

@@ -5,14 +5,14 @@
         <div class="modal-content" v-on:click.stop>
             <div class="modal-body">
                 <h1>Scrollable chart</h1>
-                <div ref="chart"></div>
+                <!-- <div ref="chart"></div> -->
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import Highcharts from "highcharts";
+// import Highcharts from "highcharts";
 export default {
     name: "ChartModal",
     props: {
@@ -40,17 +40,17 @@ export default {
         };
     },
 
-    mounted() {
-        if (process.client) {
-            import("highcharts").then((Highcharts) => {
-                // Create the chart
-                Highcharts.chart(this.$refs.chart, {
-                    // Highcharts configuration options
-                    // ...
-                });
-            });
-        }
-    },
+    // mounted() {
+    //     if (process.client) {
+    //         import("highcharts").then((Highcharts) => {
+    //             // Create the chart
+    //             Highcharts.chart(this.$refs.chart, {
+    //                 // Highcharts configuration options
+    //                 // ...
+    //             });
+    //         });
+    //     }
+    // },
 
     methods: {},
 };
