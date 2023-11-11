@@ -4,5 +4,7 @@ namespace PowerPlantMapAPI.Services;
 
 public interface IStatisticsService
 {
-    Task<List<DailyStatisticsDto>> CreateAndSendDailyStatistics();
+    Task<List<PowerPlantStatisticsDto>> GenerateDailyPowerPlantStatistics();
+
+    Task<List<CountryStatisticsDto>> GenerateDailyCountryStatistics();
 }

@@ -64,9 +64,23 @@ namespace PowerPlantMapAPI.Controllers
         }
         
         [HttpGet("[action]")]
-        public async Task<List<DailyStatisticsDto>> GenerateDailyStatistics()
+        public async Task<List<PowerPlantStatisticsDto>> GetDailyPowerPlantStatistics()
         {
-            return await _statisticsService.CreateAndSendDailyStatistics();
+            return await _statisticsService.GenerateDailyPowerPlantStatistics();
+        }
+        
+        [HttpGet("[action]")]
+        public async Task<List<CountryStatisticsDto>> GetDailyCountryStatistics()
+        {
+            return await _statisticsService.GenerateDailyCountryStatistics();
+        }
+        
+        [HttpGet("[action]")]
+        public async Task<string?> GenerateAndSendDailyStatistics()
+        {
+            var powerPlantStatistics = await _statisticsService.GenerateDailyPowerPlantStatistics();
+            var countryStatistics = await _statisticsService.GenerateDailyCountryStatistics();
+            return await _emailService.GenerateAndSendDailyStatisticsInEmail(powerPlantStatistics, countryStatistics);
         }
     }
 }
