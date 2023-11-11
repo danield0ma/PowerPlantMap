@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -51,7 +52,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPowerPlantService, PowerPlantService>();
 builder.Services.AddScoped<IPowerDataService, PowerDataService>();
 builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
-builder.Services.AddScoped<IPowerDataRepository, PowerDataDataRepository>();
+builder.Services.AddScoped<IPowerDataRepository, PowerDataRepository>();
 builder.Services.AddScoped<IPowerHelper, PowerHelper>();
 builder.Services.AddScoped<IXmlHelper, XmlHelper>();
 builder.Services.AddScoped<IDateHelper, DateHelper>();
@@ -106,6 +107,30 @@ builder.Services.AddCors(options =>
             policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
         });
 });
+
+builder.Services.AddScoped<IPowerDataService, PowerDataService>();
+builder.Services.AddScoped<IDateHelper, DateHelper>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IPowerDataRepository, PowerDataRepository>();
+builder.Services.AddScoped<IPowerHelper, PowerHelper>();
+builder.Services.AddScoped<IXmlHelper, XmlHelper>();
+
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+
+var customCulture = new CultureInfo("hu-HU")
+{
+    NumberFormat =
+    {
+        NumberGroupSeparator = " ",
+        NumberDecimalDigits = 3,
+        NumberDecimalSeparator = ","
+    }
+};
+CultureInfo.DefaultThreadCurrentCulture = customCulture;
+CultureInfo.DefaultThreadCurrentUICulture = customCulture;
 
 var app = builder.Build();
 

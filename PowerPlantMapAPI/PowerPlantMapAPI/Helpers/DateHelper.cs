@@ -107,4 +107,13 @@ public class DateHelper : IDateHelper
         var numberOfDataPoints = (int)period.TotalMinutes / 15;
         return numberOfDataPoints;
     }
+    
+    public List<DateTime> GetStartAndEndTimeOfDailyStatistics()
+    {
+        var yesterday = DateTime.Today.AddDays(-1);
+        var start = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day, 0, 0, 0);
+        var today = DateTime.Today;
+        var end = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0);
+        return new List<DateTime> { start, end };
+    }
 }

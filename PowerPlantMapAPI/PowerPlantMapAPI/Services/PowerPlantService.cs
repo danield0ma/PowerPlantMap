@@ -32,9 +32,10 @@ public class PowerPlantService : IPowerPlantService
             {
                 var blocsOfPowerPlant = new List<BlocDataDto>();
                 foreach (var currentBloc in currentPowerPlants.
-                    GroupBy(z => z.BlocId ).Select(group => group.First()).ToList())
+                    GroupBy(z => z.BlocId ).
+                    Select(group => group.First()).ToList())
                 {
-                    var blocData = MapToBlocDataDto(allDataOfPowerPlant);
+                    var blocData = MapToBlocDataDto(currentBloc);
                     List<GeneratorDataDto> generatorsOfBloc = new();
                     foreach (var item in currentPowerPlants.
                         Where(x => x.BlocId == currentBloc.BlocId).ToList())

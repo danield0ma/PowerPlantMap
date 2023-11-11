@@ -1,17 +1,17 @@
 <template>
     <div>
-        <PpmHeader id="head" />
+        <AdminHeader id="head" />
         <Nuxt id="body" />
     </div>
 </template>
 
 <script>
-import PpmHeader from "../components/Headers/PpmHeader";
+import AdminHeader from "../components/Headers/AdminHeader";
 export default {
-    name: "Default",
+    name: "AdminLayout",
 
     components: {
-        PpmHeader,
+        AdminHeader,
     },
 };
 </script>

@@ -38,3 +38,18 @@ volumes:
 # 25 * * * * curl https://127.0.0.1:5001/API/Power/InitData -k
 # 55 * * * * curl https://127.0.0.1:5001/API/Power/InitData -k
 # 30 3 * * * docker exec -it powerplantmap_database_1 /var/opt/mssql/db.sh
+
+# [Unit]
+# Description=Docker Compose Application
+# Requires=docker.service
+# After=docker.service
+
+# [Service]
+# Restart=always
+# User=root
+# WorkingDirectory=/Projects/PowerPlantMap
+# ExecStart=docker-compose up
+# ExecStop=docker-compose down
+
+# [Install]
+# WantedBy=multi-user.target
