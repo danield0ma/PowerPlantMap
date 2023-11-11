@@ -29,6 +29,15 @@ public class PowerDataDataRepository : IPowerDataRepository
             ("GetGeneratorsOfPowerPlant", parameters, commandType: CommandType.StoredProcedure))!;
         return generators;
     }
+    
+    public async Task<int> GetMaxPowerOfGenerator(string generator)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        var parameters = new { GeneratorId = generator };
+        var maxPowerOfGenerator = (List<int>)await connection.QueryAsync<int>
+            ("GetMaxPowerOfGenerator", parameters, commandType: CommandType.StoredProcedure);
+        return maxPowerOfGenerator[0];
+    }
 
     public async Task<List<PowerPlantDataDto>> GetDataOfPowerPlants()
     {

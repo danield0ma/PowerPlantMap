@@ -20,13 +20,10 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="7.0.13" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.24" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+    <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.33.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
