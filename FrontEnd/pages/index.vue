@@ -1,24 +1,26 @@
 <template>
 	<div>
-		<div style="height: 3.5rem; position: absolute"></div>
-		<div id="left" v-if="showLeftPanel">
-			<LeftPanel></LeftPanel>
-		</div>
-		<div id="rightPanel" v-if="rightNotLoading">
-			<RightPanel :powerArray="powerOfPowerPlants" />
-		</div>
-		<div id="chooseDay">
-			<p>Napválasztó</p>
-			<input type="date" v-model="chosenDate" />
-			<button
-				v-on:click="setDate"
-				class="btn btn-primary"
-				style="margin-left: 0.5rem"
-			>
-				OK
-			</button>
-		</div>
-		<div id="map"></div>
+		<NuxtLayout name="default">
+			<div style="height: 3.5rem; position: absolute"></div>
+			<div id="left" v-if="showLeftPanel">
+				<LeftPanel></LeftPanel>
+			</div>
+			<div id="rightPanel" v-if="rightNotLoading">
+				<RightPanel :powerArray="powerOfPowerPlants" />
+			</div>
+			<div id="chooseDay">
+				<p>Napválasztó</p>
+				<input type="date" v-model="chosenDate" />
+				<button
+					v-on:click="setDate"
+					class="btn btn-primary"
+					style="margin-left: 0.5rem"
+				>
+					OK
+				</button>
+			</div>
+			<div id="map"></div>
+		</NuxtLayout>
 	</div>
 </template>
 
@@ -32,6 +34,8 @@ import moment from "moment";
 
 export default {
 	name: "MapView",
+
+	layout: "default",
 
 	// setup() {
 	// 	const BASE_PATH = "https://powerplantmap.tech:5001/";

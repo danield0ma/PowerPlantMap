@@ -1,3 +1,6 @@
 <template>
-    <Nuxt />
+	<div>
+		<!-- <Nuxt /> -->
+		<slot />
+	</div>
 </template>

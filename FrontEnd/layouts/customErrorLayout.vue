@@ -1,11 +1,12 @@
 <template>
-    <div>
-        <Nuxt id="body" />
-    </div>
+	<div>
+		<!-- <Nuxt id="body" /> -->
+		<slot />
+	</div>
 </template>
 
 <script>
 export default {
-    name: "ErrorLayout",
+	name: "ErrorLayout",
 };
 </script>

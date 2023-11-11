@@ -1,61 +1,65 @@
 <template>
-    <div class="outerDiv">
-        <div id="innerDiv">
-            <nuxt-link to="/admin">
-                <img src="/electricity.png" width="30px" />
-            </nuxt-link>
-            <h4 style="margin: 0 0 0.1rem 0.75rem">
-                <nuxt-link to="/admin">PowerPlantMap Admin</nuxt-link>
-            </h4>
-        </div>
-        <ul>
-            <p><nuxt-link to="/admin/powerplantseditor">Erőművek</nuxt-link></p>
-            <p><nuxt-link to="/admin/email">E-mail lista</nuxt-link></p>
-            <p><nuxt-link to="/admin/logout">Kijelentkezés</nuxt-link></p>
-        </ul>
-    </div>
+	<div class="outerDiv">
+		<div id="innerDiv">
+			<NuxtLink to="/admin">
+				<img v-cloak src="/electricity.png" width="30px" />
+			</NuxtLink>
+			<h4 style="margin: 0 0 0.1rem 0.75rem">
+				<NuxtLink to="/admin">PowerPlantMap Admin</NuxtLink>
+			</h4>
+		</div>
+		<ul>
+			<p><NuxtLink to="/admin/powerplantseditor">Erőművek</NuxtLink></p>
+			<p><NuxtLink to="/admin/email">E-mail lista</NuxtLink></p>
+			<p><NuxtLink to="/admin/logout">Kijelentkezés</NuxtLink></p>
+		</ul>
+	</div>
 </template>
 
 <script>
 export default {
-    name: "AdminHeader",
+	name: "AdminHeader",
 };
 </script>
 
 <style>
 body {
-    background-color: gray;
+	background-color: gray;
 }
 
 .outerDiv {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0;
-    padding: 0 2rem;
-    background-color: gray;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 0;
+	padding: 0 2rem;
+	background-color: gray;
 }
 
 #innerDiv {
-    display: flex;
+	display: flex;
 }
 
 ul {
-    display: flex;
-    margin: 0;
-    text-decoration: none;
-    text-transform: none;
+	display: flex;
+	margin: 0;
+	text-decoration: none;
+	text-transform: none;
 }
 
 ul p {
-    padding: 1rem;
-    text-decoration: none;
-    margin: 0;
-    color: blueviolet;
+	padding: 1rem;
+	text-decoration: none;
+	margin: 0;
+	color: blueviolet;
 }
 
 a:hover {
-    text-decoration: none;
-    color: darkgreen;
+	text-decoration: none;
+	color: darkgreen;
+}
+
+[v-cloak] {
+	display: none;
 }
 </style>
