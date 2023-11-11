@@ -26,7 +26,7 @@ public class AccountController : ControllerBase
         _signInManager = signInManager;
     }
     
-    [Authorize]
+    [Authorize(Roles = "admin")]
     [HttpGet("GetAllAsync")]
     public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAsync()
     {
@@ -34,7 +34,7 @@ public class AccountController : ControllerBase
         return Ok(users);
     }
     
-    [Authorize]
+    [Authorize(Roles = "admin")]
     [HttpGet("GetByUserNameAsync")]
     public async Task<ActionResult<ApplicationUser?>> GetByUserNameAsync(string userName)
     {
@@ -42,7 +42,7 @@ public class AccountController : ControllerBase
         return user is null ? NoContent() : Ok(user);
     }
     
-    [Authorize]
+    [Authorize(Roles = "admin")]
     [HttpGet("GetByEmailAsync")]
     public async Task<ActionResult<ApplicationUser?>> GetByEmailAsync(string email)
     {
@@ -64,7 +64,7 @@ public class AccountController : ControllerBase
 
         if (registerDto.Password is null) return BadRequest(new { message = "Password can't be null" });
         var result = await _userManager.CreateAsync(user, registerDto.Password);
-        var queriedUser = await _userManager.FindByNameAsync(registerDto.UserName!);
+        // var queriedUser = await _userManager.FindByNameAsync(registerDto.UserName!);
 
         if (result.Succeeded)
         {
@@ -75,15 +75,15 @@ public class AccountController : ControllerBase
         return BadRequest(new { message = "User registration failed", errors = result.Errors });
     }
     
-    [AllowAnonymous]
-    [HttpPost("ConfirmEmailAsync")]
-    public async Task<IActionResult> ConfirmEmailAsync(string userName, string token)
-    {
-        var user = await _userManager.FindByNameAsync(userName);
-        if (user is null) return BadRequest();
-        var result = await _userManager.ConfirmEmailAsync(user, token);
-        return result.Succeeded ? Ok() : NoContent();
-    }
+    // [AllowAnonymous]
+    // [HttpPost("ConfirmEmailAsync")]
+    // public async Task<IActionResult> ConfirmEmailAsync(string userName, string token)
+    // {
+    //     var user = await _userManager.FindByNameAsync(userName);
+    //     if (user is null) return BadRequest();
+    //     var result = await _userManager.ConfirmEmailAsync(user, token);
+    //     return result.Succeeded ? Ok() : NoContent();
+    // }
     
     [AllowAnonymous]
     [HttpPost("LoginAsync")]
@@ -107,7 +107,7 @@ public class AccountController : ControllerBase
         return Ok();
     }
     
-    [AllowAnonymous]
+    [Authorize]
     [HttpPut("ChangeUserNameAsync")]
     public async Task<IActionResult> ChangeUserNameAsync(string currentUserName, string newUserName)
     {
@@ -117,28 +117,28 @@ public class AccountController : ControllerBase
         return result.Succeeded ? Ok() : NoContent();
     }
     
-    [AllowAnonymous]
-    [HttpPut("InitiateChangeEmailAsync")]
-    public async Task<IActionResult> InitiateChangeEmailAsync(string userName, string newEmail)
-    {
-        var user = await _userManager.FindByNameAsync(userName);
-        if (user is null) return BadRequest();
-        var result = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
-        //Send email with token
-        return Ok();
-    }
+    // [AllowAnonymous]
+    // [HttpPut("InitiateChangeEmailAsync")]
+    // public async Task<IActionResult> InitiateChangeEmailAsync(string userName, string newEmail)
+    // {
+    //     var user = await _userManager.FindByNameAsync(userName);
+    //     if (user is null) return BadRequest();
+    //     // var result = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+    //     //Send email with token
+    //     return Ok();
+    // }
     
-    [AllowAnonymous]
-    [HttpPut("ChangeEmailAsync")]
-    public async Task<IActionResult> ChangeEmailAsync(string userName, string newEmail, string token)
-    {
-        var user = await _userManager.FindByNameAsync(userName);
-        if (user is null) return BadRequest();
-        var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
-        return result.Succeeded ? Ok() : NoContent();
-    }
+    // [AllowAnonymous]
+    // [HttpPut("ChangeEmailAsync")]
+    // public async Task<IActionResult> ChangeEmailAsync(string userName, string newEmail, string token)
+    // {
+    //     var user = await _userManager.FindByNameAsync(userName);
+    //     if (user is null) return BadRequest();
+    //     var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+    //     return result.Succeeded ? Ok() : NoContent();
+    // }
     
-    [AllowAnonymous]
+    [Authorize]
     [HttpPut("ChangePasswordAsync")]
     public async Task<IActionResult> ChangePasswordAsync(string userName, string currentPassword, string newPassword)
     {
@@ -148,7 +148,7 @@ public class AccountController : ControllerBase
         return result.Succeeded ? Ok() : NoContent();
     }
     
-    [AllowAnonymous]
+    [Authorize]
     [HttpDelete("DeleteUserAsync")]
     public async Task<IActionResult> DeleteUserAsync(string userName)
     {

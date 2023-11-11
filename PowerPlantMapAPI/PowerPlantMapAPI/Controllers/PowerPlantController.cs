@@ -20,7 +20,7 @@ public class PowerPlantController : ControllerBase
     }
         
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<PowerPlantModel?>?>> Get()
     {
         try
@@ -36,7 +36,7 @@ public class PowerPlantController : ControllerBase
     }
     
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<ActionResult<PowerPlantModel?>> GetById(string id)
     {
         try
@@ -52,7 +52,7 @@ public class PowerPlantController : ControllerBase
     }
     
     [HttpPost]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<ActionResult> AddPowerPlant(CreatePowerPlantDto createPowerPlantDto)
     {
         try
@@ -85,7 +85,7 @@ public class PowerPlantController : ControllerBase
     // }
     
     [HttpDelete]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<ActionResult> Delete(string id)
     {
         var result = await _powerPlantService.DeletePowerPlant(id);
