@@ -9,13 +9,11 @@ namespace PowerPlantMapAPI.Services;
 public class EmailService: IEmailService
 {
     private readonly IConfiguration _configuration;
-    private readonly IStatisticsService _statisticsService;
     private readonly IPowerRepository _powerRepository;
 
-    public EmailService(IConfiguration configuration, IStatisticsService statisticsService, IPowerRepository powerRepository)
+    public EmailService(IConfiguration configuration, IPowerRepository powerRepository)
     {
         _configuration = configuration;
-        _statisticsService = statisticsService;
         _powerRepository = powerRepository;
     }
 
@@ -27,7 +25,6 @@ public class EmailService: IEmailService
 
         var powerPlants = await _powerRepository.GetDataOfPowerPlants();
         var filteredPowerPlants = powerPlants.Where(x => x.IsCountry == false).ToList();
-        var countries = powerPlants.Where(x => x.IsCountry).ToList();
         foreach (var powerPlant in filteredPowerPlants)
         {
             var blocData = new StringBuilder("<ul>");
@@ -110,7 +107,7 @@ public class EmailService: IEmailService
     {
         var client = new RestClient($"https://api.eu.mailgun.net/v3/{_configuration["Email:MailgunDomain"]}");
         var request = new RestRequest("messages", Method.Post);
-        request.AddHeader("Authorization", $"Basic {Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"api:{_configuration["Email:MailgunApiKey"]}"))}");
+        request.AddHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{_configuration["Email:MailgunApiKey"]}"))}");
         request.AddParameter("from", "PowerPlantMap <noreply@powerplantmap.tech>");
         request.AddParameter("to", to);
         request.AddParameter("subject", subject);

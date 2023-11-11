@@ -2,6 +2,7 @@ using System.Globalization;
 using PowerPlantMapAPI.Helpers;
 using PowerPlantMapAPI.Repositories;
 using PowerPlantMapAPI.Services;
+using PowerPlantMapAPI.Controllers;
 
 namespace PowerPlantMapAPI
 {
