@@ -9,6 +9,7 @@ public interface IPowerDataRepository
     Task<int> GetMaxPowerOfGenerator(string generator);
     Task<List<PowerPlantDataDto>> GetDataOfPowerPlants();
     Task<PowerPlantDataDto> GetDataOfPowerPlant(string id);
+    Task<List<PowerPlantDetailsDto>> GetPowerPlantDetails(string id);
     Task<List<DateTime>> GetLastDataTime();
     Task<List<PastActivityDto>> GetPastActivity(string? generator, DateTime start, DateTime end);
     Task AddPastActivity(string generatorId, DateTime start, int power);

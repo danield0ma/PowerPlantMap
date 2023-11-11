@@ -1,4 +1,4 @@
-namespace PowerPlantMapAPI.Models.DTO;
+namespace PowerPlantMapAPI.Data.Dto;
 
 public class CountryStatisticsDto
 {

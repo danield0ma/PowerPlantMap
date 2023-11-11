@@ -52,7 +52,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPowerPlantService, PowerPlantService>();
 builder.Services.AddScoped<IPowerDataService, PowerDataService>();
 builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
-builder.Services.AddScoped<IPowerDataRepository, PowerDataDataRepository>();
+builder.Services.AddScoped<IPowerDataRepository, PowerDataRepository>();
 builder.Services.AddScoped<IPowerHelper, PowerHelper>();
 builder.Services.AddScoped<IXmlHelper, XmlHelper>();
 builder.Services.AddScoped<IDateHelper, DateHelper>();
@@ -107,43 +107,30 @@ builder.Services.AddCors(options =>
             policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
         });
 });
-            // Add services to the container.
-            builder.Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                    policy =>
-                    {
-                        policy//.AllowCredentials()
-                               .AllowAnyHeader()
-                               .AllowAnyMethod()
-                               .AllowAnyOrigin();
-                    });
-            });
 
-            builder.Services.AddScoped<IPowerService, PowerService>();
-            builder.Services.AddScoped<IDateHelper, DateHelper>();
-            builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddScoped<IStatisticsService, StatisticsService>();
-            builder.Services.AddScoped<IPowerRepository, PowerRepository>();
-            builder.Services.AddScoped<IPowerHelper, PowerHelper>();
-            builder.Services.AddScoped<IXmlHelper, XmlHelper>();
+builder.Services.AddScoped<IPowerDataService, PowerDataService>();
+builder.Services.AddScoped<IDateHelper, DateHelper>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IPowerDataRepository, PowerDataRepository>();
+builder.Services.AddScoped<IPowerHelper, PowerHelper>();
+builder.Services.AddScoped<IXmlHelper, XmlHelper>();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            
-            var customCulture = new CultureInfo("hu-HU")
-            {
-                NumberFormat =
-                {
-                    NumberGroupSeparator = " ",
-                    NumberDecimalDigits = 3,
-                    NumberDecimalSeparator = ","
-                }
-            };
-            CultureInfo.DefaultThreadCurrentCulture = customCulture;
-            CultureInfo.DefaultThreadCurrentUICulture = customCulture;
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+
+var customCulture = new CultureInfo("hu-HU")
+{
+    NumberFormat =
+    {
+        NumberGroupSeparator = " ",
+        NumberDecimalDigits = 3,
+        NumberDecimalSeparator = ","
+    }
+};
+CultureInfo.DefaultThreadCurrentCulture = customCulture;
+CultureInfo.DefaultThreadCurrentUICulture = customCulture;
 
 var app = builder.Build();
 

@@ -1,11 +1,11 @@
-using PowerPlantMapAPI.Models.DTO;
+using PowerPlantMapAPI.Data.Dto;
 
-namespace PowerPlantMapAPI.Services
+namespace PowerPlantMapAPI.Services;
+
+public interface IEmailService
 {
-    public interface IEmailService
-    {
-        Task<string?> GenerateAndSendDailyStatisticsInEmail(List<PowerPlantStatisticsDto> powerPlantStatistics,
-            List<CountryStatisticsDto> countryStatistics);
-        public string SendEmail(string? to, string? subject, string? body);
-    }
+    Task<string?> GenerateAndSendDailyStatisticsInEmail(
+        PowerPlantStatisticsDtoWrapper powerPlantStatistics, CountryStatisticsDtoWrapper countryStatistics,
+        DateTime? day = null, DateTime? start = null, DateTime? end = null);
+    public string SendEmail(string? to, string? subject, string? body);
 }
