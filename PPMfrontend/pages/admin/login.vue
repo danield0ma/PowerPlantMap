@@ -6,14 +6,14 @@
                     <img src="/electricity.png" width="60rem" />
                     <h1>Bejelentkezés</h1>
                 </div>
-                <form onsubmit="login">
+                <form @submit.prevent="userLogin">
                     <div class="form-group">
-                        <label for="email">Felhasználónév:</label>
+                        <label for="username">Felhasználónév:</label>
                         <input
                             type="text"
                             class="form-control"
-                            id="email"
-                            v-model="email"
+                            id="username"
+                            v-model="login.username"
                             required
                         />
                     </div>
@@ -23,7 +23,7 @@
                             type="password"
                             class="form-control"
                             id="password"
-                            v-model="password"
+                            v-model="login.password"
                             required
                         />
                     </div>
@@ -37,20 +37,35 @@
 <script>
 export default {
     name: "Login",
+    
     layout: "empty",
+
     data() {
         return {
-            email: "",
-            password: "",
+            login: {
+                username: "",
+                password: "",
+            },
         };
     },
+
     head() {
         return {
             title: "Bejelentkezés",
         };
     },
+
     methods: {
-        login() {},
+        async userLogin() {
+            try {
+                const response = await this.$auth.loginWith("local", {
+                    data: this.login,
+                });
+                console.log(response);
+            } catch (err) {
+                console.log(err);
+            }
+        },
     },
 };
 </script>

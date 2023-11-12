@@ -8,6 +8,7 @@
 export default {
     name: "AdminIndex",
     layout: "adminLayout",
+    middleware: "authenticated",
     head() {
         return {
             title: "Admin - PowerPlantMap",

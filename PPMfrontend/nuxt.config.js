@@ -67,7 +67,32 @@ export default {
     modules: [
         // https://go.nuxtjs.dev/bootstrap
         "bootstrap-vue/nuxt",
+        "@nuxtjs/auth",
+        "@nuxtjs/axios",
     ],
+
+    axios: {
+        baseURL: "https://powerplantmap.tech:5001",
+    },
+
+    auth: {
+        strategies: {
+            local: {
+                scheme: "local",
+                token: {
+                    property: "token",
+                },
+                user: {
+                    property: false,
+                },
+                endpoints: {
+                    login: { url: "/api/Account/Login", method: "post" },
+                    logout: { url: "/api/Account/Logout", method: "post" },
+                    user: false, // { url: "/api/auth/get", method: "get" },
+                },
+            },
+        },
+    },
 
     fontawesome: {
         icons: {

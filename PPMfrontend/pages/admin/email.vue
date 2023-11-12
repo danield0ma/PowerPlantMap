@@ -8,6 +8,7 @@
 export default {
     name: "Email",
     layout: "adminLayout",
+    middleware: "authenticated",
     head() {
         return {
             title: "Email szerkesztő - PowerPlantMap",

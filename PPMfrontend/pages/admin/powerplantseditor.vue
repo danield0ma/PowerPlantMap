@@ -93,6 +93,7 @@ import PowerPlantModal from "../../components/PowerPlants/PowerPlantModal";
 export default {
     name: "PowerPlantEditor",
     layout: "adminLayout",
+    middleware: "authenticated",
     components: { PowerPlantCard, PowerPlantModal },
     head() {
         return {
@@ -113,14 +114,21 @@ export default {
                 { name: "Magyarország", img: "/hu.png" },
                 { name: "Ausztria", img: "/austria.png" },
             ],
+
             isOpen: true,
             selectedCountry: { name: "Magyarország", img: "/hu.png" },
         };
     },
 
-    async asyncData() {
+    async asyncData({ $auth }) {
         const BASE_PATH = "https://powerplantmap.tech:5001/";
-        const res = await fetch(`${BASE_PATH}API/PowerPlant/Get`);
+        const res = await fetch(`${BASE_PATH}api/PowerPlant/Get`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${$auth.getToken("local")}`,
+            },
+        });
         const powerPlants = await res.json();
         return { powerPlants };
     },
