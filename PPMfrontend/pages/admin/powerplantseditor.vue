@@ -39,32 +39,7 @@
             </div>
         </div>
         <PowerPlantModal
-            :powerPlant="{
-                powerPlantId: '',
-                name: '',
-                description: '',
-                operatorCompany: '',
-                webpage: '',
-                longitude: 0,
-                latitude: 0,
-                color: '',
-                address: '',
-                isCountry: false,
-                blocs: [
-                    {
-                        blocId: '',
-                        blocType: '',
-                        maxBlocCapacity: 0,
-                        commissionDate: '',
-                        generators: [
-                            {
-                                generatorId: '',
-                                maxCapacity: 0,
-                            },
-                        ],
-                    },
-                ],
-            }"
+            :powerPlant="this.EmptyPowerPlant"
             v-if="showModal"
             @close="showModal = false"
         />
@@ -78,7 +53,7 @@
                     <PowerPlantCard
                         :powerPlant="currentPowerPlant"
                         @click="$emit('openModal')"
-                    ></PowerPlantCard>
+                    />
                 </div>
             </div>
         </transition>
@@ -114,6 +89,7 @@
 <script>
 import PowerPlantCard from "../../components/PowerPlants/PowerPlantCard";
 import PowerPlantModal from "../../components/PowerPlants/PowerPlantModal";
+
 export default {
     name: "PowerPlantEditor",
     layout: "adminLayout",
@@ -168,6 +144,35 @@ export default {
                 (powerPlant) =>
                     powerPlant.isCountry === false && powerPlant.address === "-"
             );
+        },
+
+        EmptyPowerPlant() {
+            return {
+                powerPlantId: "",
+                name: "",
+                description: "",
+                operatorCompany: "",
+                webpage: "",
+                longitude: 0,
+                latitude: 0,
+                color: "",
+                address: "",
+                isCountry: false,
+                blocs: [
+                    {
+                        blocId: "",
+                        blocType: "",
+                        maxBlocCapacity: 0,
+                        commissionDate: "",
+                        generators: [
+                            {
+                                generatorId: "",
+                                maxCapacity: 0,
+                            },
+                        ],
+                    },
+                ],
+            };
         },
     },
 
