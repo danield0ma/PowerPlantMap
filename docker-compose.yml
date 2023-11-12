@@ -48,7 +48,7 @@ volumes:
 # Restart=always
 # User=root
 # WorkingDirectory=/Projects/PowerPlantMap
-# ExecStart=docker-compose up
+# ExecStart=docker-compose up --build
 # ExecStop=docker-compose down
 
 # [Install]
