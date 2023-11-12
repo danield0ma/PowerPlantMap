@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Helpers;
 using PowerPlantMapAPI.Repositories;
@@ -12,12 +13,15 @@ public class EmailService: IEmailService
     private readonly IConfiguration _configuration;
     private readonly IPowerDataRepository _powerDataRepository;
     private readonly IDateHelper _dateHelper;
+    private readonly IEmailSubscriptionsRepository _emailSubscriptionsRepository;
 
-    public EmailService(IConfiguration configuration, IPowerDataRepository powerDataRepository, IDateHelper dateHelper)
+    public EmailService(IConfiguration configuration, IPowerDataRepository powerDataRepository,
+        IDateHelper dateHelper, IEmailSubscriptionsRepository emailSubscriptionsRepository)
     {
         _configuration = configuration;
         _powerDataRepository = powerDataRepository;
         _dateHelper = dateHelper;
+        _emailSubscriptionsRepository = emailSubscriptionsRepository;
     }
 
     public async Task<string?> GenerateAndSendDailyStatisticsInEmail(
@@ -120,6 +124,63 @@ public class EmailService: IEmailService
         Console.WriteLine(body.ToString());
         var msg = SendEmail("daniel2.doma@gmail.com", $"Napi erőműstatisztika - {date}", body.ToString());
         return msg;
+    }
+
+    public List<EmailSubscriptionModel>? Get()
+    {
+        return _emailSubscriptionsRepository.Get();
+    }
+
+    public EmailSubscriptionModel? GetById(Guid id)
+    {
+        return _emailSubscriptionsRepository.GetById(id);
+    }
+    
+    public EmailSubscriptionModel? GetByEmail(string email)
+    {
+        return _emailSubscriptionsRepository.GetByEmail(email);
+    }
+    
+    public bool Add(string email)
+    {
+        if (_emailSubscriptionsRepository.GetByEmail(email) is not null)
+        {
+            throw new ArgumentException("Email already exists.");
+        }
+        
+        var newSubscription = new EmailSubscriptionModel()
+        {
+            Created = DateTime.UtcNow,
+            Email = email
+        };
+        _emailSubscriptionsRepository.Add(newSubscription);
+        return true;
+    }
+
+    public void Update(string oldEmail, string newEmail)
+    {
+        var newSubscription = _emailSubscriptionsRepository.GetByEmail(newEmail);
+        if (newSubscription is not null)
+        {
+            throw new ArgumentException("New Email already exists in DB!");
+        }
+        
+        var subscription = _emailSubscriptionsRepository.GetByEmail(oldEmail);
+        if (subscription is null)
+        {
+            throw new ArgumentException("Old Email not found");
+        }
+        _emailSubscriptionsRepository.Update(subscription!.Id, newEmail);
+    }
+
+    public void Delete(string email)
+    {
+        var subscription = _emailSubscriptionsRepository.GetByEmail(email);
+        if (subscription is null)
+        {
+            throw new ArgumentException("Email not found");
+        }
+        _emailSubscriptionsRepository.Delete(subscription);
     }
     
     public string SendEmail(string? to, string? subject, string? body)

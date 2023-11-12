@@ -48,15 +48,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPowerPlantService, PowerPlantService>();
-builder.Services.AddScoped<IPowerDataService, PowerDataService>();
-builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
-builder.Services.AddScoped<IPowerDataRepository, PowerDataRepository>();
-builder.Services.AddScoped<IPowerHelper, PowerHelper>();
-builder.Services.AddScoped<IXmlHelper, XmlHelper>();
-builder.Services.AddScoped<IDateHelper, DateHelper>();
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString(builder.Configuration["ManagementConnectionStringToBeUsed"])));
 
@@ -108,13 +99,19 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddScoped<IPowerPlantService, PowerPlantService>();
 builder.Services.AddScoped<IPowerDataService, PowerDataService>();
-builder.Services.AddScoped<IDateHelper, DateHelper>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
 builder.Services.AddScoped<IPowerDataRepository, PowerDataRepository>();
+builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
+builder.Services.AddScoped<IEmailSubscriptionsRepository, EmailSubscriptionsRepository>();
+
 builder.Services.AddScoped<IPowerHelper, PowerHelper>();
 builder.Services.AddScoped<IXmlHelper, XmlHelper>();
+builder.Services.AddScoped<IDateHelper, DateHelper>();
 
 builder.Services.AddControllers();
 

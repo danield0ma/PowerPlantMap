@@ -23,17 +23,13 @@ export default {
 </script>
 
 <style>
-body {
-    background-color: gray;
-}
-
 .outerDiv {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 0;
     padding: 0 2rem;
-    background-color: gray;
+    /* background-color: gray; */
 }
 
 #innerDiv {
