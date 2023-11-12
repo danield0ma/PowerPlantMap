@@ -6,16 +6,14 @@ using PowerPlantMapAPI.Services;
 namespace PowerPlantMapAPI.Controllers;
 
 [EnableCors]
-[Route("API/[controller]/[action]")]
+[Route("api/[controller]/[action]")]
 [ApiController]
 public class PowerDataController : ControllerBase
 {
-    private readonly IEmailService _emailService;
     private readonly IPowerDataService _powerDataService;
     
-    public PowerDataController(IEmailService emailService, IPowerDataService powerDataService)
+    public PowerDataController(IPowerDataService powerDataService)
     {
-        _emailService = emailService;
         _powerDataService = powerDataService;
     }
 
@@ -47,11 +45,5 @@ public class PowerDataController : ControllerBase
     public async Task<string> InitData(DateTime? start = null, DateTime? end = null)
     {
         return await _powerDataService.InitData(start, end);
-    }
-
-    [HttpGet("")]
-    public string SendTestEmail(string? to, string? subject, string? body)
-    {
-        return _emailService.SendEmail(to, subject, body);
     }
 }

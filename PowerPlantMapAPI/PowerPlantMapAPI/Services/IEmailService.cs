@@ -14,5 +14,5 @@ public interface IEmailService
     bool Add(string email);
     void Update(string oldEmail, string newEmail);
     void Delete(string email);
-    public string SendEmail(string? to, string? subject, string? body);
+    public string SendEmail(string? subject, string? body);
 }

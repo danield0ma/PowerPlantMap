@@ -7,7 +7,7 @@ using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers;
 
-[Route("API/[controller]/[action]")]
+[Route("api/[controller]/[action]")]
 [ApiController]
 [Authorize]
 public class PowerPlantController : ControllerBase

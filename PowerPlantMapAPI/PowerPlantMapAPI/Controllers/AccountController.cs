@@ -10,7 +10,7 @@ using PowerPlantMapAPI.Data;
 namespace PowerPlantMapAPI.Controllers;
 
 [EnableCors]
-[Route("API/[controller]")]
+[Route("api/[controller]/[action]")]
 [ApiController]
 public class AccountController : ControllerBase
 {
@@ -27,32 +27,32 @@ public class AccountController : ControllerBase
     }
     
     [Authorize(Roles = "admin")]
-    [HttpGet("GetAllAsync")]
-    public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAsync()
+    [HttpGet("")]
+    public async Task<ActionResult<IEnumerable<ApplicationUser>>> Get()
     {
         var users = await _userManager.Users.ToListAsync();
         return Ok(users);
     }
     
     [Authorize(Roles = "admin")]
-    [HttpGet("GetByUserNameAsync")]
-    public async Task<ActionResult<ApplicationUser?>> GetByUserNameAsync(string userName)
+    [HttpGet("")]
+    public async Task<ActionResult<ApplicationUser?>> GetByUserName(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
         return user is null ? NoContent() : Ok(user);
     }
     
     [Authorize(Roles = "admin")]
-    [HttpGet("GetByEmailAsync")]
-    public async Task<ActionResult<ApplicationUser?>> GetByEmailAsync(string email)
+    [HttpGet("")]
+    public async Task<ActionResult<ApplicationUser?>> GetByEmail(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
         return user is null ? NoContent() : Ok(user);
     }
     
     [AllowAnonymous]
-    [HttpPost("RegisterAsync")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
+    [HttpPost("")]
+    public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
         if (!ModelState.IsValid) return BadRequest(new { message = "Invalid registration data" });
         
@@ -86,8 +86,8 @@ public class AccountController : ControllerBase
     // }
     
     [AllowAnonymous]
-    [HttpPost("LoginAsync")]
-    public async Task<ActionResult<TokenDto>> LoginAsync([FromBody] LoginDto loginDto)
+    [HttpPost("")]
+    public async Task<ActionResult<TokenDto>> Login([FromBody] LoginDto loginDto)
     {
         var user = await _userManager.FindByNameAsync(loginDto.UserName);
 
@@ -100,16 +100,16 @@ public class AccountController : ControllerBase
     }
     
     [Authorize]
-    [HttpPost("LogoutAsync")]
-    public async Task<IActionResult> LogoutAsync()
+    [HttpPost("")]
+    public async Task<IActionResult> Logout()
     {
         await _signInManager.SignOutAsync();
         return Ok();
     }
     
     [Authorize]
-    [HttpPut("ChangeUserNameAsync")]
-    public async Task<IActionResult> ChangeUserNameAsync(string currentUserName, string newUserName)
+    [HttpPut("")]
+    public async Task<IActionResult> ChangeUserName(string currentUserName, string newUserName)
     {
         var user = await _userManager.FindByNameAsync(currentUserName);
         if (user is null) return BadRequest();
@@ -139,8 +139,8 @@ public class AccountController : ControllerBase
     // }
     
     [Authorize]
-    [HttpPut("ChangePasswordAsync")]
-    public async Task<IActionResult> ChangePasswordAsync(string userName, string currentPassword, string newPassword)
+    [HttpPut("")]
+    public async Task<IActionResult> ChangePassword(string userName, string currentPassword, string newPassword)
     {
         var user = await _userManager.FindByNameAsync(userName);
         if (user is null) return BadRequest();
@@ -149,8 +149,8 @@ public class AccountController : ControllerBase
     }
     
     [Authorize]
-    [HttpDelete("DeleteUserAsync")]
-    public async Task<IActionResult> DeleteUserAsync(string userName)
+    [HttpDelete("")]
+    public async Task<IActionResult> DeleteUser(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
         if (user is null) return BadRequest();

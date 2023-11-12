@@ -122,7 +122,7 @@ public class EmailService: IEmailService
         body.Append($"<img src={url} /></div></td></tr></tbody></table></body></html>");
         
         Console.WriteLine(body.ToString());
-        var msg = SendEmail("daniel2.doma@gmail.com", $"Napi erőműstatisztika - {date}", body.ToString());
+        var msg = SendEmail( $"Napi erőműstatisztika - {date}", body.ToString());
         return msg;
     }
 
@@ -183,28 +183,32 @@ public class EmailService: IEmailService
         _emailSubscriptionsRepository.Delete(subscription);
     }
     
-    public string SendEmail(string? to, string? subject, string? body)
+    public string SendEmail(string? subject, string? body)
     {
+        var emailSubscriptions = _emailSubscriptionsRepository.Get();
+        var recipients = emailSubscriptions?.Select(x => x.Email);
+        
         var client = new RestClient($"https://api.eu.mailgun.net/v3/{_configuration["Email:MailgunDomain"]}");
-        var request = new RestRequest("messages", Method.Post);
-        request.AddHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{_configuration["Email:MailgunApiKey"]}"))}");
-        request.AddParameter("from", "PowerPlantMap <noreply@powerplantmap.tech>");
-        request.AddParameter("to", to);
-        request.AddParameter("subject", subject);
-        request.AddParameter("html", body);
 
-        var response = client.Execute(request);
+        foreach (var recipient in recipients!)
+        {
+            var request = new RestRequest("messages", Method.Post);
+            request.AddHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{_configuration["Email:MailgunApiKey"]}"))}");
+            request.AddParameter("from", "PowerPlantMap <noreply@powerplantmap.tech>");
+            request.AddParameter("to", recipient);
+            request.AddParameter("subject", subject);
+            request.AddParameter("html", body);
+    
+            var response = client.Execute(request);
+            
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+               Console.WriteLine($"Error while sending the email! {response.ErrorMessage}");
+               return $"Error while sending the emails! {response.ErrorMessage}";
+            }
+        }
 
-        if (response.StatusCode == System.Net.HttpStatusCode.OK)
-        {
-            Console.WriteLine("Email sent successfully!");
-            return "Email sent successfully!";
-        }
-        else
-        {
-            Console.WriteLine($"Error sending email: {response.ErrorMessage}");
-            return "Error";
-        }
+        return "Emails sent successfully!";
     }
     
     private static string Format(double number)
