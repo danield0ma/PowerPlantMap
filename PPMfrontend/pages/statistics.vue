@@ -1,13 +1,13 @@
-<template></template>
+<template>
+    <h1>Statistics</h1>
+</template>
 
 <script>
 export default {
     name: "Statistics",
 
     data() {
-        return {
-            accessToken: process.env.ACCESS_TOKEN,
-        };
+        return {};
     },
 
     head() {
@@ -16,14 +16,6 @@ export default {
         };
     },
 
-    async asyncData() {
-        const BASE_PATH = "https://powerplantmap.tech:5001/";
-        const powers = await fetch(
-            `${BASE_PATH}API/Power/getPowerOfPowerPlants`
-        );
-        const powerOfPowerPlants = await powers.json();
-
-        return { gj, powerOfPowerPlants };
-    },
+    async asyncData() {},
 };
 </script>

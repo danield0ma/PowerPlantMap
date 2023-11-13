@@ -2,7 +2,7 @@
 
 namespace PowerPlantMapAPI.Data.Dto;
 
-public class RegisterDto
+public class RegistrationModel
 {
     [Required]
     public string? UserName { get; set; }

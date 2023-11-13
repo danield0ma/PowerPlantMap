@@ -11,6 +11,7 @@
         <ul>
             <p><nuxt-link to="/admin/powerplantseditor">Erőművek</nuxt-link></p>
             <p><nuxt-link to="/admin/email">E-mail lista</nuxt-link></p>
+            <p><nuxt-link to="/admin/users">Felhasználók</nuxt-link></p>
             <p @click="logout">Kijelentkezés</p>
         </ul>
     </div>

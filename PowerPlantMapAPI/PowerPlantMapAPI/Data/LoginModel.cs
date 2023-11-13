@@ -1,6 +1,6 @@
-﻿namespace PowerPlantMapAPI.Data.Dto;
+﻿namespace PowerPlantMapAPI.Data;
 
-public class LoginDto
+public class LoginModel
 {
     public string UserName { get; set; } = null!;
     public string Password { get; set; } = null!;
