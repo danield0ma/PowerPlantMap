@@ -120,27 +120,26 @@ export default {
         };
     },
 
-    async asyncData({ $auth }) {
-        const BASE_PATH = "https://powerplantmap.tech:5001/";
-        const res = await fetch(`${BASE_PATH}api/PowerPlant/Get`, {
-            method: "GET",
+    async asyncData({ $auth, $axios }) {
+        const powerPlants = await $axios.$get("/api/PowerPlant/Get", {
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${$auth.getToken("local")}`,
+                Authorization: $auth.getToken("local"),
             },
         });
-        const powerPlants = await res.json();
         return { powerPlants };
     },
 
     computed: {
         FilteredCountries() {
+            if (this.powerPlants.length === undefined) return [];
             return this.powerPlants.filter(
                 (powerPlant) => powerPlant.isCountry === true
             );
         },
 
         FilteredPowerPlants() {
+            if (this.powerPlants.length === undefined) return [];
             return this.powerPlants.filter(
                 (powerPlant) =>
                     powerPlant.isCountry === false && powerPlant.address !== "-"
@@ -148,6 +147,7 @@ export default {
         },
 
         FilteredUnknownPowerPlants() {
+            if (this.powerPlants.length === undefined) return [];
             return this.powerPlants.filter(
                 (powerPlant) =>
                     powerPlant.isCountry === false && powerPlant.address === "-"
