@@ -10,8 +10,9 @@
         </div>
         <ul>
             <p><nuxt-link to="/">Map</nuxt-link></p>
-            <p><nuxt-link to="/admin">Admin</nuxt-link></p>
             <p><nuxt-link to="/about">About</nuxt-link></p>
+            <p><nuxt-link to="/login">Login</nuxt-link></p>
+            <p><nuxt-link to="/register">Register</nuxt-link></p>
         </ul>
     </div>
 </template>

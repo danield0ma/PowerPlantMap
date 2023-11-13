@@ -11,7 +11,7 @@
         <ul>
             <p><nuxt-link to="/admin/powerplantseditor">Erőművek</nuxt-link></p>
             <p><nuxt-link to="/admin/email">E-mail lista</nuxt-link></p>
-            <p><nuxt-link to="/admin/logout">Kijelentkezés</nuxt-link></p>
+            <p @click="logout">Kijelentkezés</p>
         </ul>
     </div>
 </template>
@@ -19,6 +19,13 @@
 <script>
 export default {
     name: "AdminHeader",
+
+    methods: {
+        async logout() {
+            await this.$auth.logout();
+            this.$router.push("/");
+        },
+    },
 };
 </script>
 
@@ -48,6 +55,7 @@ ul p {
     text-decoration: none;
     margin: 0;
     color: blueviolet;
+    cursor: pointer;
 }
 
 a:hover {

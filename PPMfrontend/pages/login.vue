@@ -27,7 +27,9 @@
                             required
                         />
                     </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary">
+                        Bejelentkezés
+                    </button>
                 </form>
             </div>
         </div>
@@ -37,7 +39,7 @@
 <script>
 export default {
     name: "Login",
-    
+
     layout: "empty",
 
     data() {
@@ -51,7 +53,7 @@ export default {
 
     head() {
         return {
-            title: "Bejelentkezés",
+            title: "Login - PowerPlantMap",
         };
     },
 
@@ -61,7 +63,7 @@ export default {
                 const response = await this.$auth.loginWith("local", {
                     data: this.login,
                 });
-                console.log(response);
+                this.$router.push("/admin");
             } catch (err) {
                 console.log(err);
             }

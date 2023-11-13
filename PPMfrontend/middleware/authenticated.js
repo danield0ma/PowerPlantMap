@@ -1,5 +1,5 @@
 export default function ({ app, redirect }) {
     if (!app.$auth.loggedIn) {
-        return redirect("/admin/login");
+        return redirect("/login");
     }
 }
