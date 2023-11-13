@@ -61,7 +61,7 @@ public class AccountController : ControllerBase
         return new UserProfileModel()
         {
             Id = id,
-            UserName = user.UserName,
+            Username = user.UserName,
             Email = user.Email,
             Role = User.FindFirst(ClaimTypes.Role)?.Value
         };
