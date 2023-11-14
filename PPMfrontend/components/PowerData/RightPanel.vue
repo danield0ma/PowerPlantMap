@@ -1,27 +1,43 @@
 <template>
     <div>
         <div id="innerRight">
-            <div style="display: flex">
-                <div style="display: inline; vertical-align: sub">
-                    <img
-                        src="hu.png"
-                        alt="zászló"
-                        width="40px"
-                        height="20px"
-                        style="margin-top: 0.7rem"
-                    />
+            <div class="d-flex justify-content-between m-2">
+                <div class="col-md-6 p-0">
+                    <div style="display: flex">
+                        <div style="display: inline; vertical-align: sub">
+                            <img
+                                src="hu.png"
+                                alt="zászló"
+                                width="40px"
+                                height="20px"
+                                style="margin-top: 0.7rem"
+                            />
+                        </div>
+                        <h4
+                            style="
+                                padding-left: 0.5rem;
+                                display: inline;
+                                vertical-align: top;
+                            "
+                        >
+                            Hungary
+                        </h4>
+                    </div>
+                    <p class="p-0 text-left">{{ startTime }} - {{ endTime }}</p>
                 </div>
-                <h4
-                    style="
-                        padding-left: 0.5rem;
-                        display: inline;
-                        vertical-align: top;
-                    "
+                <div
+                    class="col-md-6 p-0 d-flex align-items-center d-flex justify-content-end"
                 >
-                    Hungary
-                </h4>
+                    <input type="date" v-model="chosenDate" />
+                    <button
+                        v-on:click="changeDate"
+                        class="btn btn-primary"
+                        style="margin-left: 0.5rem"
+                    >
+                        OK
+                    </button>
+                </div>
             </div>
-            <p style="padding: 0">{{ startTime }} - {{ endTime }}</p>
             <div>
                 <client-only>
                     <line-chart
@@ -44,6 +60,13 @@ import "chart.js";
 export default {
     name: "Energymix",
 
+    data() {
+        return {
+            chosenDate: moment(Date(Date.now())).format("YYYY-MM-DD"),
+            powerOfPowerPlants: this.powerArray,
+        };
+    },
+
     props: {
         powerArray: {
             type: Object,
@@ -52,12 +75,18 @@ export default {
     },
 
     computed: {
+        getDate() {
+            return this.$store.state.power.date;
+        },
+
         startTime() {
-            return moment(this.powerArray.start).format("YYYY.MM.DD HH:mm");
+            return moment(this.powerOfPowerPlants.start).format(
+                "YYYY.MM.DD HH:mm"
+            );
         },
 
         endTime() {
-            return moment(this.powerArray.end)./*add(-15, 'm').*/ format(
+            return moment(this.powerOfPowerPlants.end).format(
                 "YYYY.MM.DD HH:mm"
             );
         },
@@ -73,12 +102,8 @@ export default {
                         pointRadius: 0,
                     },
                 },
-                layout: {
-                    padding: 0,
-                },
-                tooltips: {
-                    enabled: true,
-                },
+                layout: { padding: 0 },
+                tooltips: { enabled: true },
                 plugins: {
                     title: {
                         display: true,
@@ -93,7 +118,6 @@ export default {
                 },
                 scales: {
                     y: {
-                        //min: -2500,
                         grid: {
                             lineWidth: 0,
                         },
@@ -115,20 +139,12 @@ export default {
             return {
                 labels: this.getDateArray("PKS"),
                 datasets: [
-                    // {
-                    //     label: 'Total System Load [MW]',
-                    //     backgroundColor: '#777',
-                    //     borderColor: '#777',
-                    //     fill: false,
-                    //     data: this.getLoadArray()
-                    // },
                     {
                         label: "Paks [MW]",
                         backgroundColor: "#B7BF50",
                         borderColor: "#B7BF50",
                         pointRadius: 0,
                         stack: "PP",
-                        //fill: origin,
                         fill: { value: 0 },
                         data: this.getPowerOfPowerPlant("PKS"),
                     },
@@ -196,7 +212,7 @@ export default {
                         borderColor: "#C1536D",
                         stack: "PP",
                         fill: "-1",
-                        data: this.getPowerOfGAS(),
+                        data: this.getPowerOfGasPowerPlants(),
                     },
                     {
                         label: "Nap (ismeretlen erőművekből) [MW]",
@@ -300,38 +316,38 @@ export default {
             };
         },
 
-        getDateArray(PPID) {
-            const powerOfPowerPlants = JSON.parse(
-                JSON.stringify(this.powerArray)
-            );
-            const powerData = powerOfPowerPlants.data
-                .filter((x) => x.powerPlantName === PPID)
+        getDateArray(PowerPlantId) {
+            // const powerOfPowerPlants = JSON.parse(
+            //     JSON.stringify(this.powerOfPowerPlants)
+            // );
+            // const powerData =
+            return this.powerOfPowerPlants.data
+                .filter((x) => x.powerPlantName === PowerPlantId)
                 .flatMap((x) =>
                     x.powerStamps.map((y) => moment(y.start).format("HH:mm"))
                 );
-            return powerData;
+            // return powerData;
         },
 
-        getLoadArray() {
-            const loadArray = [];
-            for (const load of this.$store.state.power.loadHistory) {
-                loadArray.push(load.currentLoad);
-            }
+        // getLoadArray() {
+        //     const loadArray = [];
+        //     for (const load of this.$store.state.power.loadHistory) {
+        //         loadArray.push(load.currentLoad);
+        //     }
+        //     return loadArray;
+        // },
 
-            return loadArray;
-        },
-
-        getPowerOfPowerPlant(PPID) {
-            const powerOfPowerPlants = JSON.parse(
-                JSON.stringify(this.powerArray)
-            );
-            const powerData = powerOfPowerPlants.data
-                .filter((x) => x.powerPlantName === PPID)
+        getPowerOfPowerPlant(powerPlantId) {
+            // const powerOfPowerPlants = JSON.parse(
+            //     JSON.stringify(this.powerOfPowerPlants)
+            // );
+            return this.powerOfPowerPlants.data
+                .filter((x) => x.powerPlantName === powerPlantId)
                 .flatMap((x) => x.powerStamps.map((y) => y.power));
-            return powerData;
+            // return powerData;
         },
 
-        getPowerOfGAS() {
+        getPowerOfGasPowerPlants() {
             const gasPowerPlants = ["DME", "GNY", "CSP", "KF", "KP"];
             const power = [];
             for (let i = 0; i < 100; i++) {
@@ -345,14 +361,27 @@ export default {
                 }
             }
 
-            const GASarray = this.getPowerOfPowerPlant("GAS");
+            const gasArray = this.getPowerOfPowerPlant("GAS");
 
             const result = [];
-            for (let i = 0; i < GASarray.length; i++) {
-                result[i] = GASarray[i] - power[i];
+            for (let i = 0; i < gasArray.length; i++) {
+                result[i] = gasArray[i] - power[i];
             }
 
             return result;
+        },
+
+        async changeDate() {
+            this.$store.dispatch("power/setRightLoading", true);
+            this.$store.dispatch("power/setLeftPanel", false);
+            await this.$store.dispatch("power/setDate", this.chosenDate);
+            if (this.getDate != null && this.getDate != undefined) {
+                this.powerOfPowerPlants = await this.$axios.$get(
+                    `/api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
+                );
+            }
+            await this.$store.dispatch("power/setRightLoading", false);
+            console.log(this.powerOfPowerPlants);
         },
     },
 };

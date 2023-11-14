@@ -1,22 +1,11 @@
 <template>
     <div>
         <div style="height: 3.5rem; position: absolute"></div>
-        <div id="left" v-if="showLeftPanel">
+        <div id="left" v-if="showLeftPanel" class="col-md-4">
             <LeftPanel></LeftPanel>
         </div>
-        <div id="rightPanel" v-if="rightNotLoading">
+        <div id="rightPanel" v-if="rightNotLoading" class="col-md-4">
             <RightPanel :powerArray="powerOfPowerPlants" />
-        </div>
-        <div id="chooseDay">
-            <p>Napválasztó</p>
-            <input type="date" v-model="chosenDate" />
-            <button
-                v-on:click="setDate"
-                class="btn btn-primary"
-                style="margin-left: 0.5rem"
-            >
-                OK
-            </button>
         </div>
         <div id="map"></div>
     </div>
@@ -26,20 +15,16 @@
 import mapboxgl from "mapbox-gl";
 import LeftPanel from "../components/PowerData/LeftPanel";
 import RightPanel from "../components/PowerData/RightPanel";
-import moment from "moment";
 
 export default {
     name: "MapView",
     data() {
         return {
-            accessToken: process.env.ACCESS_TOKEN,
             map: {},
             gj: {},
-            powerOfPowerPlants: {},
             marker: [],
             popup: {},
-            chosenDate: "",
-            BASE_PATH: "https://powerplantmap.tech:5001/",
+            powerOfPowerPlants: {},
         };
     },
 
@@ -57,15 +42,12 @@ export default {
     mounted() {
         this.createMap();
         this.getLoad();
-        this.chosenDate = moment(Date(Date.now())).format("YYYY-MM-DD");
     },
 
-    async asyncData() {
-        const BASE_PATH = "https://powerplantmap.tech:5001/";
-        const basics = await fetch(
-            `${BASE_PATH}API/PowerData/getPowerPlantBasics`
+    async asyncData({ $axios }) {
+        const features = await $axios.$get(
+            `/api/PowerData/getPowerPlantBasics`
         );
-        const features = await basics.json();
         const gj = {
             type: "geojson",
             data: {
@@ -74,10 +56,9 @@ export default {
             },
         };
 
-        const powers = await fetch(
-            `${BASE_PATH}API/PowerData/getPowerOfPowerPlants`
+        const powerOfPowerPlants = await $axios.$get(
+            `/api/PowerData/getPowerOfPowerPlants`
         );
-        const powerOfPowerPlants = await powers.json();
 
         return { gj, powerOfPowerPlants };
     },
@@ -101,29 +82,17 @@ export default {
     },
 
     methods: {
-        async fetchWithBasePath(path) {
-            const basePath = "https://powerplantmap.tech:5001/";
-            const url = `${basePath}${path}`;
-            return fetch(url, {
-                mode: "no-cors",
-                contentType: "application/json",
-                accessControlAllowOrigin: "*",
-            });
-        },
-
         async getLoad() {
-            if (this.getDate != null) {
-                const powerOfPowerPlantsResponse = await fetch(
-                    `${this.BASE_PATH}API/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
-                );
-                this.powerOfPowerPlants =
-                    await powerOfPowerPlantsResponse.json();
+            if (this.getDate != null && this.getDate != undefined) {
+                this.powerOfPowerPlants = powerOfPowerPlantsResponse =
+                    await this.$axios.$get(
+                        `api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
+                    );
             }
             await this.$store.dispatch("power/setRightLoading", false);
         },
 
         createMap() {
-            // console.log(process.env);
             this.map = new mapboxgl.Map({
                 accessToken:
                     "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
@@ -163,22 +132,6 @@ export default {
             }
         },
 
-        async getPowerPlantBasics() {
-            const res = await fetch(
-                `${this.BASE_PATH}API/PowerData/getPowerPlantBasics`
-            );
-            const features = await res.json();
-
-            const data = {
-                type: "geojson",
-                data: {
-                    type: "FeatureCollection",
-                    features,
-                },
-            };
-            return data;
-        },
-
         async getDetailsOfPowerPlant(id) {
             try {
                 await this.$store.dispatch("power/setLeftPanelLoading", true);
@@ -186,15 +139,14 @@ export default {
                 await this.$store.dispatch("power/setSelectedBloc", -1);
                 await this.$store.dispatch("power/setLeftPanel", true);
 
-                const res =
-                    this.getDate === null
-                        ? await fetch(
-                              `${this.BASE_PATH}API/PowerData/getDetailsOfPowerPlant?id=${id}`
+                const data =
+                    this.getDate === null || this.getDate === undefined
+                        ? await this.$axios.$get(
+                              `/api/PowerData/getDetailsOfPowerPlant?id=${id}`
                           )
-                        : await fetch(
-                              `${this.BASE_PATH}API/PowerData/getDetailsOfPowerPlant?id=${id}&date=${this.getDate}`
+                        : await this.$axios.$get(
+                              `/api/PowerData/getDetailsOfPowerPlant?id=${id}&date=${this.getDate}`
                           );
-                const data = await res.json();
                 await this.$store.dispatch("power/setLeftContent", data);
                 await this.$store.dispatch("power/setLeftPanelLoading", false);
             } catch (error) {
@@ -202,12 +154,12 @@ export default {
             }
         },
 
-        async setDate() {
-            this.$store.dispatch("power/setRightLoading", true);
-            this.$store.dispatch("power/setLeftPanel", false);
-            await this.$store.dispatch("power/setDate", this.chosenDate);
-            await this.getLoad();
-        },
+        // async setDate() {
+        //     this.$store.dispatch("power/setRightLoading", true);
+        //     this.$store.dispatch("power/setLeftPanel", false);
+        //     await this.$store.dispatch("power/setDate", this.chosenDate);
+        //     await this.getLoad();
+        // },
     },
 };
 </script>
@@ -224,7 +176,7 @@ body {
     z-index: 1;
     background: rgba(255, 255, 255, 0.75);
     height: auto;
-    width: 33vw;
+    /* width: 33vw; */
     margin-top: 3.5rem;
     bottom: 0;
     top: 0;
@@ -254,13 +206,13 @@ body {
     background: rgba(255, 255, 255, 0.75);
     height: calc(100vh - 3.5rem);
     /* height: auto; */
-    width: 33vw;
+    /* width: 33vw; */
     margin-top: 3.5rem;
     right: 0;
 }
 
 #innerRight {
-    padding: 0.5rem 1rem;
+    /* padding: 0.5rem 1rem; */
 }
 
 .flexbox {

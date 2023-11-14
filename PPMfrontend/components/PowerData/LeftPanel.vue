@@ -11,10 +11,11 @@
                         icon="fa-solid fa-xmark fa-xs"
                         class="faicon"
                         v-on:click="closePanel"
+                        :size="'lg'"
                     />
                 </div>
             </div>
-            <p style="padding: 0">{{ dataStart }} - {{ dataEnd }}</p>
+            <p class="p-0 text-left">{{ dataStart }} - {{ dataEnd }}</p>
             <h6>Cím: {{ content.address }}</h6>
             <h6>
                 GPS-koordináták: {{ content.longitude }}, {{ content.latitude }}
@@ -59,6 +60,7 @@
                             icon="fa-solid fa-minus fa-xl"
                             class="faicon"
                             v-on:click="toggleBlocs"
+                            :size="'lg'"
                         />
                     </div>
                     <div v-else>
@@ -67,6 +69,7 @@
                             class="faicon"
                             v-on:click="toggleBlocs"
                             style="color: green"
+                            :size="'lg'"
                         />
                     </div>
                 </div>
@@ -437,7 +440,8 @@ h6 {
 
 #velse {
     max-height: calc(100vh - 3.5rem);
-    padding: 0.5rem 1rem;
+    /* padding: 0.5rem 1rem; */
+    padding-left: 1rem;
     overflow: auto;
 }
 

@@ -352,15 +352,9 @@ export default {
 
         async savePowerPlant() {
             console.log(this.powerPlant);
-            await fetch(
-                "https://powerplantmap.tech:5001/API/PowerPlant/AddPowerPlant",
-                {
-                    method: "POST",
-                    body: JSON.stringify(this.powerPlant),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
+            await this.$axios.$post(
+                "api/PowerPlant/AddPowerPlant",
+                this.powerPlant
             );
         },
     },

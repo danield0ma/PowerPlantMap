@@ -1,5 +1,5 @@
 <template>
-    <div class="About">
+    <div class="content">
         <h1>About PowerPlantMap</h1>
     </div>
 </template>
@@ -22,8 +22,8 @@ body {
     padding: 0;
 }
 
-.About {
-    background-color: #808080;
+.content {
+    background-color: white;
     overflow-y: auto;
     padding-top: 4rem;
     text-align: center;

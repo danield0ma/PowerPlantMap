@@ -92,16 +92,14 @@ export default {
         },
 
         async deletePowerPlant() {
-            if (window.confirm('Are you sure you want to delete this power plant?')) {
+            if (
+                window.confirm(
+                    "Are you sure you want to delete this power plant?"
+                )
+            ) {
                 console.log("Delete: " + this.powerPlant.powerPlantId);
-                await fetch(
-                    `https://powerplantmap.tech:5001/API/PowerPlant/Delete?id=${this.powerPlant.powerPlantId}`,
-                    {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
+                await this.$axios.$delete(
+                    `api/PowerPlant/Delete?id=${this.powerPlant.powerPlantId}`
                 );
             }
         },
