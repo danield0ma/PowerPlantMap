@@ -38,7 +38,7 @@
                     <div>
                         <input type="date" v-model="chosenDate" />
                         <button
-                            v-on:click="changeDate"
+                            @click="$emit('changeDate')"
                             class="btn btn-primary"
                             style="margin-left: 0.5rem"
                         >
@@ -69,15 +69,14 @@ import "chart.js";
 export default {
     name: "Energymix",
 
-    data() {
-        return {
-            chosenDate: moment(Date(Date.now())).format("YYYY-MM-DD"),
-            powerOfPowerPlants: this.powerArray,
-        };
-    },
+    // data() {
+    //     return {
+    //         powerOfPowerPlants: this.powerArray,
+    //     };
+    // },
 
     props: {
-        powerArray: {
+        powerOfPowerPlants: {
             type: Object,
             required: true,
         },
@@ -86,6 +85,15 @@ export default {
     computed: {
         getDate() {
             return this.$store.state.power.date;
+        },
+
+        chosenDate: {
+            get() {
+                return this.$store.state.power.date;
+            },
+            set(value) {
+                this.$store.dispatch("power/setDate", value);
+            },
         },
 
         startTime() {
@@ -384,18 +392,18 @@ export default {
             return result;
         },
 
-        async changeDate() {
-            this.$store.dispatch("power/setRightLoading", true);
-            this.$store.dispatch("power/setLeftPanel", false);
-            await this.$store.dispatch("power/setDate", this.chosenDate);
-            if (this.getDate != null && this.getDate != undefined) {
-                this.powerOfPowerPlants = await this.$axios.$get(
-                    `/api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
-                );
-            }
-            await this.$store.dispatch("power/setRightLoading", false);
-            console.log(this.powerOfPowerPlants);
-        },
+        // async changeDate() {
+        //     this.$store.dispatch("power/setRightLoading", true);
+        //     this.$store.dispatch("power/setLeftPanel", false);
+        //     // await this.$store.dispatch("power/setDate", this.chosenDate);
+        //     if (this.getDate != null && this.getDate != undefined) {
+        //         this.powerOfPowerPlants = await this.$axios.$get(
+        //             `/api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
+        //         );
+        //     }
+        //     await this.$store.dispatch("power/setRightLoading", false);
+        //     // console.log(this.powerOfPowerPlants);
+        // },
     },
 };
 </script>

@@ -5,7 +5,10 @@
             <LeftPanel></LeftPanel>
         </div>
         <div id="rightPanel" v-if="showRightPanel" class="col-md-4">
-            <RightPanel :powerArray="powerOfPowerPlants" />
+            <RightPanel
+                :powerOfPowerPlants="powerOfPowerPlants"
+                @changeDate="changeDate"
+            />
         </div>
         <font-awesome-icon
             v-else
@@ -57,6 +60,10 @@ export default {
     mounted() {
         this.createMap();
         this.getLoad();
+        this.$store.dispatch(
+            "power/setDate",
+            moment(Date(Date.now())).format("YYYY-MM-DD")
+        );
     },
 
     async asyncData({ $axios }) {
@@ -105,7 +112,11 @@ export default {
         },
 
         async getLoad() {
-            if (this.getDate != null && this.getDate != undefined) {
+            if (
+                this.getDate !== null &&
+                this.getDate !== undefined &&
+                this.getDate !== moment(Date(Date.now())).format("YYYY-MM-DD")
+            ) {
                 this.powerOfPowerPlants = await this.$axios.$get(
                     `api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
                 );
@@ -161,7 +172,10 @@ export default {
                 await this.$store.dispatch("power/setLeftPanel", true);
 
                 const data =
-                    this.getDate === null || this.getDate === undefined
+                    this.getDate === null ||
+                    this.getDate === undefined ||
+                    this.getDate ===
+                        moment(Date(Date.now())).format("YYYY-MM-DD")
                         ? await this.$axios.$get(
                               `/api/PowerData/getDetailsOfPowerPlant?id=${id}`
                           )
@@ -175,12 +189,13 @@ export default {
             }
         },
 
-        // async setDate() {
-        //     this.$store.dispatch("power/setRightLoading", true);
-        //     this.$store.dispatch("power/setLeftPanel", false);
-        //     await this.$store.dispatch("power/setDate", this.chosenDate);
-        //     await this.getLoad();
-        // },
+        async changeDate() {
+            this.$store.dispatch("power/setRightLoading", true);
+            this.$store.dispatch("power/setLeftPanel", false);
+            // await this.$store.dispatch("power/setDate", this.chosenDate);
+            await this.getLoad();
+            await this.$store.dispatch("power/setRightLoading", false);
+        },
     },
 };
 </script>
