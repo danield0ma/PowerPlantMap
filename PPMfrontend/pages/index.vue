@@ -4,9 +4,23 @@
         <div id="left" v-if="showLeftPanel" class="col-md-4">
             <LeftPanel></LeftPanel>
         </div>
-        <div id="rightPanel" v-if="rightNotLoading" class="col-md-4">
+        <div id="rightPanel" v-if="showRightPanel" class="col-md-4">
             <RightPanel :powerArray="powerOfPowerPlants" />
         </div>
+        <font-awesome-icon
+            v-else
+            v-on:click="openRightPanel"
+            icon="fa-solid fa-square-plus"
+            class="faicon"
+            :size="'3x'"
+            style="
+                position: absolute;
+                right: 1rem;
+                top: 4rem;
+                z-index: 2000;
+                color: green;
+            "
+        />
         <div id="map"></div>
     </div>
 </template>
@@ -15,6 +29,7 @@
 import mapboxgl from "mapbox-gl";
 import LeftPanel from "../components/PowerData/LeftPanel";
 import RightPanel from "../components/PowerData/RightPanel";
+import moment from "moment";
 
 export default {
     name: "MapView",
@@ -68,8 +83,11 @@ export default {
             return this.$store.state.power.left;
         },
 
-        rightNotLoading() {
-            return !this.$store.state.power.rightLoading;
+        showRightPanel() {
+            return (
+                !this.$store.state.power.rightLoading &&
+                this.$store.state.power.right
+            );
         },
 
         content() {
@@ -82,12 +100,15 @@ export default {
     },
 
     methods: {
+        openRightPanel() {
+            this.$store.dispatch("power/setRightPanel", true);
+        },
+
         async getLoad() {
             if (this.getDate != null && this.getDate != undefined) {
-                this.powerOfPowerPlants = powerOfPowerPlantsResponse =
-                    await this.$axios.$get(
-                        `api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
-                    );
+                this.powerOfPowerPlants = await this.$axios.$get(
+                    `api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
+                );
             }
             await this.$store.dispatch("power/setRightLoading", false);
         },

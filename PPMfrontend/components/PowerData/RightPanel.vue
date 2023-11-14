@@ -2,7 +2,7 @@
     <div>
         <div id="innerRight">
             <div class="d-flex justify-content-between m-2">
-                <div class="col-md-6 p-0">
+                <div class="col-md-7 p-0">
                     <div style="display: flex">
                         <div style="display: inline; vertical-align: sub">
                             <img
@@ -26,16 +26,25 @@
                     <p class="p-0 text-left">{{ startTime }} - {{ endTime }}</p>
                 </div>
                 <div
-                    class="col-md-6 p-0 d-flex align-items-center d-flex justify-content-end"
+                    class="col-md-5 p-0 d-flex align-items-end justify-content-end"
+                    style="flex-direction: column"
                 >
-                    <input type="date" v-model="chosenDate" />
-                    <button
-                        v-on:click="changeDate"
-                        class="btn btn-primary"
-                        style="margin-left: 0.5rem"
-                    >
-                        OK
-                    </button>
+                    <font-awesome-icon
+                        icon="fa-solid fa-xmark"
+                        class="faicon"
+                        v-on:click="closeRightPanel"
+                        :size="'lg'"
+                    />
+                    <div>
+                        <input type="date" v-model="chosenDate" />
+                        <button
+                            v-on:click="changeDate"
+                            class="btn btn-primary"
+                            style="margin-left: 0.5rem"
+                        >
+                            OK
+                        </button>
+                    </div>
                 </div>
             </div>
             <div>
@@ -135,6 +144,10 @@ export default {
     },
 
     methods: {
+        closeRightPanel() {
+            this.$store.dispatch("power/setRightPanel", false);
+        },
+
         chartData() {
             return {
                 labels: this.getDateArray("PKS"),
@@ -391,5 +404,11 @@ export default {
 #innerRight {
     max-height: calc(100vh - 3.5rem);
     overflow: auto;
+}
+
+.faicon {
+    cursor: pointer;
+    vertical-align: center;
+    padding: 0.5rem;
 }
 </style>

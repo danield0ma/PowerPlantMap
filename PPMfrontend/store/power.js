@@ -1,6 +1,7 @@
 export const state = () => ({
     date: null,
     left: false,
+    right: true,
     content: "",
     isLoading: false,
     rightLoading: true,
@@ -17,6 +18,9 @@ export const mutations = {
     },
     SET_LEFT(state, value) {
         state.left = value;
+    },
+    SET_RIGHT(state, value) {
+        state.right = value;
     },
     SET_CONTENT(state, content) {
         state.content = content;
@@ -44,6 +48,9 @@ export const actions = {
     },
     async setLeftPanel({ commit }, value) {
         await commit("SET_LEFT", value);
+    },
+    async setRightPanel({ commit }, value) {
+        await commit("SET_RIGHT", value);
     },
     async setLeftContent({ commit }, content) {
         await commit("SET_CONTENT", content);
