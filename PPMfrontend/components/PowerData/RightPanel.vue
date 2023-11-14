@@ -1,6 +1,9 @@
 <template>
-    <div>
-        <div id="innerRight">
+    <div id="innerRight">
+        <div v-if="isRightPanelLoading">
+            <h1>Loading...</h1>
+        </div>
+        <div v-else>
             <div class="d-flex justify-content-between m-2">
                 <div class="col-md-7 p-0">
                     <div style="display: flex">
@@ -36,7 +39,13 @@
                         :size="'lg'"
                     />
                     <div>
-                        <input type="date" v-model="chosenDate" @change="$emit('changeDate')" />
+                        <input
+                            type="date"
+                            v-model="chosenDate"
+                            @change="$emit('changeDate')"
+                            :min="minDate"
+                            :max="maxDate"
+                        />
                     </div>
                 </div>
             </div>
@@ -69,7 +78,18 @@ export default {
         },
     },
 
+    data() {
+        return {
+            minDate: "2015-01-01",
+            maxDate: moment(Date(Date.now())).format("YYYY-MM-DD"),
+        };
+    },
+
     computed: {
+        isRightPanelLoading() {
+            return this.$store.state.power.rightLoading;
+        },
+
         getDate() {
             return this.$store.state.power.date;
         },

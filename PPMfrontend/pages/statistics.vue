@@ -13,7 +13,13 @@
                 </option>
             </select>
         </div>
-        <input type="date" v-model="chosenDate" @change="setDate" />
+        <input
+            type="date"
+            v-model="chosenDate"
+            @change="setDate"
+            :min="minDate"
+            :max="maxDate"
+        />
         <p>{{ this.powerPlantStatistics.start }}</p>
         <div class="d-flex justify-content-between align-center">
             <div class="col-md-8 p-3">
@@ -80,6 +86,8 @@ export default {
                 { name: "Ausztria", img: "/austria.png" },
             ],
             selectedCountry: { name: "Magyarország", img: "/hu.png" },
+            minDate: "2015-01-01",
+            maxDate: moment(Date(Date.now())).format("YYYY-MM-DD"),
         };
     },
 

@@ -93,10 +93,11 @@ export default {
         },
 
         showRightPanel() {
-            return (
-                !this.$store.state.power.rightLoading &&
-                this.$store.state.power.right
-            );
+            return this.$store.state.power.right;
+        },
+
+        isRightPanelLoading() {
+            return this.$store.state.power.rightLoading;
         },
 
         content() {

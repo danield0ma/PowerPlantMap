@@ -87,8 +87,7 @@ public class PowerDataService : IPowerDataService
         
         if (date != null || startLocal != null && endLocal != null)
         {
-            var msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
-            System.Diagnostics.Debug.WriteLine(msg);
+            CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
         }
 
         int maxPowerOfPowerPlant = 0, currentPowerOfPowerPlant = 0;
@@ -165,8 +164,7 @@ public class PowerDataService : IPowerDataService
 
         if (date != null)
         {
-            var msg = await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
-            System.Diagnostics.Debug.WriteLine(msg);
+            CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
         }
 
         var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(
@@ -233,15 +231,19 @@ public class PowerDataService : IPowerDataService
         return timeStampsUtc[0] + " - " + timeStampsUtc[1] + " --> " + lastData[0];
     }
 
-    private async Task<string> CheckWhetherDataIsPresentInTheGivenTimePeriod(IReadOnlyList<DateTime> timeStamps)
+    private async void CheckWhetherDataIsPresentInTheGivenTimePeriod(IReadOnlyList<DateTime> timeStamps)
     {
-        var pastActivity = await _powerDataRepository.GetPastActivity(
-            "PA_gép1", timeStamps[0], timeStamps[1]);
-
-        if (pastActivity.Count < 10)
+        var count = 0;
+        var generatorNames = await _powerDataRepository.GetGeneratorNames();
+        foreach (var generatorName in generatorNames)
         {
-            return await InitData(timeStamps[0].AddHours(-2), timeStamps[1].AddHours(2));
+            var pastActivity = await _powerDataRepository.GetPastActivity(
+                        generatorName, timeStamps[0], timeStamps[1]);
+            count += pastActivity.Count;
         }
-        return "no InitData";
+
+        if (!(count < generatorNames.Count * 96 * 0.9)) return;
+        var msg = await InitData(timeStamps[0].AddDays(-1), timeStamps[1].AddDays(1));
+        System.Diagnostics.Debug.WriteLine(msg);
     }
 }
