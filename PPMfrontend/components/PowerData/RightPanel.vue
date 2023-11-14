@@ -36,14 +36,7 @@
                         :size="'lg'"
                     />
                     <div>
-                        <input type="date" v-model="chosenDate" />
-                        <button
-                            @click="$emit('changeDate')"
-                            class="btn btn-primary"
-                            style="margin-left: 0.5rem"
-                        >
-                            OK
-                        </button>
+                        <input type="date" v-model="chosenDate" @change="$emit('changeDate')" />
                     </div>
                 </div>
             </div>

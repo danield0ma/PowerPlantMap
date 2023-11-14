@@ -60,10 +60,12 @@ export default {
     mounted() {
         this.createMap();
         this.getLoad();
-        this.$store.dispatch(
-            "power/setDate",
-            moment(Date(Date.now())).format("YYYY-MM-DD")
-        );
+        if (this.getDate === null || this.getDate === undefined) {
+            this.$store.dispatch(
+                "power/setDate",
+                moment(Date(Date.now())).format("YYYY-MM-DD")
+            );
+        }
     },
 
     async asyncData({ $axios }) {

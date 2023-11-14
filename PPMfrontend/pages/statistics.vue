@@ -13,14 +13,7 @@
                 </option>
             </select>
         </div>
-        <input type="date" v-model="chosenDate" />
-        <button
-            v-on:click="setDate"
-            class="btn btn-primary"
-            style="margin-left: 0.5rem"
-        >
-            OK
-        </button>
+        <input type="date" v-model="chosenDate" @change="setDate" />
         <p>{{ this.powerPlantStatistics.start }}</p>
         <div class="d-flex justify-content-between align-center">
             <div class="col-md-8 p-3">
@@ -82,8 +75,6 @@ export default {
         return {
             powerPlantStatistics: {},
             countryStatistics: {},
-            chosenDate: "",
-
             countries: [
                 { name: "Magyarország", img: "/hu.png" },
                 { name: "Ausztria", img: "/austria.png" },
@@ -93,16 +84,52 @@ export default {
     },
 
     mounted() {
-        this.chosenDate = moment(Date(Date.now())).format("YYYY-MM-DD");
+        if (this.getDate === null || this.getDate === undefined) {
+            this.$store.dispatch(
+                "power/setDate",
+                moment(Date(Date.now())).format("YYYY-MM-DD")
+            );
+        }
     },
 
-    async asyncData({ $axios }) {
-        const powerPlantStatistics = await $axios.$get(
-            "/api/Statistics/GeneratePowerPlantStatistics"
-        );
-        const countryStatistics = await $axios.$get(
-            "/api/Statistics/GenerateCountryStatistics"
-        );
+    computed: {
+        getDate() {
+            return this.$store.state.power.date;
+        },
+
+        chosenDate: {
+            get() {
+                return this.$store.state.power.date;
+            },
+            set(value) {
+                this.$store.dispatch("power/setDate", value);
+            },
+        },
+    },
+
+    async asyncData({ $axios, store }) {
+        let powerPlantStatistics;
+        let countryStatistics;
+        const date = store.state.power.date;
+        if (
+            date === null ||
+            date === undefined ||
+            date === moment(Date(Date.now())).format("YYYY-MM-DD")
+        ) {
+            powerPlantStatistics = await $axios.$get(
+                "/api/Statistics/GeneratePowerPlantStatistics"
+            );
+            countryStatistics = await $axios.$get(
+                "/api/Statistics/GenerateCountryStatistics"
+            );
+        } else {
+            powerPlantStatistics = await $axios.$get(
+                `/api/Statistics/GeneratePowerPlantStatistics?day=${date}`
+            );
+            countryStatistics = await $axios.$get(
+                `/api/Statistics/GenerateCountryStatistics?day=${date}`
+            );
+        }
         return { powerPlantStatistics, countryStatistics };
     },
 
@@ -110,10 +137,10 @@ export default {
         async setDate() {
             if (this.chosenDate != null) {
                 this.powerPlantStatistics = await this.$axios.$get(
-                    `/api/Statistics/GeneratePowerPlantStatistics?day=${this.chosenDate}`
+                    `/api/Statistics/GeneratePowerPlantStatistics?day=${this.getDate}`
                 );
                 this.countryStatistics = await this.$axios.$get(
-                    `/api/Statistics/GenerateCountryStatistics?day=${this.chosenDate}`
+                    `/api/Statistics/GenerateCountryStatistics?day=${this.getDate}`
                 );
             }
         },
