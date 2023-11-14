@@ -31,7 +31,6 @@
                     {{ content.webpage }}
                 </a>
             </h6>
-            <!-- <a href={{ content.webpage }}>{{ content.webpage }}</a> -->
             <h6>Max teljesítmény: {{ content.maxPower }} MW</h6>
 
             <div v-if="blocsNotEnabled">
@@ -107,10 +106,7 @@
                             class="blocSelectionButton"
                             v-on:click="selectBloc(index)"
                         >
-                            {{
-                                /*bloc.blocId[bloc.blocId.length - 1]*/ index +
-                                1
-                            }}
+                            {{ index + 1 }}
                         </button>
                     </div>
                 </div>
@@ -184,9 +180,9 @@ export default {
 
     computed: {
         dataEnd() {
-            return moment(
-                this.$store.state.power.content.dataEnd
-            )./*add(-15, 'm').*/ format("YYYY.MM.DD HH:mm");
+            return moment(this.$store.state.power.content.dataEnd).format(
+                "YYYY.MM.DD HH:mm"
+            );
         },
 
         dataStart() {
@@ -200,10 +196,6 @@ export default {
         },
 
         content() {
-            // this.waitForVariableChange(this.isLoading, false).then(() => {
-            //     return this.$store.state.power.content;
-            // });
-
             while (this.isLoading) {
                 pass;
             }

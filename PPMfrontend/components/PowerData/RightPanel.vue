@@ -69,12 +69,6 @@ import "chart.js";
 export default {
     name: "Energymix",
 
-    // data() {
-    //     return {
-    //         powerOfPowerPlants: this.powerArray,
-    //     };
-    // },
-
     props: {
         powerOfPowerPlants: {
             type: Object,
@@ -338,34 +332,17 @@ export default {
         },
 
         getDateArray(PowerPlantId) {
-            // const powerOfPowerPlants = JSON.parse(
-            //     JSON.stringify(this.powerOfPowerPlants)
-            // );
-            // const powerData =
             return this.powerOfPowerPlants.data
                 .filter((x) => x.powerPlantName === PowerPlantId)
                 .flatMap((x) =>
                     x.powerStamps.map((y) => moment(y.start).format("HH:mm"))
                 );
-            // return powerData;
         },
 
-        // getLoadArray() {
-        //     const loadArray = [];
-        //     for (const load of this.$store.state.power.loadHistory) {
-        //         loadArray.push(load.currentLoad);
-        //     }
-        //     return loadArray;
-        // },
-
         getPowerOfPowerPlant(powerPlantId) {
-            // const powerOfPowerPlants = JSON.parse(
-            //     JSON.stringify(this.powerOfPowerPlants)
-            // );
             return this.powerOfPowerPlants.data
                 .filter((x) => x.powerPlantName === powerPlantId)
                 .flatMap((x) => x.powerStamps.map((y) => y.power));
-            // return powerData;
         },
 
         getPowerOfGasPowerPlants() {
@@ -375,8 +352,8 @@ export default {
                 power.push(0);
             }
 
-            for (const gasPP of gasPowerPlants) {
-                const array = this.getPowerOfPowerPlant(gasPP);
+            for (const gasPowerPlant of gasPowerPlants) {
+                const array = this.getPowerOfPowerPlant(gasPowerPlant);
                 for (let i = 0; i < array.length; i++) {
                     power[i] += array[i];
                 }
@@ -391,19 +368,6 @@ export default {
 
             return result;
         },
-
-        // async changeDate() {
-        //     this.$store.dispatch("power/setRightLoading", true);
-        //     this.$store.dispatch("power/setLeftPanel", false);
-        //     // await this.$store.dispatch("power/setDate", this.chosenDate);
-        //     if (this.getDate != null && this.getDate != undefined) {
-        //         this.powerOfPowerPlants = await this.$axios.$get(
-        //             `/api/PowerData/getPowerOfPowerPlants?date=${this.getDate}`
-        //         );
-        //     }
-        //     await this.$store.dispatch("power/setRightLoading", false);
-        //     // console.log(this.powerOfPowerPlants);
-        // },
     },
 };
 </script>

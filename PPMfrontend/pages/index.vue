@@ -192,7 +192,6 @@ export default {
         async changeDate() {
             this.$store.dispatch("power/setRightLoading", true);
             this.$store.dispatch("power/setLeftPanel", false);
-            // await this.$store.dispatch("power/setDate", this.chosenDate);
             await this.getLoad();
             await this.$store.dispatch("power/setRightLoading", false);
         },
