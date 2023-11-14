@@ -9,12 +9,14 @@ public class PowerHelper : IPowerHelper
     private readonly IDateHelper _dateHelper;
     private readonly IPowerDataRepository _dataRepository;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<PowerHelper> _logger;
 
-    public PowerHelper(IDateHelper dateHelper, IPowerDataRepository dataRepository, IConfiguration configuration)
+    public PowerHelper(IDateHelper dateHelper, IPowerDataRepository dataRepository, IConfiguration configuration, ILogger<PowerHelper> logger)
     {
         _dateHelper = dateHelper;
         _dataRepository = dataRepository;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<string> ApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
@@ -47,11 +49,13 @@ public class PowerHelper : IPowerHelper
                   "&periodStart=" + periodStartUtc +
                   "&periodEnd=" + periodEndUtc;
         
-        System.Diagnostics.Debug.WriteLine(queryString);
+        _logger.LogInformation("API query: {QueryString}", queryString);
 
         using var httpClient = new HttpClient();
         var response = await httpClient.GetAsync(queryString);
         var apiResponse = await response.Content.ReadAsStringAsync();
+        
+        _logger.LogInformation("Got API response");
         return apiResponse;
     }
 

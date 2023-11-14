@@ -13,19 +13,22 @@ public class PowerDataService : IPowerDataService
     private readonly IDateHelper _dateHelper;
     private readonly IPowerHelper _powerHelper;
     private readonly IXmlHelper _xmlHelper;
+    private readonly ILogger<PowerDataService> _logger;
 
     public PowerDataService(
         IDateHelper dateHelper, 
         IPowerPlantRepository powerPlantRepository,
         IPowerDataRepository powerDataRepository,
         IPowerHelper powerHelper,
-        IXmlHelper xmlHelper)
+        IXmlHelper xmlHelper,
+        ILogger<PowerDataService> logger)
     {
         _dateHelper = dateHelper;
         _powerPlantRepository = powerPlantRepository;
         _powerDataRepository = powerDataRepository;
         _powerHelper = powerHelper;
         _xmlHelper = xmlHelper;
+        _logger = logger;
     }
 
     public async Task<ActionResult<IEnumerable<PowerPlantBasicsModel>>> GetPowerPlantBasics()
@@ -87,7 +90,7 @@ public class PowerDataService : IPowerDataService
         
         if (date != null || startLocal != null && endLocal != null)
         {
-            CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
+            await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
         }
 
         int maxPowerOfPowerPlant = 0, currentPowerOfPowerPlant = 0;
@@ -164,7 +167,7 @@ public class PowerDataService : IPowerDataService
 
         if (date != null)
         {
-            CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
+            await CheckWhetherDataIsPresentInTheGivenTimePeriod(timeStampsUtc);
         }
 
         var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(
@@ -231,9 +234,11 @@ public class PowerDataService : IPowerDataService
         return timeStampsUtc[0] + " - " + timeStampsUtc[1] + " --> " + lastData[0];
     }
 
-    private async void CheckWhetherDataIsPresentInTheGivenTimePeriod(IReadOnlyList<DateTime> timeStamps)
+    private async Task CheckWhetherDataIsPresentInTheGivenTimePeriod(IReadOnlyList<DateTime> timeStamps)
     {
         var count = 0;
+        var difference = timeStamps[1].Subtract(timeStamps[0]);
+        var totalMinutes = difference.TotalMinutes;
         var generatorNames = await _powerDataRepository.GetGeneratorNames();
         foreach (var generatorName in generatorNames)
         {
@@ -242,8 +247,8 @@ public class PowerDataService : IPowerDataService
             count += pastActivity.Count;
         }
 
-        if (!(count < generatorNames.Count * 96 * 0.9)) return;
-        var msg = await InitData(timeStamps[0].AddDays(-1), timeStamps[1].AddDays(1));
-        System.Diagnostics.Debug.WriteLine(msg);
+        _logger.LogInformation("count: {Count}, difference: {Difference}, /15: {TotalMinutes}", count, difference, totalMinutes);
+        if (!(count < generatorNames.Count * (totalMinutes / 15) * 0.9)) return;
+        await InitData(timeStamps[0].AddDays(-1), timeStamps[1].AddDays(1));
     }
 }
