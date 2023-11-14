@@ -8,13 +8,17 @@
                 <nuxt-link to="/">PowerPlantMap</nuxt-link>
             </h4>
         </div>
-        <ul>
-            <p><nuxt-link to="/">Map</nuxt-link></p>
-            <p><nuxt-link to="/statistics">Statistics</nuxt-link></p>
-            <p><nuxt-link to="/about">About</nuxt-link></p>
-            <p><nuxt-link to="/login">Login</nuxt-link></p>
-            <p><nuxt-link to="/register">Register</nuxt-link></p>
-        </ul>
+        <b-navbar toggleable="md" type="dark" variant="info">
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-item href="/statistics">Statistics</b-nav-item>
+                    <b-nav-item href="/about">About</b-nav-item>
+                    <b-nav-item href="/login">Login</b-nav-item>
+                    <b-nav-item href="/register">Register</b-nav-item>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
     </div>
 </template>
 
@@ -25,7 +29,35 @@ export default {
 </script>
 
 <style>
+.navbar {
+    background-color: rgba(255, 255, 255, 0.75) !important;
+    width: auto !important;
+    position: absolute !important;
+    right: 0 !important;
+}
+
+.navbar-toggler {
+    background-color: gray;
+}
+
+.navbar-collapse {
+    position: absolute !important;
+    /* top: 3.5rem !important; */
+    /* background-color: gray; */
+    color: blue;
+    /* padding: 1rem; */
+}
+
+.navbar-nav .nav-link {
+    color: blue !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: darkblue !important;
+}
+
 .outerDiv {
+    width: 100vw !important;
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -8,12 +8,25 @@
                 <nuxt-link to="/admin">PowerPlantMap Admin</nuxt-link>
             </h4>
         </div>
-        <ul>
+        <!-- <ul>
             <p><nuxt-link to="/admin/powerplantseditor">Erőművek</nuxt-link></p>
             <p><nuxt-link to="/admin/email">E-mail lista</nuxt-link></p>
             <p><nuxt-link to="/admin/users">Felhasználók</nuxt-link></p>
             <p @click="logout">Kijelentkezés</p>
-        </ul>
+        </ul> -->
+        <b-navbar toggleable="md" type="dark" variant="info">
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav>
+                    <b-nav-item href="/admin/powerplantseditor"
+                        >Erőművek</b-nav-item
+                    >
+                    <b-nav-item href="/admin/email">E-mail lista</b-nav-item>
+                    <b-nav-item href="/admin/users">Felhasználók</b-nav-item>
+                    <b-nav-item @click="logout">Kijelentkezés</b-nav-item>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
     </div>
 </template>
 

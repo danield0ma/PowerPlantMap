@@ -27,7 +27,7 @@
                 </div>
                 <div
                     class="col-md-5 p-0 d-flex align-items-end justify-content-end"
-                    style="flex-direction: column"
+                    style="flex-direction: column; vertical-align: top"
                 >
                     <font-awesome-icon
                         icon="fa-solid fa-xmark"
@@ -36,7 +36,11 @@
                         :size="'lg'"
                     />
                     <div>
-                        <input type="date" v-model="chosenDate" @change="$emit('changeDate')" />
+                        <input
+                            type="date"
+                            v-model="chosenDate"
+                            @change="$emit('changeDate')"
+                        />
                     </div>
                 </div>
             </div>
