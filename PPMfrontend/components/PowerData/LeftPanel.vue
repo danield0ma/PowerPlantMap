@@ -51,7 +51,13 @@
                 </client-only>
             </div>
 
-            <div class="flexbox" v-if="content.blocs.length > 1">
+            <div
+                class="flexbox"
+                v-if="
+                    content.blocs.length > 1 ||
+                    content.blocs[0].generators.length > 1
+                "
+            >
                 <h4>Blokkok</h4>
                 <div class="inline">
                     <div v-if="blocsEnabled">
@@ -113,44 +119,19 @@
 
                 <div v-if="content.blocs[selectedBloc].generators.length > 1">
                     <div class="flexbox" style="justify-content: space-around">
-                        <div>
+                        <div
+                            v-for="generator in content.blocs[selectedBloc]
+                                .generators"
+                            :key="generator.generatorId"
+                        >
                             <line-chart
                                 :chart-data="
-                                    chartData(
-                                        content.blocs[selectedBloc]
-                                            .generators[0].generatorId,
-                                        true
-                                    )
+                                    chartData(generator.generatorId, true)
                                 "
                                 :chart-options="
                                     chartOptions(
-                                        content.blocs[selectedBloc]
-                                            .generators[0].generatorId,
-                                        content.blocs[selectedBloc]
-                                            .generators[0].generatorId,
-                                        true
-                                    )
-                                "
-                                :height="150"
-                                :width="200"
-                                chart-id="bloc"
-                            />
-                        </div>
-                        <div>
-                            <line-chart
-                                :chart-data="
-                                    chartData(
-                                        content.blocs[selectedBloc]
-                                            .generators[1].generatorId,
-                                        true
-                                    )
-                                "
-                                :chart-options="
-                                    chartOptions(
-                                        content.blocs[selectedBloc]
-                                            .generators[1].generatorId,
-                                        content.blocs[selectedBloc]
-                                            .generators[1].generatorId,
+                                        generator.generatorId,
+                                        generator.generatorId,
                                         true
                                     )
                                 "
