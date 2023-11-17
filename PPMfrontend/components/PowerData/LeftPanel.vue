@@ -9,7 +9,7 @@
                 <div class="inline">
                     <font-awesome-icon
                         icon="fa-solid fa-xmark fa-xs"
-                        class="faicon"
+                        class="faicon red"
                         v-on:click="closePanel"
                         :size="'lg'"
                     />
@@ -63,7 +63,7 @@
                     <div v-if="blocsEnabled">
                         <font-awesome-icon
                             icon="fa-solid fa-minus fa-xl"
-                            class="faicon"
+                            class="faicon red"
                             v-on:click="toggleBlocs"
                             :size="'lg'"
                         />
@@ -71,9 +71,8 @@
                     <div v-else>
                         <font-awesome-icon
                             icon="fa-solid fa-plus fa-xl"
-                            class="faicon"
+                            class="faicon green"
                             v-on:click="toggleBlocs"
-                            style="color: green"
                             :size="'lg'"
                         />
                     </div>
@@ -382,7 +381,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 p {
     margin: 0;
     padding: 0 0 0.5rem 1rem;
@@ -405,17 +404,16 @@ h6 {
     justify-content: space-between;
 }
 
-.faicon {
-    cursor: pointer;
-    color: red;
-    vertical-align: sub;
-}
-
-#velse {
+#content {
     max-height: calc(100vh - 3.5rem);
-    /* padding: 0.5rem 1rem; */
     padding-left: 1rem;
     overflow: auto;
+}
+
+@media (max-width: 768px) {
+    #content {
+        padding-left: 0.5rem;
+    }
 }
 
 .blocSelectionButton {

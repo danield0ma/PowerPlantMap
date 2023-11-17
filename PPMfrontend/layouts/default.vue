@@ -16,7 +16,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #head {
     position: absolute;
     top: 0;
@@ -26,6 +26,12 @@ export default {
     border: 0;
     z-index: 2;
     height: 3.5rem;
+}
+
+@media (max-width: 768px) {
+    #head {
+        background: rgba(255, 255, 255);
+    }
 }
 
 #body {

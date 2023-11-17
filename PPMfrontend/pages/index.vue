@@ -1,7 +1,7 @@
 <template>
     <div>
         <div style="height: 3.5rem; position: absolute"></div>
-        <div id="left" v-if="showLeftPanel" class="col-md-4">
+        <div id="leftPanel" v-if="showLeftPanel" class="col-md-4">
             <LeftPanel></LeftPanel>
         </div>
         <div id="rightPanel" v-if="showRightPanel" class="col-md-4">
@@ -19,8 +19,8 @@
             style="
                 position: absolute;
                 right: 1rem;
-                top: 4rem;
-                z-index: 2000;
+                top: 6rem;
+                z-index: 500;
                 color: green;
             "
         />
@@ -142,11 +142,8 @@ export default {
             const powerPlants = this.gj.data.features;
             for (const powerPlant of powerPlants) {
                 const element = document.createElement("div");
-                element.className = "marker";
+                element.className = "markerElement";
                 element.style.backgroundImage = `url('${powerPlant.properties.img}')`;
-                element.style.width = "3rem";
-                element.style.height = "3rem";
-                element.style.backgroundSize = "100%";
 
                 const marker = new mapboxgl.Marker(element)
                     .setLngLat(powerPlant.geometry.coordinates)
@@ -155,7 +152,7 @@ export default {
                 marker.getElement().addEventListener("click", () => {
                     if (
                         this.showLeftPanel &&
-                        this.content.powerPlantID === powerPlant.properties.id
+                        this.content.powerPlantId === powerPlant.properties.id
                     ) {
                         this.$store.dispatch("power/setLeftPanel", false);
                         this.$store.dispatch("power/setSelectedBloc", -1);
@@ -202,25 +199,7 @@ export default {
 };
 </script>
 
-<style>
-body {
-    margin: 0;
-    padding: 0;
-}
-
-#left {
-    display: block;
-    position: absolute;
-    z-index: 1;
-    background: rgba(255, 255, 255, 0.75);
-    height: auto;
-    /* width: 33vw; */
-    margin-top: 3.5rem;
-    bottom: 0;
-    top: 0;
-    /* left:0;
-    right:0; */
-}
+<style scoped>
 
 #map {
     width: 100vw;
@@ -228,48 +207,39 @@ body {
     position: relative;
 }
 
-.marker {
-    display: block;
-    border: none;
-    /* border-radius: 50%; */
-    cursor: pointer;
-    padding: 0;
-}
-
 #rightPanel {
-    /* float: right; */
     display: block;
     position: absolute;
-    z-index: 1;
+    z-index: 499;
     background: rgba(255, 255, 255, 0.75);
     height: calc(100vh - 3.5rem);
-    /* height: auto; */
-    /* width: 33vw; */
     margin-top: 3.5rem;
     right: 0;
 }
 
-#innerRight {
-    /* padding: 0.5rem 1rem; */
+#leftPanel {
+    display: block;
+    position: absolute;
+    z-index: 501;
+    background: rgba(255, 255, 255, 0.75);
+    height: auto;
+    margin-top: 3.5rem;
+    bottom: 0;
+    top: 0;
+}
+
+@media (max-width: 768px) {
+    #rightPanel {
+        background: rgba(255, 255, 255);
+    }
+
+    #leftPanel {
+        background: rgba(255, 255, 255);
+    }
 }
 
 .flexbox {
     display: flex;
     justify-content: space-between;
-}
-
-#chooseDay {
-    margin: auto;
-    /* display: block; */
-    position: absolute;
-    z-index: 1;
-    background: rgba(255, 255, 255, 0.75);
-    /* height: calc(100vh - 3.5rem); */
-    width: 20vw;
-    height: 80px;
-    text-align: center;
-    bottom: 2rem;
-    left: 40vw;
-    border-radius: 25px;
 }
 </style>

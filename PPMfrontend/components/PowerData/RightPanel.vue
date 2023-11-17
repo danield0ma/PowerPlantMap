@@ -6,7 +6,7 @@
         <div v-else>
             <div class="d-flex justify-content-between m-2">
                 <div class="col-md-7 p-0">
-                    <div style="display: flex">
+                    <div class="d-flex">
                         <div style="display: inline; vertical-align: sub">
                             <img
                                 src="hu.png"
@@ -21,6 +21,7 @@
                                 padding-left: 0.5rem;
                                 display: inline;
                                 vertical-align: top;
+                                margin: 0.25rem 0;
                             "
                         >
                             Hungary
@@ -28,25 +29,23 @@
                     </div>
                     <p class="p-0 text-left">{{ startTime }} - {{ endTime }}</p>
                 </div>
-                <div
-                    class="col-md-5 p-0 d-flex align-items-end justify-content-end"
-                    style="flex-direction: column"
-                >
-                    <font-awesome-icon
-                        icon="fa-solid fa-xmark"
-                        class="faicon"
-                        v-on:click="closeRightPanel"
-                        :size="'lg'"
-                    />
-                    <div>
-                        <input
-                            type="date"
-                            v-model="chosenDate"
-                            @change="$emit('changeDate')"
-                            :min="minDate"
-                            :max="maxDate"
+                <div class="col-md-5 p-0 d-flex flex-column">
+                    <div class="ml-auto">
+                        <font-awesome-icon
+                            icon="fa-solid fa-xmark"
+                            class="faicon red"
+                            v-on:click="closeRightPanel"
+                            :size="'lg'"
                         />
                     </div>
+                    <input
+                        type="date"
+                        v-model="chosenDate"
+                        @change="$emit('changeDate')"
+                        :min="minDate"
+                        :max="maxDate"
+                        class="dateInput"
+                    />
                 </div>
             </div>
             <div>
@@ -385,15 +384,14 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #innerRight {
     max-height: calc(100vh - 3.5rem);
     overflow: auto;
 }
 
-.faicon {
-    cursor: pointer;
-    vertical-align: center;
-    padding: 0.5rem;
+#dateInput {
+    max-width: 200px !important;
+    margin-left: auto;
 }
 </style>

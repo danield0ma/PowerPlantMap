@@ -1,6 +1,6 @@
 <template>
     <div class="outerDiv">
-        <div id="innerDiv">
+        <div class="d-flex">
             <nuxt-link to="/">
                 <img src="/electricity.png" width="30px" />
             </nuxt-link>
@@ -42,18 +42,13 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .outerDiv {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 0;
-    padding: 0 2rem;
-    /* background: rgba(255, 255, 255, 0.75); */
-}
-
-#innerDiv {
-    display: flex;
+    padding: 0 1rem;
 }
 
 ul {

@@ -17,11 +17,7 @@ export default {
 };
 </script>
 
-<style>
-body {
-    margin: 0;
-    padding: 0;
-}
+<style scoped>
 
 .About {
     background-color: #808080;

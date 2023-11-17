@@ -246,7 +246,6 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- <div v-else class="pt-3"></div> -->
                         <button
                             class="btn btn-success d-flex justify-content-center align-items-center p-0 ml-2 mr-2"
                             v-on:click="addBloc"
@@ -361,81 +360,8 @@ export default {
 };
 </script>
 
-<style>
-.card {
-    background-color: white;
-    border: 1px solid #333;
-    box-shadow: #333 0px 0px 3px;
-    border-radius: 15px;
-    padding: 1rem 0.5rem;
-    margin: 1rem 0.5rem;
-}
-
-.faicon {
-    cursor: pointer;
-    vertical-align: center;
-    padding: 0.5rem;
-}
-
-.white {
-    color: white;
-}
-
+<style scoped>
 h5 {
     margin: 0;
-}
-
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(0, 0, 0);
-    opacity: 0.75 !important;
-    z-index: 998;
-}
-
-.modal-content {
-    background-color: #f5f5f5;
-    color: #000;
-    padding: 10px;
-    border-radius: 15px;
-    border: 3px solid #333;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    opacity: 1;
-    max-width: 85%;
-    max-height: 90%;
-    z-index: 1000;
-    text-align: center;
-}
-
-.modal-body {
-    max-height: calc(90vh - 20px);
-    overflow: auto;
-    overflow-x: hidden;
-    padding: 10px;
-}
-
-.shade-content {
-    background-color: #000;
-    opacity: 1;
-    border-radius: 15px;
-    border: 3px solid #333;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    max-width: 85%;
-    z-index: 999;
-}
-
-.red {
-    color: red;
 }
 </style>

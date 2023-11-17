@@ -28,7 +28,7 @@
                     :key="powerPlant.generatorId"
                     class="grid"
                 >
-                    <div class="Card">
+                    <div class="card cardHover">
                         <p>{{ powerPlant.powerPlantId }}</p>
                     </div>
                 </div>
@@ -156,12 +156,7 @@ export default {
 };
 </script>
 
-<style>
-body {
-    margin: 0;
-    padding: 0;
-}
-
+<style scoped>
 table {
     border-collapse: collapse;
     padding: 2rem;
@@ -173,23 +168,6 @@ table {
     padding-top: 4rem;
     text-align: center;
     margin: auto;
-}
-
-.Card {
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding: 1rem;
-    margin: 0.25rem 0.5rem;
-    min-height: 100px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-}
-
-.Card:hover {
-    background-color: lightgray;
 }
 
 .grid {

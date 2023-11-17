@@ -1,7 +1,7 @@
 <template>
     <div>
-        <AdminHeader id="head" />
-        <Nuxt id="body" />
+        <AdminHeader id="nuxtHead" />
+        <Nuxt id="nuxtBody" />
     </div>
 </template>
 
@@ -16,8 +16,8 @@ export default {
 };
 </script>
 
-<style>
-#head {
+<style scoped>
+#nuxtHead {
     position: absolute;
     top: 0;
     left: 0;
@@ -28,7 +28,7 @@ export default {
     height: 3.5rem;
 }
 
-#body {
+#nuxtBody {
     position: relative;
     size: cover;
     height: 100vh;

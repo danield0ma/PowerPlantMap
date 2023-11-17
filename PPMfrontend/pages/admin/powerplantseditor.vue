@@ -1,7 +1,9 @@
 <template>
     <div class="Admin">
         <div class="container">
-            <div class="Card" style="flex-direction: column">
+            <div
+                class="card cardHover d-flex flex-column justify-content-around"
+            >
                 <h5>Ország választása</h5>
                 <select v-model="selectedCountry">
                     <option
@@ -28,7 +30,9 @@
                     </ul>
                 </div> -->
             </div>
-            <div class="Card">
+            <div
+                class="card cardHover d-flex flex-column justify-content-around"
+            >
                 <h5>Új erőmű létrehozása</h5>
                 <font-awesome-icon
                     :icon="['fas', 'plus']"
@@ -210,11 +214,6 @@ export default {
 </script>
 
 <style scoped>
-body {
-    margin: 0;
-    padding: 0;
-}
-
 .Admin {
     background-color: white;
     overflow: auto;
@@ -240,26 +239,8 @@ body {
     text-align: center;
 }
 
-.Card {
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding: 1rem;
-    margin: 1rem;
-    width: 250px;
-    display: flex;
-    justify-content: space-around;
-    min-height: 100px;
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-}
-
-.Card:hover {
-    background-color: lightgray;
-}
-
 p {
     padding-bottom: 0;
-    /* padding-top: 0.25rem; */
     text-align: center;
 }
 
@@ -349,19 +330,5 @@ h5 {
 
 .dropdown ul.show {
     display: block;
-}
-
-.faicon {
-    cursor: pointer;
-    vertical-align: center;
-    padding: 0.5rem;
-}
-
-.red {
-    color: red;
-}
-
-.green {
-    color: green;
 }
 </style>

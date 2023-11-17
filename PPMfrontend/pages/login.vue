@@ -75,6 +75,7 @@ export default {
 <style scoped>
 .container {
     padding-top: 20vh;
+    max-width: 80%;
 }
 
 h1 {

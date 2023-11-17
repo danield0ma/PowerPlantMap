@@ -30,14 +30,13 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .outerDiv {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 0;
     padding: 0 2rem;
-    /* background-color: gray; */
 }
 
 #innerDiv {

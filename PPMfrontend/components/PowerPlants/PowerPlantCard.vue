@@ -1,6 +1,6 @@
 <template>
-    <div class="CardContainer">
-        <div class="Card">
+    <div class="cardContainer">
+        <div class="card extendedCard cardHover">
             <img
                 :src="'/' + this.powerPlant.image"
                 width="45rem"
@@ -21,40 +21,6 @@
                     v-on:click="showModal = true"
                 />
             </div>
-            <!-- <div v-if="showDetails">
-                <label for="id">Erőmű azonosító:</label>
-                <input
-                    id="id"
-                    type="text"
-                    :placeholder="this.powerPlant.powerPlantId"
-                />
-                <p>{{ this.powerPlant.powerPlantId }}</p>
-                <p>{{ this.powerPlant.name }}</p>
-                <p>{{ this.powerPlant.description }}</p>
-                <p>{{ this.powerPlant.operatorCompany }}</p>
-                <p>{{ this.powerPlant.webpage }}</p>
-                <p>{{ this.powerPlant.longitude }}</p>
-                <p>{{ this.powerPlant.latitude }}</p>
-                <p>{{ this.powerPlant.color }}</p>
-                <p>{{ this.powerPlant.address }}</p>
-                <p>{{ this.powerPlant.isCountry }}</p>
-                <div
-                    v-for="currentBloc in this.powerPlant.blocs"
-                    :key="currentBloc.blocId"
-                >
-                    <p>{{ currentBloc.blocId }}</p>
-                    <p>{{ currentBloc.blocType }}</p>
-                    <p>{{ currentBloc.maxBlocCapacity }}</p>
-                    <p>{{ currentBloc.commissionDate }}</p>
-                    <div
-                        v-for="currentGenerator in currentBloc.generators"
-                        :key="currentGenerator.generatorId"
-                    >
-                        <p>{{ currentBloc.generatorId }}</p>
-                        <p>{{ currentBloc.maxCapacity }}</p>
-                    </div>
-                </div>
-            </div> -->
         </div>
         <PowerPlantModal
             :powerPlant="this.powerPlant"
@@ -107,13 +73,13 @@ export default {
 };
 </script>
 
-<style>
-.CardContainer {
+<style scoped>
+/* .CardContainer {
     display: flex;
     justify-content: center;
-}
+} */
 
-.Card {
+/* .Card {
     background-color: white;
     border: 1px solid black;
     border-radius: 5px;
@@ -124,33 +90,25 @@ export default {
     justify-content: space-around;
     align-items: center;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-}
-
-.Card:hover {
-    background-color: lightgray;
-}
+} */
 
 p {
     padding: 0 0.5rem;
     text-align: center;
     font-size: 18px;
+    margin: 0;
 }
 
-.faicon {
+/* .faicon {
     cursor: pointer;
     vertical-align: center;
     padding: 0.5rem;
-}
+} */
 
-.red {
-    color: red;
-}
-
-.green {
-    color: green !important;
-}
-
-.blue {
-    color: blue !important;
+.extendedCard {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
 }
 </style>
