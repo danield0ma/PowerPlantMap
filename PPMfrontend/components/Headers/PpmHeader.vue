@@ -1,20 +1,21 @@
 <template>
-    <div class="outerDiv">
-        <div class="d-flex">
-            <nuxt-link to="/">
+    <div>
+        <b-navbar toggleable="lg" type="light" variant="light">
+            <b-navbar-brand href="/">
                 <img src="/electricity.png" width="30px" />
-            </nuxt-link>
-            <h4 style="margin: 0 0 0.1rem 0.75rem">
-                <nuxt-link to="/">PowerPlantMap</nuxt-link>
-            </h4>
-        </div>
-        <ul>
-            <p><nuxt-link to="/">Map</nuxt-link></p>
-            <p><nuxt-link to="/statistics">Statistics</nuxt-link></p>
-            <p><nuxt-link to="/about">About</nuxt-link></p>
-            <p><nuxt-link to="/login">Login</nuxt-link></p>
-            <p><nuxt-link to="/register">Register</nuxt-link></p>
-        </ul>
+                PowerPlantMap
+            </b-navbar-brand>
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-item href="/">Map</b-nav-item>
+                    <b-nav-item href="/statistics">Statistics</b-nav-item>
+                    <b-nav-item href="/about">About</b-nav-item>
+                    <b-nav-item href="/admin">Admin</b-nav-item>
+                    <b-nav-item href="/register">Register</b-nav-item>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
     </div>
 </template>
 
@@ -43,30 +44,40 @@ export default {
 </script>
 
 <style scoped>
-.outerDiv {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0;
-    padding: 0 1rem;
+.navbar {
+    height: 3.5rem !important;
+    background-color: rgba(255, 255, 255, 0.75) !important;
+    width: 100% !important;
 }
 
-ul {
-    display: flex;
-    margin: 0;
-    text-decoration: none;
-    text-transform: none;
+.navbar-brand {
+    font-size: 24px !important;
+    padding-left: 1rem !important;
+    color: blue !important;
 }
 
-ul p {
-    padding: 1rem;
-    text-decoration: none;
-    margin: 0;
-    color: blue;
+.navbar-brand:hover {
+    color: darkblue !important;
 }
 
-a:hover {
-    text-decoration: none;
-    color: darkblue;
+.nav-link {
+    color: blue !important;
+    padding: 0 1rem !important;
+}
+
+.nav-link:hover {
+    color: darkblue !important;
+}
+
+@media (max-width: 768px) {
+    .nav-link {
+        margin: 0 !important;
+        padding: 1rem 0 1rem 2rem !important;
+        color: #333 !important;
+        font-size: 18px !important;
+        background-color: white !important;
+        z-index: 2500 !important;
+        color: blue !important;
+    }
 }
 </style>

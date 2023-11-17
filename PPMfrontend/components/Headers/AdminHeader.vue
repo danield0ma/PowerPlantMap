@@ -1,19 +1,22 @@
 <template>
-    <div class="outerDiv">
-        <div id="innerDiv">
-            <nuxt-link to="/admin">
+    <div>
+        <b-navbar toggleable="lg" type="light" variant="light">
+            <b-navbar-brand href="/admin">
                 <img src="/electricity.png" width="30px" />
-            </nuxt-link>
-            <h4 style="margin: 0 0 0.1rem 0.75rem">
-                <nuxt-link to="/admin">PowerPlantMap Admin</nuxt-link>
-            </h4>
-        </div>
-        <ul>
-            <p><nuxt-link to="/admin/powerplantseditor">Erőművek</nuxt-link></p>
-            <p><nuxt-link to="/admin/email">E-mail lista</nuxt-link></p>
-            <p><nuxt-link to="/admin/users">Felhasználók</nuxt-link></p>
-            <p @click="logout">Kijelentkezés</p>
-        </ul>
+                PPM Admin
+            </b-navbar-brand>
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-item href="/admin/powerplantseditor"
+                        >Erőművek</b-nav-item
+                    >
+                    <b-nav-item href="/admin/email">E-mail lista</b-nav-item>
+                    <b-nav-item href="/admin/users">Felhasználók</b-nav-item>
+                    <b-nav-item @click="logout">Kijelentkezés</b-nav-item>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
     </div>
 </template>
 
@@ -31,35 +34,40 @@ export default {
 </script>
 
 <style scoped>
-.outerDiv {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0;
-    padding: 0 2rem;
+.navbar {
+    height: 3.5rem !important;
+    background-color: rgba(255, 255, 255) !important;
+    width: 100% !important;
 }
 
-#innerDiv {
-    display: flex;
+.navbar-brand {
+    font-size: 24px !important;
+    padding-left: 1rem !important;
+    color: green !important;
 }
 
-ul {
-    display: flex;
-    margin: 0;
-    text-decoration: none;
-    text-transform: none;
+.navbar-brand:hover {
+    color: darkgreen !important;
 }
 
-ul p {
-    padding: 1rem;
-    text-decoration: none;
-    margin: 0;
-    color: blueviolet;
-    cursor: pointer;
+.nav-link {
+    color: green !important;
+    padding: 0 1rem !important;
 }
 
-a:hover {
-    text-decoration: none;
-    color: darkgreen;
+.nav-link:hover {
+    color: darkgreen !important;
+}
+
+@media (max-width: 768px) {
+    .nav-link {
+        margin: 0 !important;
+        padding: 1rem 0 1rem 2rem !important;
+        color: #333 !important;
+        font-size: 18px !important;
+        background-color: white !important;
+        z-index: 2500 !important;
+        color: green !important;
+    }
 }
 </style>

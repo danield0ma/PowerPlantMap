@@ -22,7 +22,7 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    background: rgba(255, 255, 255, 0.75);
+    /* background: rgba(255, 255, 255, 0.75); */
     border: 0;
     z-index: 2;
     height: 3.5rem;
