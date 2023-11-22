@@ -1,7 +1,7 @@
 <template>
     <div>
         <div style="height: 3.5rem; position: absolute"></div>
-        <div id="leftPanel" v-if="showLeftPanel" class="col-md-4">
+        <div id="leftPanel" v-if="showLeftPanel" class="col-md-4 overflow-auto">
             <LeftPanel></LeftPanel>
         </div>
         <div id="rightPanel" v-if="showRightPanel" class="col-md-4">
@@ -200,7 +200,6 @@ export default {
 </script>
 
 <style scoped>
-
 #map {
     width: 100vw;
     height: 100vh;

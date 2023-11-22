@@ -3,7 +3,7 @@
         <div v-if="isLoading">
             <h1>LOADING...</h1>
         </div>
-        <div v-else Id="velse">
+        <div v-else>
             <div class="flexbox">
                 <h4>{{ content.description }}</h4>
                 <div class="inline">
@@ -382,6 +382,10 @@ export default {
 </script>
 
 <style scoped>
+/* #velse {
+    overflow-y: auto;
+} */
+
 p {
     margin: 0;
     padding: 0 0 0.5rem 1rem;
