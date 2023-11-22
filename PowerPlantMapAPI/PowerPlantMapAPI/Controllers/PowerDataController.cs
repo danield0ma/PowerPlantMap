@@ -42,8 +42,8 @@ public class PowerDataController : ControllerBase
     }
 
     [HttpGet("")]
-    public async Task<string> InitData(DateTime? start = null, DateTime? end = null)
+    public async Task<string> QueryDataFromTheApi(DateTime? start = null, DateTime? end = null)
     {
-        return await _powerDataService.InitData(start, end);
+        return await _powerDataService.QueryDataFromTheApi(start, end);
     }
 }

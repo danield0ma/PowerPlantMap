@@ -1,0 +1,21 @@
+@startuml GetData
+
+(*) --> QueryDataFromTheApi
+
+if "Megvan mindkettő?" then
+  -->[true]Különbség kiszámítása
+else
+  -->[false]Legutolsó lekérdezése
+  -->ez az eleje
+  -->vége megállapítása
+
+
+if "Kissebb, mint 24?" then
+    -->[true]fasza
+  else
+    -->[false]Felosztás
+    -->QueryDataFromTheApi
+  endif
+endif
+
+@enduml

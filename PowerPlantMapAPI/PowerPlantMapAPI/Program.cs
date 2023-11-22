@@ -109,7 +109,7 @@ builder.Services.AddScoped<IPowerDataRepository, PowerDataRepository>();
 builder.Services.AddScoped<IPowerPlantRepository, PowerPlantRepository>();
 builder.Services.AddScoped<IEmailSubscriptionsRepository, EmailSubscriptionsRepository>();
 
-builder.Services.AddScoped<IPowerHelper, PowerHelper>();
+builder.Services.AddScoped<IPowerHelper, PowerDataHelper>();
 builder.Services.AddScoped<IXmlHelper, XmlHelper>();
 builder.Services.AddScoped<IDateHelper, DateHelper>();
 

@@ -9,5 +9,5 @@ public interface IPowerDataService
     Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null);
     Task<IEnumerable<PowerOfPowerPlantModel>> GetPowerOfPowerPlant(string id, DateTime? date = null, DateTime? start = null, DateTime? end = null);
     Task<PowerOfPowerPlantsModel> GetPowerOfPowerPlants(DateTime? date = null, DateTime? start = null, DateTime? end = null);
-    Task<string> InitData(DateTime? periodStart, DateTime? periodEnd);
+    Task<string> QueryDataFromTheApi(DateTime? periodStart, DateTime? periodEnd);
 }

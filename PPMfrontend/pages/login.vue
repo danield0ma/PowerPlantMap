@@ -30,6 +30,11 @@
                     <button type="submit" class="btn btn-primary">
                         Bejelentkezés
                     </button>
+                    <nuxt-link to="/register"
+                        ><button type="submit" class="btn btn-primary">
+                            Regisztráció
+                        </button></nuxt-link
+                    >
                 </form>
             </div>
         </div>

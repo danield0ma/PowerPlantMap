@@ -4,14 +4,14 @@ using PowerPlantMapAPI.Repositories;
 
 namespace PowerPlantMapAPI.Helpers;
 
-public class PowerHelper : IPowerHelper
+public class PowerDataHelper : IPowerHelper
 {
     private readonly IDateHelper _dateHelper;
     private readonly IPowerDataRepository _dataRepository;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<PowerHelper> _logger;
+    private readonly ILogger<PowerDataHelper> _logger;
 
-    public PowerHelper(IDateHelper dateHelper, IPowerDataRepository dataRepository, IConfiguration configuration, ILogger<PowerHelper> logger)
+    public PowerDataHelper(IDateHelper dateHelper, IPowerDataRepository dataRepository, IConfiguration configuration, ILogger<PowerDataHelper> logger)
     {
         _dateHelper = dateHelper;
         _dataRepository = dataRepository;
@@ -19,7 +19,7 @@ public class PowerHelper : IPowerHelper
         _logger = logger;
     }
 
-    public async Task<string> ApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
+    public async Task<string> MakeApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
     {
         var periodStartUtc = _dateHelper.EditTime(startUtc);
         var periodEndUtc = _dateHelper.EditTime(endUtc);

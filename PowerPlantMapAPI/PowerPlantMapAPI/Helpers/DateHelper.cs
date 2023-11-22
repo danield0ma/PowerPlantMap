@@ -67,7 +67,7 @@ public class DateHelper : IDateHelper
         return startTime;
     }
 
-    public async Task<List<DateTime>> GetInitDataTimeInterval()
+    public async Task<List<DateTime>> GetApiQueryTimeInterval()
     {
         var utcNow = DateTime.UtcNow;
         DateTime endUtc = new(utcNow.Year, utcNow.Month, utcNow.Day, utcNow.Hour, 0, 0);

@@ -12,7 +12,6 @@
                     <b-nav-item href="/statistics">Statistics</b-nav-item>
                     <b-nav-item href="/about">About</b-nav-item>
                     <b-nav-item href="/admin">Admin</b-nav-item>
-                    <b-nav-item href="/register">Register</b-nav-item>
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>

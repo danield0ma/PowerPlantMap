@@ -190,7 +190,7 @@ public class PowerDataService : IPowerDataService
         return powerOfPowerPlants;
     }
 
-    public async Task<string> InitData(DateTime? periodStart = null, DateTime? periodEnd = null)
+    public async Task<string> QueryDataFromTheApi(DateTime? periodStart = null, DateTime? periodEnd = null)
     {
         List<DateTime> timeStampsUtc = new();
         if (periodStart is { } time && periodEnd is { } time1)
@@ -202,7 +202,7 @@ public class PowerDataService : IPowerDataService
         }
         else
         {
-            timeStampsUtc = await _dateHelper.GetInitDataTimeInterval();
+            timeStampsUtc = await _dateHelper.GetApiQueryTimeInterval();
         }
 
         if ((timeStampsUtc[1] - timeStampsUtc[0]).TotalHours <= 24)
@@ -225,7 +225,7 @@ public class PowerDataService : IPowerDataService
                     end = timeStampsUtc[1];
                 }
 
-                await InitData(currentTime, end);
+                await QueryDataFromTheApi(currentTime, end);
                 currentTime = currentTime.AddHours(24);
             }
         }
@@ -249,6 +249,6 @@ public class PowerDataService : IPowerDataService
 
         _logger.LogInformation("count: {Count}, difference: {Difference}, /15: {TotalMinutes}", count, difference, totalMinutes);
         if (!(count < generatorNames.Count * (totalMinutes / 15) * 0.9)) return;
-        await InitData(timeStamps[0].AddDays(-1), timeStamps[1].AddDays(1));
+        await QueryDataFromTheApi(timeStamps[0].AddDays(-1), timeStamps[1].AddDays(1));
     }
 }
