@@ -11,7 +11,7 @@ public class PowerDataService : IPowerDataService
     private readonly IPowerPlantRepository _powerPlantRepository;
     private readonly IPowerDataRepository _powerDataRepository;
     private readonly IDateHelper _dateHelper;
-    private readonly IPowerHelper _powerHelper;
+    private readonly IPowerDataHelper _powerDataHelper;
     private readonly IXmlHelper _xmlHelper;
     private readonly ILogger<PowerDataService> _logger;
 
@@ -19,14 +19,14 @@ public class PowerDataService : IPowerDataService
         IDateHelper dateHelper, 
         IPowerPlantRepository powerPlantRepository,
         IPowerDataRepository powerDataRepository,
-        IPowerHelper powerHelper,
+        IPowerDataHelper powerDataHelper,
         IXmlHelper xmlHelper,
         ILogger<PowerDataService> logger)
     {
         _dateHelper = dateHelper;
         _powerPlantRepository = powerPlantRepository;
         _powerDataRepository = powerDataRepository;
-        _powerHelper = powerHelper;
+        _powerDataHelper = powerDataHelper;
         _xmlHelper = xmlHelper;
         _logger = logger;
     }
@@ -120,7 +120,7 @@ public class PowerDataService : IPowerDataService
                 {
                     GeneratorId = item.GeneratorId,
                     MaxCapacity = item.MaxCapacity,
-                    PastPower = await _powerHelper.
+                    PastPower = await _powerDataHelper.
                         GetGeneratorPower(item.GeneratorId, timeStampsUtc[0], timeStampsUtc[1])
                 };
                 
@@ -150,7 +150,7 @@ public class PowerDataService : IPowerDataService
     {
         var timeStampsUtc = await _dateHelper.HandleWhichDateFormatIsBeingUsed(date, start, end);
         var numberOfDataPoints = _dateHelper.CalculateTheNumberOfIntervals(timeStampsUtc[0], timeStampsUtc[1]);
-        var powerStamps = await _powerHelper.
+        var powerStamps = await _powerDataHelper.
             GetPowerStampsListOfPowerPlant(id, numberOfDataPoints, timeStampsUtc);
         return powerStamps;
     }
@@ -180,7 +180,7 @@ public class PowerDataService : IPowerDataService
             PowerOfPowerPlantDto powerOfPowerPlant = new()
             {
                 PowerPlantName = powerPlant,
-                PowerStamps = await _powerHelper.GetPowerStampsListOfPowerPlant(
+                PowerStamps = await _powerDataHelper.GetPowerStampsListOfPowerPlant(
                     powerPlant, numberOfDataPoints, timeStampsUtc)
             };
             data.Add(powerOfPowerPlant);

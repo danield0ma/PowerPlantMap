@@ -2,20 +2,17 @@
 
 (*) --> QueryDataFromTheApi
 
-if "Megvan mindkettő?" then
+if "Megvan mindkét időadat?" then
   -->[true]Különbség kiszámítása
-else
-  -->[false]Legutolsó lekérdezése
-  -->ez az eleje
-  -->vége megállapítása
-
-
-if "Kissebb, mint 24?" then
-    -->[true]fasza
+  if "Kissebb, mint 24?" then
+      -->[true]Adatlekérdezés
   else
     -->[false]Felosztás
     -->QueryDataFromTheApi
   endif
+else
+  -->[false]Legutolsó lekérdezése
+  -->Végidőpont kiszámítása
 endif
 
 @enduml

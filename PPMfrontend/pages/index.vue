@@ -4,7 +4,11 @@
         <div id="leftPanel" v-if="showLeftPanel" class="col-md-4 overflow-auto">
             <LeftPanel></LeftPanel>
         </div>
-        <div id="rightPanel" v-if="showRightPanel" class="col-md-4">
+        <div
+            id="rightPanel"
+            v-if="showRightPanel"
+            class="col-md-4 overflow-auto"
+        >
             <RightPanel
                 :powerOfPowerPlants="powerOfPowerPlants"
                 @changeDate="changeDate"

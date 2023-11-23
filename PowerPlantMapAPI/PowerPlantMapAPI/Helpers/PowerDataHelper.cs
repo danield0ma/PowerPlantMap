@@ -4,7 +4,7 @@ using PowerPlantMapAPI.Repositories;
 
 namespace PowerPlantMapAPI.Helpers;
 
-public class PowerDataHelper : IPowerHelper
+public class PowerDataHelper : IPowerDataHelper
 {
     private readonly IDateHelper _dateHelper;
     private readonly IPowerDataRepository _dataRepository;
