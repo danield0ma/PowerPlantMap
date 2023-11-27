@@ -74,36 +74,12 @@ export default {
 </script>
 
 <style scoped>
-/* .CardContainer {
-    display: flex;
-    justify-content: center;
-} */
-
-/* .Card {
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding: 1rem;
-    margin: 0.25rem 0.5rem;
-    min-height: 100px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25);
-} */
-
 p {
     padding: 0 0.5rem;
     text-align: center;
     font-size: 18px;
     margin: 0;
 }
-
-/* .faicon {
-    cursor: pointer;
-    vertical-align: center;
-    padding: 0.5rem;
-} */
 
 .extendedCard {
     display: flex;

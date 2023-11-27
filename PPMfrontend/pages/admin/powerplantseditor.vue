@@ -14,21 +14,6 @@
                         {{ country.name }}
                     </option>
                 </select>
-                <!-- <div class="dropdown">
-                    <button @click="isOpen = !isOpen">
-                        {{ selectedCountry || "Select a country" }}
-                    </button>
-                    <ul v-if="isOpen">
-                        <li
-                            v-for="country in countries"
-                            :key="country.name"
-                            @click="selectCountry(country)"
-                        >
-                            <img :src="country.flag" :alt="country.name" />
-                            {{ country.name }}
-                        </li>
-                    </ul>
-                </div> -->
             </div>
             <div
                 class="card cardHover d-flex flex-column justify-content-around"

@@ -24,7 +24,7 @@
                                 margin: 0.25rem 0;
                             "
                         >
-                            Hungary
+                            Magyarország
                         </h4>
                     </div>
                     <p class="p-0 text-left">{{ startTime }} - {{ endTime }}</p>

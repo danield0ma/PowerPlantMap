@@ -8,9 +8,8 @@
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item href="/">Map</b-nav-item>
-                    <b-nav-item href="/statistics">Statistics</b-nav-item>
-                    <b-nav-item href="/about">About</b-nav-item>
+                    <b-nav-item href="/">Térkép</b-nav-item>
+                    <b-nav-item href="/statistics">Statisztikák</b-nav-item>
                     <b-nav-item href="/admin">Admin</b-nav-item>
                 </b-navbar-nav>
             </b-collapse>

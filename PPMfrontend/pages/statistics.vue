@@ -1,8 +1,8 @@
 <template>
     <div class="content">
-        <h1>Statistics</h1>
+        <h1>Statisztikák</h1>
         <div>
-            <h5>Ország választása</h5>
+            <!-- <h5>Ország választása</h5>
             <select v-model="selectedCountry">
                 <option
                     v-for="country in countries"
@@ -11,55 +11,63 @@
                 >
                     {{ country.name }}
                 </option>
-            </select>
+            </select> -->
         </div>
-        <input
-            type="date"
-            v-model="chosenDate"
-            @change="setDate"
-            :min="minDate"
-            :max="maxDate"
-        />
-        <p>{{ this.powerPlantStatistics.start }}</p>
-        <div class="d-flex justify-content-between align-center">
-            <div class="col-md-8 p-3">
-                <div
-                    v-for="powerPlant in this.powerPlantStatistics.data"
-                    :key="powerPlant.generatorId"
-                    class="grid"
-                >
-                    <div class="card cardHover">
-                        <p>{{ powerPlant.powerPlantId }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 p-3">
-                <table class="mx-auto d-block">
-                    <thead>
-                        <tr>
-                            <th class="p-2">Ország</th>
-                            <th class="p-2">Importált energia</th>
-                            <th class="p-2">Exportált energia</th>
-                            <th class="p-2">Szaldó</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="country in this.countryStatistics.data"
-                            :key="country.countryId"
-                        >
-                            <td class="p-2">{{ country.countryId }}</td>
-                            <td class="p-2">{{ country.importedEnergy }}</td>
-                            <td class="p-2">{{ country.exportedEnergy }}</td>
-                            <td class="p-2">
-                                {{
-                                    country.importedEnergy -
-                                    country.exportedEnergy
-                                }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="d-flex justify-content-center">
+            <h5 class="pr-3">Dátum választása</h5>
+            <input
+                type="date"
+                v-model="chosenDate"
+                @change="setDate"
+                :min="minDate"
+                :max="maxDate"
+            />
+        </div>
+
+        <!-- <p>
+            {{ this.powerPlantStatistics.start }} -
+            {{ powerPlantStatistics.end }}
+        </p> -->
+
+        <b-form-checkbox v-model="isCountrySelected" switch class="switch">
+            Show country statistics
+        </b-form-checkbox>
+        <div
+            class="p-3 margin-auto d-flex align-items-center"
+            v-if="isCountrySelected"
+        >
+            <table class="mx-auto d-block">
+                <thead>
+                    <tr>
+                        <th class="p-2">Ország</th>
+                        <th class="p-2">Importált energia [MWh]</th>
+                        <th class="p-2">Exportált energia [MWh]</th>
+                        <th class="p-2">Szaldó [MWh]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="country in this.countryStatistics.data"
+                        :key="country.countryId"
+                    >
+                        <td class="p-2">{{ country.countryName }}</td>
+                        <td class="p-2">{{ country.importedEnergy }}</td>
+                        <td class="p-2">{{ country.exportedEnergy }}</td>
+                        <td class="p-2">
+                            {{
+                                country.importedEnergy - country.exportedEnergy
+                            }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 grid" v-else>
+            <div
+                v-for="powerPlant in this.powerPlantStatistics.data"
+                :key="powerPlant.generatorId"
+            >
+                <StatsCard :powerPlant="powerPlant"></StatsCard>
             </div>
         </div>
     </div>
@@ -67,6 +75,7 @@
 
 <script>
 import moment from "moment";
+import StatsCard from "../components/Stats/StatsCard";
 
 export default {
     name: "Statistics",
@@ -88,6 +97,7 @@ export default {
             selectedCountry: { name: "Magyarország", img: "/hu.png" },
             minDate: "2015-01-01",
             maxDate: moment(Date(Date.now())).format("YYYY-MM-DD"),
+            isCountrySelected: false,
         };
     },
 
@@ -124,6 +134,9 @@ export default {
             date === undefined ||
             date === moment(Date(Date.now())).format("YYYY-MM-DD")
         ) {
+            store.state.power.date = moment(Date.now())
+                .subtract(1, "days")
+                .format("YYYY-MM-DD");
             powerPlantStatistics = await $axios.$get(
                 "/api/Statistics/GeneratePowerPlantStatistics"
             );
@@ -178,5 +191,15 @@ table {
     align-items: center;
     gap: 15px;
     padding: 0 1rem 1rem 1rem;
+}
+
+.switch .custom-control-label::before {
+    background-color: #f8f9fa;
+    border: 2px solid #6c757d;
+}
+
+.switch .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #6c757d;
+    border-color: #6c757d;
 }
 </style>

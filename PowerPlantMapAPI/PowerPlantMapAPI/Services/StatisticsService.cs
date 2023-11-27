@@ -58,6 +58,9 @@ public class StatisticsService : IStatisticsService
                     PowerPlantStatisticsDto stat = new()
                     {
                         PowerPlantId = powerPlant.PowerPlantId,
+                        PowerPlantName = powerPlant.Name,
+                        PowerPlantDescription = powerPlant.Description,
+                        Image = powerPlant.Image,
                         BlocId = bloc.BlocId,
                         GeneratorId = generator.GeneratorId,
                         MaxPower = maxPowerOfGenerator,
@@ -111,6 +114,7 @@ public class StatisticsService : IStatisticsService
             {
                 CountryId = country.PowerPlantId,
                 CountryName = country.Name,
+                Image = country.Image,
                 ImportedEnergy = importedEnergy,
                 ExportedEnergy = exportedEnergy
             };
@@ -125,9 +129,4 @@ public class StatisticsService : IStatisticsService
         };
         return statistics;
     }
-
-    // private async Task UpdateMaxPowerCapacitiesOfPowerPlants()
-    // {
-    //     
-    // }
 }
