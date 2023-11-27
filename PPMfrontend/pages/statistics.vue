@@ -24,14 +24,20 @@
             />
         </div>
 
-        <!-- <p>
-            {{ this.powerPlantStatistics.start }} -
-            {{ powerPlantStatistics.end }}
-        </p> -->
-
         <b-form-checkbox v-model="isCountrySelected" switch class="switch">
-            Show country statistics
+            Országok statisztikája
         </b-form-checkbox>
+
+        <h3>
+            Szeretnéd ezeket a statisztikákat minden reggel a postaládádban
+            látni?
+        </h3>
+        <h5>Email feliratkozás:</h5>
+        <input type="email" placeholder="E-mail cím" v-model="email" />
+        <button class="btn btn-primary" v-on:click="addEmailSubscription">
+            Feliratkozás
+        </button>
+
         <div
             class="p-3 margin-auto d-flex align-items-center"
             v-if="isCountrySelected"
@@ -98,6 +104,7 @@ export default {
             minDate: "2015-01-01",
             maxDate: moment(Date(Date.now())).format("YYYY-MM-DD"),
             isCountrySelected: false,
+            email: "",
         };
     },
 
@@ -165,6 +172,18 @@ export default {
                 );
             }
         },
+
+        async addEmailSubscription() {
+            try {
+                await this.$axios.$post(
+                    "/api/EmailSubscriptions/Add?email=" + this.email
+                );
+                alert("Sikeresen feliratkoztál!");
+            } catch (error) {
+                alert("Hibás e-mail cím!");
+            }
+            this.email = "";
+        },
     },
 };
 </script>
@@ -173,14 +192,6 @@ export default {
 table {
     border-collapse: collapse;
     padding: 2rem;
-}
-
-.content {
-    background-color: white;
-    overflow-y: auto;
-    padding-top: 4rem;
-    text-align: center;
-    margin: auto;
 }
 
 .grid {

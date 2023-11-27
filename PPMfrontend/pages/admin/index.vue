@@ -1,6 +1,24 @@
 <template>
-    <div class="About">
+    <div class="content">
         <h1>Admin Index</h1>
+        <div class="pt-6 d-flex row justify-content-around mt-5">
+            <NuxtLink
+                to="/admin/powerplantseditor"
+                class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
+                ><h5>Erőművek szerkesztése</h5></NuxtLink
+            >
+            <NuxtLink
+                to="/admin/email"
+                class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
+            >
+                <h5>E-mail lista szerkesztése</h5>
+            </NuxtLink>
+            <NuxtLink
+                to="/admin/users"
+                class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
+                ><h5>Felhasználók kezelése</h5></NuxtLink
+            >
+        </div>
     </div>
 </template>
 
@@ -18,12 +36,9 @@ export default {
 </script>
 
 <style scoped>
-
-.About {
-    background-color: #808080;
-    overflow-y: auto;
-    padding-top: 4rem;
-    text-align: center;
-    margin: auto;
+.adminCard {
+    cursor: pointer;
+    padding: 7rem;
+    margin: 1rem;
 }
 </style>

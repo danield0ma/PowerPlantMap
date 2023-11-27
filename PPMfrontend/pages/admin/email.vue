@@ -1,20 +1,22 @@
 <template>
-    <div class="About">
-        <h1>PowerPlantMap Email lista</h1>
-        <div>
-            <h2>E-mail címek</h2>
-            <div
-                v-for="emailSubscription in emailSubscriptions"
-                :key="emailSubscription.Id"
-            >
-                <p>{{ emailSubscription.created }}</p>
-                <p>{{ emailSubscription.email }}</p>
-            </div>
+    <div class="content">
+        <h1>PowerPlantMap E-mail lista</h1>
+        <div
+            v-for="emailSubscription in emailSubscriptions"
+            :key="emailSubscription.Id"
+            class="d-flex justify-content-center"
+        >
+            <EmailCard
+                :subscription="emailSubscription"
+                @delete="deleteSubscription(emailSubscription.id)"
+            ></EmailCard>
         </div>
     </div>
 </template>
 
 <script>
+import EmailCard from "../../components/EmailSubscriptions/EmailCard";
+
 export default {
     name: "Email",
 
@@ -46,16 +48,14 @@ export default {
         );
         return { emailSubscriptions };
     },
+
+    methods: {
+        deleteSubscription(id) {
+            console.log(id);
+            this.emailSubscriptions = this.emailSubscriptions.filter(
+                (subscription) => subscription.id !== id
+            );
+        },
+    },
 };
 </script>
-
-<style scoped>
-
-.About {
-    background-color: #808080;
-    overflow-y: auto;
-    padding-top: 4rem;
-    text-align: center;
-    margin: auto;
-}
-</style>
