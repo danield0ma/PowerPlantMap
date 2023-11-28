@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using Microsoft.Extensions.Primitives;
 using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Helpers;
@@ -119,10 +120,21 @@ public class EmailService: IEmailService
         body.Append($"<tr><td>Összesen</td><td>{Format(importSum)}  MWh</td><td>{Format(exportSum)}  MWh</td>");
         body.Append($"<td><strong>{Format(importSum - exportSum)}  MWh</strong></td></tr></table>");
         const string url = "https://image-charts.com/chart?chs=190x190&chd=t:60,40&cht=p3&chl=Hello%7CWorld&chan&chf=ps0-0,lg,45,ffeb3b,0.2,f44336,1|ps0-1,lg,45,8bc34a,0.2,009688,1";
-        body.Append($"<img src={url} /></div></td></tr></tbody></table></body></html>");
+        body.Append($"<img src={url} /></div></td></tr>");
         
-        Console.WriteLine(body.ToString());
-        var msg = SendEmail( $"Napi erőműstatisztika - {date}", body.ToString());
+        var recipients = Get();
+        // var recipients = emailSubscriptions?.Select(x => x.Email);
+       
+        
+        var msg = "";
+        foreach (var recipient in recipients!)
+        {
+            var emailBody = new StringBuilder(body.ToString());
+            var unsubscribeUrl = $"https://powerplantmap.tech:5001/api/EmailSubscriptions/Delete?email={recipient.Id}";
+            emailBody.Append($"<a href={unsubscribeUrl}>Leiratkozás</a></tbody></table></body></html>");
+            msg += SendEmail(recipient.Email, $"Napi erőműstatisztika - {date}", emailBody.ToString());
+        }
+        
         return msg;
     }
 
@@ -173,9 +185,9 @@ public class EmailService: IEmailService
         _emailSubscriptionsRepository.Update(subscription!.Id, newEmail);
     }
 
-    public void Delete(string email)
+    public void Delete(Guid id)
     {
-        var subscription = _emailSubscriptionsRepository.GetByEmail(email);
+        var subscription = _emailSubscriptionsRepository.GetById(id);
         if (subscription is null)
         {
             throw new ArgumentException("Email not found");
@@ -183,31 +195,25 @@ public class EmailService: IEmailService
         _emailSubscriptionsRepository.Delete(subscription);
     }
     
-    public string SendEmail(string? subject, string? body)
+    public string SendEmail(string? to, string? subject, string? body)
     {
-        var emailSubscriptions = _emailSubscriptionsRepository.Get();
-        var recipients = emailSubscriptions?.Select(x => x.Email);
-        
         var client = new RestClient($"https://api.eu.mailgun.net/v3/{_configuration["Email:MailgunDomain"]}");
+        
+        var request = new RestRequest("messages", Method.Post);
+        request.AddHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{_configuration["Email:MailgunApiKey"]}"))}");
+        request.AddParameter("from", "PowerPlantMap <noreply@powerplantmap.tech>");
+        request.AddParameter("to", to);
+        request.AddParameter("subject", subject);
+        request.AddParameter("html", body);
 
-        foreach (var recipient in recipients!)
+        var response = client.Execute(request);
+        
+        if (response.StatusCode != System.Net.HttpStatusCode.OK)
         {
-            var request = new RestRequest("messages", Method.Post);
-            request.AddHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{_configuration["Email:MailgunApiKey"]}"))}");
-            request.AddParameter("from", "PowerPlantMap <noreply@powerplantmap.tech>");
-            request.AddParameter("to", recipient);
-            request.AddParameter("subject", subject);
-            request.AddParameter("html", body);
-    
-            var response = client.Execute(request);
-            
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-               Console.WriteLine($"Error while sending the email! {response.ErrorMessage}");
-               return $"Error while sending the emails! {response.ErrorMessage}";
-            }
+           Console.WriteLine($"Error while sending the email! {response.ErrorMessage}");
+           return $"Error while sending the email! {response.ErrorMessage}";
         }
-
+        
         return "Emails sent successfully!";
     }
     

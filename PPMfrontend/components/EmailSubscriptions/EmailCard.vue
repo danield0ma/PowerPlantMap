@@ -38,15 +38,9 @@ export default {
     methods: {
         async deleteSubscription() {
             if (!confirm("Biztosan törölni szeretnéd?")) return;
-            await this.$axios.$delete(
+            await this.$axios.$get(
                 "/api/EmailSubscriptions/Delete?email=" +
-                    this.subscription.email,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: this.$auth.getToken("local"),
-                    },
-                }
+                    this.subscription.email
             );
             this.$emit("delete");
         },

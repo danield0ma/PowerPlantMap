@@ -42,8 +42,8 @@ public class StatisticsController : ControllerBase
     }
     
     [HttpGet("")]
-    public string SendTestEmail(string? subject, string? body)
+    public string SendTestEmail(string? to, string? subject, string? body)
     {
-        return _emailService.SendEmail(subject, body);
+        return _emailService.SendEmail(to, subject, body);
     }
 }

@@ -69,13 +69,13 @@ public class EmailSubscriptionsController : ControllerBase
         }
     }
 
-    [HttpDelete("")]
-    public ActionResult Delete(string email)
+    [HttpGet("")]
+    public ActionResult Delete(Guid id)
     {
         try
         {
-            _emailService.Delete(email);
-            return Ok();
+            _emailService.Delete(id);
+            return Ok("Sikeres leiratkozás!");
         }
         catch (ArgumentException e)
         {
