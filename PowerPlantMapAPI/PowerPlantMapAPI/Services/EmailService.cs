@@ -42,9 +42,11 @@ public class EmailService: IEmailService
         var date = startAndEndTimeOfDailyStatistics[0].Year + "." +
                    startAndEndTimeOfDailyStatistics[0].Month + "." +
                    startAndEndTimeOfDailyStatistics[0].Day;
-        
-        var style = "#frame {border-style: solid; border-width: thin; border-color: #dadce0; border-radius: 8px; padding: 40px 20px; margin: 40px 20px; text-align: left}" +
-                    "#outer {padding-bottom: 20px; max-width: 850px; min-width: 600px; margin: auto; }";
+
+        var style =
+            "#frame {border-style: solid; border-width: thin; border-color: #dadce0; border-radius: 8px; padding: 40px 20px; margin: 40px 20px; text-align: left}" +
+            "#outer {padding-bottom: 20px; max-width: 850px; min-width: 600px; margin: auto; }" +
+            "a {text-decoration: none; color: #1a73e8; font-weight: bold; margin-top: 20px;}";
         var body = new StringBuilder($"<html><head><style>{style}</style></head><body><table id=\"outer\"><tbody><tr><td><div id=\"frame\"><h3>Napi erőműstatisztika - {date}</h3><ul>");
 
         var powerPlants = await _powerDataRepository.GetDataOfPowerPlants();
@@ -120,7 +122,7 @@ public class EmailService: IEmailService
         body.Append($"<tr><td>Összesen</td><td>{Format(importSum)}  MWh</td><td>{Format(exportSum)}  MWh</td>");
         body.Append($"<td><strong>{Format(importSum - exportSum)}  MWh</strong></td></tr></table>");
         const string url = "https://image-charts.com/chart?chs=190x190&chd=t:60,40&cht=p3&chl=Hello%7CWorld&chan&chf=ps0-0,lg,45,ffeb3b,0.2,f44336,1|ps0-1,lg,45,8bc34a,0.2,009688,1";
-        body.Append($"<img src={url} /></div></td></tr>");
+        body.Append($"<img src={url} />");
         
         var recipients = Get();
         // var recipients = emailSubscriptions?.Select(x => x.Email);
@@ -131,7 +133,7 @@ public class EmailService: IEmailService
         {
             var emailBody = new StringBuilder(body.ToString());
             var unsubscribeUrl = $"https://powerplantmap.tech:5001/api/EmailSubscriptions/Delete?email={recipient.Id}";
-            emailBody.Append($"<a href={unsubscribeUrl}>Leiratkozás</a></tbody></table></body></html>");
+            emailBody.Append($"<div style=\"text-align: center;\"><a href={unsubscribeUrl}>Leiratkozás</a></div></div></td></tr></tbody></table></body></html>");
             msg += SendEmail(recipient.Email, $"Napi erőműstatisztika - {date}", emailBody.ToString());
         }
         
