@@ -67,6 +67,7 @@ export default {
                 await this.$axios.$delete(
                     `api/PowerPlant/Delete?id=${this.powerPlant.powerPlantId}`
                 );
+                this.$emit("delete", this.powerPlant.powerPlantId);
             }
         },
     },

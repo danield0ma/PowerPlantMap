@@ -46,11 +46,14 @@ public class EmailService: IEmailService
         var style =
             "#frame {border-style: solid; border-width: thin; border-color: #dadce0; border-radius: 8px; padding: 40px 20px; margin: 40px 20px; text-align: left}" +
             "#outer {padding-bottom: 20px; max-width: 850px; min-width: 600px; margin: auto; }" +
-            "a {text-decoration: none; color: #1a73e8; font-weight: bold; margin-top: 20px;}";
-        var body = new StringBuilder($"<html><head><style>{style}</style></head><body><table id=\"outer\"><tbody><tr><td><div id=\"frame\"><h3>Napi erőműstatisztika - {date}</h3><ul>");
+            "a {text-decoration: none; color: #1a73e8; font-weight: bold; margin-top: 18px;}" +
+            "p {font-size: 20px;}" +
+            "td {padding: 0 10px;}";
+        var body = new StringBuilder($"<html><head><style>{style}</style></head><body><table id=\"outer\"><tbody><tr><td><div id=\"frame\"><div style=\"text-align: center;\"><h2>Napi erőműstatisztika - {date}</h2></div><ul>");
 
         var powerPlants = await _powerDataRepository.GetDataOfPowerPlants();
         var filteredPowerPlants = powerPlants.Where(x => x.IsCountry == false).ToList();
+        var generatedEnergyByPowerPlants = new List<double>();
         foreach (var powerPlant in filteredPowerPlants)
         {
             var blocData = new StringBuilder("<ul>");
@@ -97,6 +100,8 @@ public class EmailService: IEmailService
             {
                 body.Append($"{blocData}</ul>");
             }
+
+            generatedEnergyByPowerPlants.Append(powerPlantGeneratedEnergy);
         }
 
         var generatedEnergySum = powerPlantStatistics.Data!
@@ -104,30 +109,51 @@ public class EmailService: IEmailService
             .Select(z => z.GeneratedEnergy).Sum();
         body.Append($"</ul><h3>Összes termelt energia: {Format(generatedEnergySum)}  MWh</h3>");
 
-        body.Append($"<h3>\nImport-Export statisztika - 11.11</h3><table>");
+        body.Append($"<h3>\nImport-Export statisztika - {date}</h3><table style=\"margin: auto;\">");
         body.Append(
-            "<thead><td>Ország</td><td>Importált energia</td><td>Exportált energia</td><td>Szaldó</td></thead>");
+            "<thead><td><p>Ország</p></td><td><p>Importált energia</p></td><td><p>Exportált energia</p></td><td><p>Szaldó</p></td></thead>");
+        var sums = new List<double>();
         foreach (var country in countryStatistics.Data!)
         {
             if (country.CountryId is null) continue;
-            
+            var sum = country.ImportedEnergy - country.ExportedEnergy;
             body.Append(
-                $"<tr><td>{country.CountryName}</td><td>{Format(country.ImportedEnergy)}  MWh</td><td>{Format(country.ExportedEnergy)}  MWh</td>");
-            body.Append($"<td>{Format(country.ImportedEnergy - country.ExportedEnergy)}  MWh</td></tr>");
+                $"<tr><td><p>{country.CountryName}</p></td><td><p>{Format(country.ImportedEnergy)}  MWh</p></td><td><p>{Format(country.ExportedEnergy)}  MWh</p></td>");
+            body.Append($"<td><p>{Format(sum)}  MWh</p></td></tr>");
+            sums.Add(sum);
         }
 
         var importSum = countryStatistics.Data.Select(x => x.ImportedEnergy).Sum();
         var exportSum = countryStatistics.Data.Select(x => x.ExportedEnergy).Sum();
 
-        body.Append($"<tr><td>Összesen</td><td>{Format(importSum)}  MWh</td><td>{Format(exportSum)}  MWh</td>");
-        body.Append($"<td><strong>{Format(importSum - exportSum)}  MWh</strong></td></tr></table>");
-        const string url = "https://image-charts.com/chart?chs=190x190&chd=t:60,40&cht=p3&chl=Hello%7CWorld&chan&chf=ps0-0,lg,45,ffeb3b,0.2,f44336,1|ps0-1,lg,45,8bc34a,0.2,009688,1";
-        body.Append($"<img src={url} />");
+        body.Append($"<tr><td><p>Összesen</p></td><td><p>{Format(importSum)}  MWh</p></td><td><p>{Format(exportSum)}  MWh</p></td>");
+        body.Append($"<td><strong><p>{Format(importSum - exportSum)}  MWh</p></strong></td></tr></table>");
+        
+        var barCahrtUrl = new StringBuilder();
+        barCahrtUrl.Append("https://image-charts.com/chart.js/2.8.0?bkg=white&c=%7B%0A%20%20%22type%22%3A%20%22bar%22%2C%0A%20%20%22data%22%3A%20%7B%0A%20%20%20%20%22datasets%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B"); 
+        
+        Console.WriteLine("sums");
+        foreach (var (sum, index) in sums.Select((value, index) => (value, index)))
+        {
+            Console.WriteLine(sum);
+            barCahrtUrl.Append(sum);
+            if (index != sums.Count - 1)
+            {
+                barCahrtUrl.Append("%2C%20");
+            }
+        }
+        Console.WriteLine(barCahrtUrl);
+        barCahrtUrl.Append(
+            "%5D%2C%0A%20%20%20%20%20%20%20%20%22backgroundColor%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%22rgb%28216%2C%200%2C%2039%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%2823%2C%2023%2C%20150%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%28191%2C%20159%2C%2017%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%280%2C%20139%2C%2027%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%280%2C%200%2C%200%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%280%2C%2082%2C%20180%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%28255%2C%20218%2C%2068%29%22%0A%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20label%3A%20%22%22%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22labels%22%3A%20%5B%22Ausztria%22%2C%20%22Horv%C3%A1torsz%C3%A1g%22%2C%20%22Rom%C3%A1nia%22%2C%20%22Szlov%C3%A9nia%22%2C%20%20%22Szerbia%22%2C%20%22Szlov%C3%A1kia%22%2C%20%22Ukrajna%22%5D%0A%20%20%7D%0A%7D");
+        body.Append($"<div style=\"text-align: center; margin: 30px;\"><img src={barCahrtUrl.Replace(",", ".")} width=\"500px\" /></div>");
+        
+        var pieChartUrl = "https://image-charts.com/chart.js/2.8.0?bkg=white&c=%7B%0A%20%20%22type%22%3A%20%22pie%22%2C%0A%20%20%22data%22%3A%20%7B%0A%20%20%20%20%22datasets%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B" +
+           generatedEnergySum + "%2C%20" +
+           (importSum - exportSum) + 
+           "%5D%2C%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22labels%22%3A%20%5B%22Hazai%20termel%C3%A9s%22%2C%20%22Import-export%20szald%C3%B3%22%5D%0A%20%20%7D%2C%0A%7D";
+        body.Append($"<div style=\"text-align: center; margin: 30px;\"><img src={pieChartUrl} width=\"500px\"; /></div>");
         
         var recipients = Get();
-        // var recipients = emailSubscriptions?.Select(x => x.Email);
-       
-        
         var msg = "";
         foreach (var recipient in recipients!)
         {

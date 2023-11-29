@@ -1,7 +1,7 @@
 <template>
     <div class="Admin">
         <div class="container">
-            <div
+            <!-- <div
                 class="card cardHover d-flex flex-column justify-content-around"
             >
                 <h5>Ország választása</h5>
@@ -14,7 +14,7 @@
                         {{ country.name }}
                     </option>
                 </select>
-            </div>
+            </div> -->
             <div
                 class="card cardHover d-flex flex-column justify-content-around"
             >
@@ -31,6 +31,7 @@
             :powerPlant="this.EmptyPowerPlant"
             v-if="showModal"
             @close="showModal = false"
+            @addedPowerPlant="addPowerPlant"
         />
         <h1 v-on:click="toggleShowPowerPlants">Erőművek</h1>
         <transition name="fade" mode="out-in">
@@ -41,7 +42,7 @@
                 >
                     <PowerPlantCard
                         :powerPlant="currentPowerPlant"
-                        @click="$emit('openModal')"
+                        @delete="deletePowerPlant"
                     />
                 </div>
             </div>
@@ -174,6 +175,10 @@ export default {
     },
 
     methods: {
+        updatePowerPlants(newPowerPlants) {
+            this.powerPlants = { ...newPowerPlants };
+        },
+
         selectCountry(country) {
             this.selectedCountry = country.name;
             this.isOpen = false;
@@ -193,6 +198,16 @@ export default {
 
         toggleShowUnknownPowerPlants() {
             this.showUnknownPowerPlants = !this.showUnknownPowerPlants;
+        },
+
+        deletePowerPlant(id) {
+            this.powerPlants = this.powerPlants.filter(
+                (powerPlant) => powerPlant.powerPlantId !== id
+            );
+        },
+
+        addPowerPlant(powerPlant) {
+            this.powerPlants.push(powerPlant);
         },
     },
 };

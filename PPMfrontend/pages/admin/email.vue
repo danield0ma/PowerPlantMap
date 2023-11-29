@@ -51,7 +51,6 @@ export default {
 
     methods: {
         deleteSubscription(id) {
-            console.log(id);
             this.emailSubscriptions = this.emailSubscriptions.filter(
                 (subscription) => subscription.id !== id
             );

@@ -6,7 +6,7 @@
             :key="user.id"
             class="d-flex justify-content-center"
         >
-            <UserCard :user="user"></UserCard>
+            <UserCard :user="user" @delete="deleteUser(user.id)"></UserCard>
         </div>
     </div>
 </template>
@@ -16,18 +16,25 @@ import UserCard from "../../components/Users/UserCard";
 
 export default {
     name: "Email",
+
     layout: "adminLayout",
+
     middleware: "authenticated",
+
     head() {
         return {
             title: "Email lista szerkesztő - PowerPlantMap",
         };
     },
+
+    components: { UserCard },
+
     data() {
         return {
             users: [],
         };
     },
+
     async asyncData({ $auth, $axios }) {
         const users = await $axios.$get("/api/Account/Get", {
             headers: {
@@ -37,6 +44,11 @@ export default {
         });
         return { users };
     },
-    components: { UserCard },
+
+    methods: {
+        deleteUser(id) {
+            this.users = this.users.filter((user) => user.id !== id);
+        },
+    },
 };
 </script>

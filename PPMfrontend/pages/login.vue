@@ -65,9 +65,10 @@ export default {
     methods: {
         async userLogin() {
             try {
-                const response = await this.$auth.loginWith("local", {
+                await this.$auth.loginWith("local", {
                     data: this.login,
                 });
+                await this.$auth.fetchUserOnce();
                 this.$router.push("/admin");
             } catch (err) {
                 console.log(err);

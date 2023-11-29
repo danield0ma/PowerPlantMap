@@ -268,9 +268,18 @@
                     <button
                         type="submit"
                         class="btn btn-success ml-3"
-                        v-on:click="savePowerPlant"
+                        v-on:click="addPowerPlant"
+                        v-if="!this.isEditing"
                     >
-                        Mentés
+                        Létrehoz
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-success ml-3"
+                        v-on:click="modifyPowerPlant"
+                        v-else
+                    >
+                        Módosít
                     </button>
                 </div>
             </div>
@@ -288,12 +297,11 @@ export default {
     data() {
         return {
             isEditing: false,
-            // powerPlant: {},
         };
     },
 
     mounted() {
-        this.editing = this.powerPlant.powerPlantId !== "";
+        this.isEditing = this.powerPlant.powerPlantId !== "";
 
         if (this.isEditing) {
             this.powerPlant.blocs.map((bloc, index) => {
@@ -316,11 +324,8 @@ export default {
                 generators: [],
             };
 
-            if (this.powerPlant.blocs.length > 0) {
-                this.powerPlant.blocs.push(newBloc);
-            } else {
-                this.powerPlant.blocs = [newBloc];
-            }
+            this.powerPlant.blocs.push(newBloc);
+            this.powerPlant = { ...this.powerPlant };
 
             this.addGenerator(
                 this.powerPlant.blocs[this.powerPlant.blocs.length - 1]
@@ -340,6 +345,7 @@ export default {
                 generatorId: "",
                 maxCapacity: "",
             });
+            this.powerPlant = { ...this.powerPlant };
         },
 
         removeGenerator(bloc, generator) {
@@ -349,12 +355,30 @@ export default {
             }
         },
 
-        async savePowerPlant() {
+        async addPowerPlant() {
             console.log(this.powerPlant);
-            await this.$axios.$post(
-                "api/PowerPlant/AddPowerPlant",
-                this.powerPlant
-            );
+            try {
+                await this.$axios.$post(
+                    "api/PowerPlant/AddPowerPlant",
+                    this.powerPlant,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: this.$auth.getToken("local"),
+                        },
+                    }
+                );
+                this.$emit("close");
+                this.$emit("addedPowerPlant", this.powerPlant);
+                alert("Sikeres mentés!");
+            } catch (err) {
+                console.log(err);
+                alert("Hiba történt a mentés során!");
+            }
+        },
+
+        modifyPowerPlant() {
+            alert("Test");
         },
     },
 };
