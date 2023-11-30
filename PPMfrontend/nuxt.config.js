@@ -53,7 +53,7 @@ export default {
 
     buildModules: ["@nuxtjs/fontawesome", "@nuxtjs/pwa"],
 
-    modules: ["bootstrap-vue/nuxt", "@nuxtjs/auth", "@nuxtjs/axios"],
+    modules: ["bootstrap-vue/nuxt", "@nuxtjs/auth", "@nuxtjs/axios", '@nuxtjs/dotenv'],
 
     axios: {
         baseURL: "https://powerplantmap.tech:5001",

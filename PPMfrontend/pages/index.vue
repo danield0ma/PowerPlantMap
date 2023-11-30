@@ -133,14 +133,13 @@ export default {
 
         createMap() {
             this.map = new mapboxgl.Map({
-                accessToken:
-                    "pk.eyJ1IjoiZGFuaWVsZG9tYSIsImEiOiJjbDJvdDI1Mm4xNWZoM2NydWdxbWdvd3ViIn0.5x6xp0dGOMB_eh6_r_V79Q",
+                accessToken: process.env.ACCESS_TOKEN,
                 container: "map",
-                style: "mapbox://styles/danieldoma/cl6gnh6eg008l14pdjazw50fy",
+                style: process.env.STYLE,
                 center: [19.7, 47.15],
-                zoom: 6.75,
-                maxZoom: 9,
-                minZoom: 5,
+                zoom: 6.5,
+                maxZoom: 7.99,
+                minZoom: 4.5,
             });
 
             const powerPlants = this.gj.data.features;

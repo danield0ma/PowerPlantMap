@@ -1,41 +1,41 @@
 {
-  "name": "PPMfrontend",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.1.2",
-    "@fortawesome/free-brands-svg-icons": "^6.1.2",
-    "@fortawesome/free-regular-svg-icons": "^6.1.2",
-    "@fortawesome/free-solid-svg-icons": "^6.1.2",
-    "@fortawesome/vue-fontawesome": "^2.0.8",
-    "@nuxtjs/auth": "^4.9.1",
-    "@nuxtjs/axios": "^5.13.6",
-    "@nuxtjs/fontawesome": "^1.1.2",
-    "@nuxtjs/pwa": "^3.3.5",
-    "axios": "^0.21.4",
-    "babel": "^6.23.0",
-    "bootstrap": "^4.6.1",
-    "bootstrap-vue": "^2.21.2",
-    "chart.js": "^3.9.1",
-    "core-js": "^3.19.3",
-    "dotenv": "^16.3.1",
-    "mapbox-gl": "^2.9.2",
-    "moment": "^2.29.4",
-    "nuxt": "^2.16.2",
-    "pem": "^1.14.8",
-    "vue": "^2.7.14",
-    "vue-chartjs": "^4.1.2",
-    "vue-server-renderer": "^2.6.14",
-    "vue-svg-pan-zoom": "^2.1.0",
-    "vue-template-compiler": "^2.6.14"
-  },
-  "devDependencies": {
-    "webpack": "^4.0.0"
-  }
+    "name": "powerplantmap",
+    "version": "1.2.0",
+    "private": true,
+    "scripts": {
+        "dev": "nuxt",
+        "build": "nuxt build",
+        "start": "nuxt start",
+        "generate": "nuxt generate"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.1.2",
+        "@fortawesome/free-brands-svg-icons": "^6.1.2",
+        "@fortawesome/free-regular-svg-icons": "^6.1.2",
+        "@fortawesome/free-solid-svg-icons": "^6.1.2",
+        "@fortawesome/vue-fontawesome": "^2.0.8",
+        "@nuxtjs/auth": "^4.9.1",
+        "@nuxtjs/axios": "^5.13.6",
+        "@nuxtjs/dotenv": "^1.4.1",
+        "@nuxtjs/fontawesome": "^1.1.2",
+        "@nuxtjs/pwa": "^3.3.5",
+        "axios": "^0.21.4",
+        "babel": "^6.23.0",
+        "bootstrap": "^4.6.1",
+        "bootstrap-vue": "^2.21.2",
+        "chart.js": "^3.9.1",
+        "core-js": "^3.19.3",
+        "mapbox-gl": "^2.9.2",
+        "moment": "^2.29.4",
+        "nuxt": "^2.16.2",
+        "pem": "^1.14.8",
+        "vue": "^2.7.14",
+        "vue-chartjs": "^4.1.2",
+        "vue-server-renderer": "^2.6.14",
+        "vue-svg-pan-zoom": "^2.1.0",
+        "vue-template-compiler": "^2.6.14"
+    },
+    "devDependencies": {
+        "webpack": "^4.0.0"
+    }
 }
