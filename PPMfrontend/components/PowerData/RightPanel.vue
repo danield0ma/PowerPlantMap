@@ -176,17 +176,22 @@ export default {
                 if (index === 0) {
                     fill = { value: 0 };
                 }
+
+                let data = this.getPowerOfPowerPlant(basicsOfPowerPlant.id);
+                if (basicsOfPowerPlant.id === "GAS") {
+                    data = this.getPowerOfGasPowerPlants();
+                }
+
                 createdDatasets.push({
                     label: basicsOfPowerPlant.description + " [MW]",
-                    backgroundColor: basicsOfPowerPlant.color,
-                    borderColor: basicsOfPowerPlant.color,
+                    backgroundColor: "#" + basicsOfPowerPlant.color,
+                    borderColor: "#" + basicsOfPowerPlant.color,
                     pointRadius: 0,
                     stack: "PP",
                     fill: fill,
-                    data: this.getPowerOfPowerPlant(basicsOfPowerPlant.name),
+                    data: data,
                 });
             }
-            console.log(createdDatasets);
 
             return {
                 labels: this.getDateArray("PKS"),
