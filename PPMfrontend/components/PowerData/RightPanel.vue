@@ -75,6 +75,10 @@ export default {
             type: Object,
             required: true,
         },
+        basicsOfPowerPlants: {
+            type: Array,
+            required: true,
+        },
     },
 
     data() {
@@ -163,183 +167,30 @@ export default {
         },
 
         chartData() {
+            const createdDatasets = [];
+            for (const [
+                index,
+                basicsOfPowerPlant,
+            ] of this.basicsOfPowerPlants.entries()) {
+                let fill = "-1";
+                if (index === 0) {
+                    fill = { value: 0 };
+                }
+                createdDatasets.push({
+                    label: basicsOfPowerPlant.description + " [MW]",
+                    backgroundColor: basicsOfPowerPlant.color,
+                    borderColor: basicsOfPowerPlant.color,
+                    pointRadius: 0,
+                    stack: "PP",
+                    fill: fill,
+                    data: this.getPowerOfPowerPlant(basicsOfPowerPlant.name),
+                });
+            }
+            console.log(createdDatasets);
+
             return {
                 labels: this.getDateArray("PKS"),
-                datasets: [
-                    {
-                        label: "Paks [MW]",
-                        backgroundColor: "#B7BF50",
-                        borderColor: "#B7BF50",
-                        pointRadius: 0,
-                        stack: "PP",
-                        fill: { value: 0 },
-                        data: this.getPowerOfPowerPlant("PKS"),
-                    },
-                    {
-                        label: "Mátra [MW]",
-                        backgroundColor: "#B59C5E",
-                        borderColor: "#B59C5E",
-                        pointRadius: 0,
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("MTR"),
-                    },
-                    {
-                        label: "Biomassza (ismeretlen erőművekből) [MW]",
-                        backgroundColor: "#3E8172",
-                        borderColor: "#3E8172",
-                        pointRadius: 0,
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("BIO"),
-                    },
-                    {
-                        label: "Dunamenti [MW]",
-                        backgroundColor: "#e691a5",
-                        borderColor: "#e691a5",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("DME"),
-                    },
-                    {
-                        label: "Gönyű [MW]",
-                        backgroundColor: "#C1536D",
-                        borderColor: "#C1536D",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("GNY"),
-                    },
-                    {
-                        label: "Csepel II. [MW]",
-                        backgroundColor: "#990f30",
-                        borderColor: "#990f30",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("CSP"),
-                    },
-                    {
-                        label: "Kispest [MW]",
-                        backgroundColor: "#5c0318",
-                        borderColor: "#5c0318",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("KP"),
-                    },
-                    {
-                        label: "Kelenföld [MW]",
-                        backgroundColor: "#e691a5",
-                        borderColor: "#e691a5",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("KF"),
-                    },
-                    {
-                        label: "Ismeretlen gáz [MW]",
-                        backgroundColor: "#C1536D",
-                        borderColor: "#C1536D",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfGasPowerPlants(),
-                    },
-                    {
-                        label: "Nap (ismeretlen erőművekből) [MW]",
-                        backgroundColor: "#EE8931",
-                        borderColor: "#EE8931",
-                        pointRadius: 0,
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("SOL"),
-                    },
-                    {
-                        label: "Szél (ismeretlen erőművekből) [MW]",
-                        backgroundColor: "#89D0C0",
-                        borderColor: "#89D0C0",
-                        pointRadius: 0,
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("WND"),
-                    },
-                    {
-                        label: "Litér [MW]",
-                        backgroundColor: "#9D9684",
-                        borderColor: "#9D9684",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("LIT"),
-                    },
-                    {
-                        label: "Lőrinci [MW]",
-                        backgroundColor: "#9D9684",
-                        borderColor: "#9D9684",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("LOR"),
-                    },
-                    {
-                        label: "Sajószöged [MW]",
-                        backgroundColor: "#9D9684",
-                        borderColor: "#9D9684",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("SAJ"),
-                    },
-                    {
-                        label: "Szlovákia [MW]",
-                        backgroundColor: "#0052B4",
-                        borderColor: "#0052B4",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("SVK"),
-                    },
-                    {
-                        label: "Ausztria [MW]",
-                        backgroundColor: "#D80027",
-                        borderColor: "#D80027",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("AUT"),
-                    },
-                    {
-                        label: "Szlovénia [MW]",
-                        backgroundColor: "#008B1B",
-                        borderColor: "#008B1B",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("SLO"),
-                    },
-                    {
-                        label: "Horvátország [MW]",
-                        backgroundColor: "#171796",
-                        borderColor: "#171796",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("CRO"),
-                    },
-                    {
-                        label: "Szerbia [MW]",
-                        backgroundColor: "#000",
-                        borderColor: "#000",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("SRB"),
-                    },
-                    {
-                        label: "Románia [MW]",
-                        backgroundColor: "#BF9F11",
-                        borderColor: "#BF9F11",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("ROU"),
-                    },
-                    {
-                        label: "Ukrajna [MW]",
-                        backgroundColor: "#FFDA44",
-                        borderColor: "#FFDA44",
-                        stack: "PP",
-                        fill: "-1",
-                        data: this.getPowerOfPowerPlant("UKR"),
-                    },
-                ],
+                datasets: createdDatasets,
             };
         },
 

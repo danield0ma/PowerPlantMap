@@ -11,6 +11,7 @@
         >
             <RightPanel
                 :powerOfPowerPlants="powerOfPowerPlants"
+                :basicsOfPowerPlants="gj.data.features.map((x) => x.properties)"
                 @changeDate="changeDate"
             />
         </div>

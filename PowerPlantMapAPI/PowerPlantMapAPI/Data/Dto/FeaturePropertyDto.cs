@@ -1,4 +1,6 @@
-﻿namespace PowerPlantMapAPI.Data.Dto;
+﻿using System.Globalization;
+
+namespace PowerPlantMapAPI.Data.Dto;
 
 public class FeaturePropertyDto
 {
@@ -6,4 +8,5 @@ public class FeaturePropertyDto
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? Img { get; set; }
+    public string? Color { get; set; }
 }

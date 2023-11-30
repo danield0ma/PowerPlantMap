@@ -44,7 +44,8 @@ public class PowerDataService : IPowerDataService
                 Id = dataOfPowerPlant.PowerPlantId,
                 Name = dataOfPowerPlant.Name,
                 Description = dataOfPowerPlant.Description,
-                Img = dataOfPowerPlant.Image
+                Img = dataOfPowerPlant.Image,
+                Color = dataOfPowerPlant.Color
             };
             feature.Properties = properties;
 
@@ -62,7 +63,15 @@ public class PowerDataService : IPowerDataService
             powerPlantBasics.Add(feature);
         }
 
-        return powerPlantBasics;
+        var imageOrder = new List<string> { "nuclear.png", "coal.png", "biomass.png", "gas.png", "solar.png", "wind.png", "oil.png", "slovakia.png", "austria.png", "slovenia.png", "croatia.png", "serbia.png", "romania.png", "ukraine.png" };
+
+        var sortedPowerPlantBasics = powerPlantBasics
+                .GroupBy(feature => feature.Properties?.Img)
+                .OrderBy(group => imageOrder.IndexOf(group.Key!))
+                .SelectMany(group => group.OrderBy(feature => feature.Properties?.Name))
+                .ToList();
+
+        return sortedPowerPlantBasics;
     }
     
     public async Task<ActionResult<PowerPlantDetailsModel>> GetDetailsOfPowerPlant(
