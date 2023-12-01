@@ -116,3 +116,7 @@ body {
 .white {
     color: white !important;
 }
+
+.yellow {
+    color: rgba(202, 202, 26, 0.87) !important;
+}

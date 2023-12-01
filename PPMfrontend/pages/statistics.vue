@@ -1,19 +1,8 @@
 <template>
     <div class="content">
-        <h1>Statisztikák</h1>
-        <div>
-            <!-- <h5>Ország választása</h5>
-            <select v-model="selectedCountry">
-                <option
-                    v-for="country in countries"
-                    :key="country.name"
-                    :value="country"
-                >
-                    {{ country.name }}
-                </option>
-            </select> -->
-        </div>
-        <div class="d-flex justify-content-center">
+        <h1>PowerPlantMap Statisztikák</h1>
+        <h2>{{ chosenDate }}</h2>
+        <div class="d-flex justify-content-center mt-3 mb-2">
             <h5 class="pr-3">Dátum választása</h5>
             <input
                 type="date"
@@ -24,31 +13,24 @@
             />
         </div>
 
-        <b-form-checkbox v-model="isCountrySelected" switch class="switch">
-            Országok statisztikája
-        </b-form-checkbox>
-
-        <h3>
-            Szeretnéd ezeket a statisztikákat minden reggel a postaládádban
-            látni?
-        </h3>
-        <h5>Email feliratkozás:</h5>
-        <input type="email" placeholder="E-mail cím" v-model="email" />
-        <button class="btn btn-primary" v-on:click="addEmailSubscription">
-            Feliratkozás
-        </button>
+        <div class="d-flex justify-content-center">
+            <p class="mr-2">Erőművek</p>
+            <b-form-checkbox v-model="isCountrySelected" switch class="switch">
+                <p>Országok</p>
+            </b-form-checkbox>
+        </div>
 
         <div
-            class="p-3 margin-auto d-flex align-items-center"
+            class="p-3 margin-auto d-flex align-items-center table-container"
             v-if="isCountrySelected"
         >
-            <table class="mx-auto d-block">
+            <table class="mx-auto d-block statsTable mx-auto d-block">
                 <thead>
                     <tr>
-                        <th class="p-2">Ország</th>
-                        <th class="p-2">Importált energia [MWh]</th>
-                        <th class="p-2">Exportált energia [MWh]</th>
-                        <th class="p-2">Szaldó [MWh]</th>
+                        <th class="p-3">Ország</th>
+                        <th class="p-3">Importált energia [MWh]</th>
+                        <th class="p-3">Exportált energia [MWh]</th>
+                        <th class="p-3">Szaldó [MWh]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,12 +38,40 @@
                         v-for="country in this.countryStatistics.data"
                         :key="country.countryId"
                     >
-                        <td class="p-2">{{ country.countryName }}</td>
-                        <td class="p-2">{{ country.importedEnergy }}</td>
-                        <td class="p-2">{{ country.exportedEnergy }}</td>
-                        <td class="p-2">
+                        <td class="p-3">{{ country.countryName }}</td>
+                        <td class="p-3">{{ country.importedEnergy }}</td>
+                        <td class="p-3">{{ country.exportedEnergy }}</td>
+                        <td class="p-3">
                             {{
                                 country.importedEnergy - country.exportedEnergy
+                            }}
+                        </td>
+                    </tr>
+                    <tr class="font-weight-bold">
+                        <td class="p-3">Összesen</td>
+                        <td class="p-3">
+                            {{
+                                this.countryStatistics.data.reduce(
+                                    (a, b) => a + b.importedEnergy,
+                                    0
+                                )
+                            }}
+                        </td>
+                        <td class="p-3">
+                            {{
+                                this.countryStatistics.data.reduce(
+                                    (a, b) => a + b.exportedEnergy,
+                                    0
+                                )
+                            }}
+                        </td>
+                        <td class="p-3">
+                            {{
+                                this.countryStatistics.data.reduce(
+                                    (a, b) =>
+                                        a + b.importedEnergy - b.exportedEnergy,
+                                    0
+                                )
                             }}
                         </td>
                     </tr>
@@ -75,6 +85,18 @@
             >
                 <StatsCard :powerPlant="powerPlant"></StatsCard>
             </div>
+        </div>
+
+        <div class="m-5">
+            <h3>
+                Szeretnéd az aktuális statisztikákat minden reggel a
+                postaládádban látni?
+            </h3>
+            <h4>Iratkozz fel!</h4>
+            <input type="email" placeholder="E-mail cím" v-model="email" />
+            <button class="btn btn-primary" v-on:click="addEmailSubscription">
+                Feliratkozás
+            </button>
         </div>
     </div>
 </template>
@@ -189,11 +211,6 @@ export default {
 </script>
 
 <style scoped>
-table {
-    border-collapse: collapse;
-    padding: 2rem;
-}
-
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -212,5 +229,42 @@ table {
 .switch .custom-control-input:checked ~ .custom-control-label::before {
     background-color: #6c757d;
     border-color: #6c757d;
+}
+
+.table-container {
+    display: flex;
+    justify-content: center !important;
+    align-items: center;
+    width: 100%;
+}
+
+.statsTable {
+    border-collapse: collapse;
+    padding: 2rem;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    margin: auto;
+}
+
+.statsTable th,
+.statsTable td {
+    border: 1px solid #ddd;
+    padding: 16px;
+    text-align: center;
+}
+
+.statsTable th {
+    padding: 12px;
+    text-align: left;
+    background-color: #4caf50;
+    color: white;
+}
+
+.statsTable tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.statsTable tr:hover {
+    background-color: #ddd;
 }
 </style>
