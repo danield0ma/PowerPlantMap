@@ -8,12 +8,35 @@
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
             <b-collapse id="nav-collapse" is-nav>
                 <b-navbar-nav class="ml-auto">
-                    <b-nav-item href="/admin/powerplantseditor"
+                    <b-nav-item
+                        href="/admin/powerplantseditor"
+                        class="align-self-center"
                         >Erőművek</b-nav-item
                     >
-                    <b-nav-item href="/admin/email">E-mail lista</b-nav-item>
-                    <b-nav-item href="/admin/users">Felhasználók</b-nav-item>
-                    <b-nav-item @click="logout">Kijelentkezés</b-nav-item>
+                    <b-nav-item href="/admin/email" class="align-self-center"
+                        >E-mail lista</b-nav-item
+                    >
+                    <b-nav-item
+                        href="/admin/users"
+                        class="align-self-center"
+                        v-if="this.$auth.user.role == 'admin'"
+                        >Felhasználók</b-nav-item
+                    >
+                    <div class="d-flex justify-content-center pl-4">
+                        <font-awesome-icon
+                            icon="fa-solid fa-user"
+                            class="faicon green p-0"
+                            :size="'lg'"
+                        />
+                        <b-nav-item
+                            class="m-0 pl-0 align-self-center green welcome"
+                        >
+                            Üdv, {{ this.$auth.user.username }}!
+                        </b-nav-item>
+                    </div>
+                    <b-nav-item @click="logout" class="align-self-center"
+                        >Kijelentkezés</b-nav-item
+                    >
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>
@@ -52,7 +75,7 @@ export default {
 
 .nav-link {
     color: green !important;
-    padding: 0 1rem !important;
+    padding: 0 1rem;
 }
 
 .nav-link:hover {
@@ -62,12 +85,16 @@ export default {
 @media (max-width: 768px) {
     .nav-link {
         margin: 0 !important;
-        padding: 1rem 0 1rem 2rem !important;
+        padding: 1rem 0 1rem 2rem;
         color: #333 !important;
         font-size: 18px !important;
         background-color: white !important;
         z-index: 2500 !important;
         color: green !important;
     }
+}
+
+.welcome {
+    padding-left: 0 !important;
 }
 </style>

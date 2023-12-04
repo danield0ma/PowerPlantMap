@@ -15,11 +15,11 @@
 import UserCard from "../../components/Users/UserCard";
 
 export default {
-    name: "Email",
+    name: "Users",
 
     layout: "adminLayout",
 
-    middleware: "authenticated",
+    middleware: "admin",
 
     head() {
         return {

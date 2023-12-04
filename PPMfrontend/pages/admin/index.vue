@@ -1,7 +1,7 @@
 <template>
     <div class="content">
         <h1>Admin Index</h1>
-        <div class="pt-6 d-flex row justify-content-around mt-5">
+        <div class="mt-3 d-flex row justify-content-around divContainer">
             <NuxtLink
                 to="/admin/powerplantseditor"
                 class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
@@ -16,6 +16,7 @@
             <NuxtLink
                 to="/admin/users"
                 class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
+                v-if="this.$auth.user.role == 'admin'"
                 ><h5>Felhasználók kezelése</h5></NuxtLink
             >
         </div>
@@ -38,7 +39,13 @@ export default {
 <style scoped>
 .adminCard {
     cursor: pointer;
-    padding: 7rem;
+    padding: 3rem;
     margin: 1rem;
+    max-width: 90%;
+}
+
+.divContainer {
+    max-width: 80%;
+    margin: auto;
 }
 </style>
