@@ -382,10 +382,6 @@ export default {
 </script>
 
 <style scoped>
-/* #velse {
-    overflow-y: auto;
-} */
-
 p {
     margin: 0;
     padding: 0 0 0.5rem 1rem;

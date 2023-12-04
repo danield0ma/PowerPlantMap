@@ -53,17 +53,22 @@ public class AccountController : ControllerBase
     
     [Authorize]
     [HttpGet("")]
-    public async Task<ActionResult<UserProfileModel>> GetCurrentUserProfile()
+    public async Task<ActionResult<UserProfileModelWrapper>> GetCurrentUserProfile()
     {
         var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var user = await _userManager.FindByIdAsync(id);
         
-        return new UserProfileModel()
+        var userProfile = new UserProfileModel()
         {
             Id = id,
             Username = user.UserName,
             Email = user.Email,
             Role = User.FindFirst(ClaimTypes.Role)?.Value
+        };
+
+        return new UserProfileModelWrapper()
+        {
+            User = userProfile
         };
     }
 
