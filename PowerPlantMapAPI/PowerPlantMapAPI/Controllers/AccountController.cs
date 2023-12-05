@@ -10,6 +10,9 @@ using PowerPlantMapAPI.Data;
 
 namespace PowerPlantMapAPI.Controllers;
 
+/// <summary>
+/// Manage the user accounts
+/// </summary>
 [EnableCors]
 [Route("api/[controller]/[action]")]
 [ApiController]
@@ -19,6 +22,9 @@ public class AccountController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
 
+    /// <summary>
+    /// Instantiate the dependencies
+    /// </summary>
     public AccountController(ITokenService tokenService,
         UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
     {
@@ -27,6 +33,10 @@ public class AccountController : ControllerBase
         _signInManager = signInManager;
     }
 
+    /// <summary>
+    /// Get all users
+    /// </summary>
+    /// <returns>List of all users</returns>
     [Authorize(Roles = "admin")]
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<ApplicationUser>>> Get()
@@ -35,6 +45,11 @@ public class AccountController : ControllerBase
         return Ok(users);
     }
 
+    /// <summary>
+    /// Get user by username
+    /// </summary>
+    /// <param name="userName">Username of the user</param>
+    /// <returns>User with the given username</returns>
     [Authorize(Roles = "admin")]
     [HttpGet("")]
     public async Task<ActionResult<ApplicationUser?>> GetByUserName(string userName)
@@ -43,6 +58,11 @@ public class AccountController : ControllerBase
         return user is null ? NoContent() : Ok(user);
     }
 
+    /// <summary>
+    /// Get user by email
+    /// </summary>
+    /// <param name="email">Email of the user</param>
+    /// <returns>User with the given email</returns>
     [Authorize(Roles = "admin")]
     [HttpGet("")]
     public async Task<ActionResult<ApplicationUser?>> GetByEmail(string email)
@@ -51,6 +71,10 @@ public class AccountController : ControllerBase
         return user is null ? NoContent() : Ok(user);
     }
     
+    /// <summary>
+    /// Get the current user's profile data
+    /// </summary>
+    /// <returns>User's profile data</returns>
     [Authorize]
     [HttpGet("")]
     public async Task<ActionResult<UserProfileModelWrapper>> GetCurrentUserProfile()
@@ -71,7 +95,12 @@ public class AccountController : ControllerBase
             User = userProfile
         };
     }
-
+    
+    /// <summary>
+    /// Register new user
+    /// </summary>
+    /// <param name="registrationModel">Registration data of the new user</param>
+    /// <returns>Result of the registration</returns>
     [AllowAnonymous]
     [HttpPost("")]
     public async Task<IActionResult> Register([FromBody] RegistrationModel registrationModel)
@@ -108,6 +137,11 @@ public class AccountController : ControllerBase
     //     return result.Succeeded ? Ok() : NoContent();
     // }
 
+    /// <summary>
+    /// Login the user
+    /// </summary>
+    /// <param name="loginModel">Username and password of the user</param>
+    /// <returns>JWT Token</returns>
     [AllowAnonymous]
     [HttpPost("")]
     public async Task<ActionResult<TokenDto>> Login([FromBody] LoginModel loginModel)
@@ -122,6 +156,10 @@ public class AccountController : ControllerBase
         return Ok(token);
     }
 
+    /// <summary>
+    /// Logout the user
+    /// </summary>
+    /// <returns>Result of the logout</returns>
     [Authorize]
     [HttpPost("")]
     public async Task<IActionResult> Logout()
@@ -130,6 +168,12 @@ public class AccountController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Change the username of the user
+    /// </summary>
+    /// <param name="currentUserName">The current username of the user</param>
+    /// <param name="newUserName">The new username of the user</param>
+    /// <returns>Result of the change</returns>
     [Authorize]
     [HttpPut("")]
     public async Task<IActionResult> ChangeUserName(string currentUserName, string newUserName)
@@ -161,6 +205,13 @@ public class AccountController : ControllerBase
     //     return result.Succeeded ? Ok() : NoContent();
     // }
 
+    /// <summary>
+    /// Change password of the user
+    /// </summary>
+    /// <param name="userName">Username of the user</param>
+    /// <param name="currentPassword">Old password of the user</param>
+    /// <param name="newPassword">The new desired password of the user</param>
+    /// <returns>Result of the process</returns>
     [Authorize]
     [HttpPut("")]
     public async Task<IActionResult> ChangePassword(string userName, string currentPassword, string newPassword)
@@ -171,6 +222,11 @@ public class AccountController : ControllerBase
         return result.Succeeded ? Ok() : NoContent();
     }
 
+    /// <summary>
+    /// Delete the specified user
+    /// </summary>
+    /// <param name="userName">Username of the user</param>
+    /// <returns>Result of the process</returns>
     [Authorize(Roles = "admin")]
     [HttpDelete("")]
     public async Task<IActionResult> DeleteUser(string userName)

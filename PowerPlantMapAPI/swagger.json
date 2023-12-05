@@ -1,0 +1,1870 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "PowerPlantMapAPI",
+		"version": "1.0"
+	},
+	"paths": {
+		"/api/Account/Get": {
+			"get": {
+				"tags": ["Account"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ApplicationUser"
+									}
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ApplicationUser"
+									}
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/ApplicationUser"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Account/GetByUserName": {
+			"get": {
+				"tags": ["Account"],
+				"parameters": [
+					{
+						"name": "userName",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/ApplicationUser"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApplicationUser"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApplicationUser"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Account/GetByEmail": {
+			"get": {
+				"tags": ["Account"],
+				"parameters": [
+					{
+						"name": "email",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/ApplicationUser"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApplicationUser"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ApplicationUser"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Account/GetCurrentUserProfile": {
+			"get": {
+				"tags": ["Account"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/UserProfileModelWrapper"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserProfileModelWrapper"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserProfileModelWrapper"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Account/Register": {
+			"post": {
+				"tags": ["Account"],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RegistrationModel"
+							}
+						},
+						"text/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RegistrationModel"
+							}
+						},
+						"application/*+json": {
+							"schema": {
+								"$ref": "#/components/schemas/RegistrationModel"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/Account/Login": {
+			"post": {
+				"tags": ["Account"],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginModel"
+							}
+						},
+						"text/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginModel"
+							}
+						},
+						"application/*+json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginModel"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/TokenDto"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TokenDto"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TokenDto"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Account/Logout": {
+			"post": {
+				"tags": ["Account"],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/Account/ChangeUserName": {
+			"put": {
+				"tags": ["Account"],
+				"parameters": [
+					{
+						"name": "currentUserName",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "newUserName",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/Account/ChangePassword": {
+			"put": {
+				"tags": ["Account"],
+				"parameters": [
+					{
+						"name": "userName",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "currentPassword",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "newPassword",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/Account/DeleteUser": {
+			"delete": {
+				"tags": ["Account"],
+				"parameters": [
+					{
+						"name": "userName",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/EmailSubscriptions/Get": {
+			"get": {
+				"tags": ["EmailSubscriptions"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/EmailSubscriptionModel"
+									}
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/EmailSubscriptionModel"
+									}
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/EmailSubscriptionModel"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/EmailSubscriptions/GetById": {
+			"get": {
+				"tags": ["EmailSubscriptions"],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSubscriptionModel"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSubscriptionModel"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSubscriptionModel"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/EmailSubscriptions/GetByEmail": {
+			"get": {
+				"tags": ["EmailSubscriptions"],
+				"parameters": [
+					{
+						"name": "email",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSubscriptionModel"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSubscriptionModel"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSubscriptionModel"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/EmailSubscriptions/Add": {
+			"post": {
+				"tags": ["EmailSubscriptions"],
+				"parameters": [
+					{
+						"name": "email",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/EmailSubscriptions/Update": {
+			"put": {
+				"tags": ["EmailSubscriptions"],
+				"parameters": [
+					{
+						"name": "oldEmail",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "newEmail",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/EmailSubscriptions/Delete": {
+			"get": {
+				"tags": ["EmailSubscriptions"],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/PowerData/GetPowerPlantBasics": {
+			"get": {
+				"tags": ["PowerData"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerPlantBasicsModel"
+									}
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerPlantBasicsModel"
+									}
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerPlantBasicsModel"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/PowerData/GetDetailsOfPowerPlant": {
+			"get": {
+				"tags": ["PowerData"],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "date",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantDetailsModel"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantDetailsModel"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantDetailsModel"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/PowerData/GetPowerOfPowerPlant": {
+			"get": {
+				"tags": ["PowerData"],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "date",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerOfPowerPlantModel"
+									}
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerOfPowerPlantModel"
+									}
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerOfPowerPlantModel"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/PowerData/GetPowerOfPowerPlants": {
+			"get": {
+				"tags": ["PowerData"],
+				"parameters": [
+					{
+						"name": "date",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerOfPowerPlantsModel"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerOfPowerPlantsModel"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerOfPowerPlantsModel"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/PowerData/QueryDataFromTheApi": {
+			"get": {
+				"tags": ["PowerData"],
+				"parameters": [
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/PowerPlant/Get": {
+			"get": {
+				"tags": ["PowerPlant"],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerPlantModel"
+									}
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerPlantModel"
+									}
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PowerPlantModel"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/PowerPlant/GetById": {
+			"get": {
+				"tags": ["PowerPlant"],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantModel"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantModel"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantModel"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/PowerPlant/AddPowerPlant": {
+			"post": {
+				"tags": ["PowerPlant"],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreatePowerPlantDto"
+							}
+						},
+						"text/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreatePowerPlantDto"
+							}
+						},
+						"application/*+json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreatePowerPlantDto"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/PowerPlant/Delete": {
+			"delete": {
+				"tags": ["PowerPlant"],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					}
+				}
+			}
+		},
+		"/api/Statistics/GeneratePowerPlantStatistics": {
+			"get": {
+				"tags": ["Statistics"],
+				"parameters": [
+					{
+						"name": "day",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantStatisticsDtoWrapper"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantStatisticsDtoWrapper"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PowerPlantStatisticsDtoWrapper"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Statistics/GenerateCompactPowerPlantStatistics": {
+			"get": {
+				"tags": ["Statistics"],
+				"parameters": [
+					{
+						"name": "day",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/CompactPowerPlantStatistics"
+									}
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/CompactPowerPlantStatistics"
+									}
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/CompactPowerPlantStatistics"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Statistics/GenerateCountryStatistics": {
+			"get": {
+				"tags": ["Statistics"],
+				"parameters": [
+					{
+						"name": "day",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/CountryStatisticsDtoWrapper"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CountryStatisticsDtoWrapper"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CountryStatisticsDtoWrapper"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Statistics/GenerateAndSendStatistics": {
+			"get": {
+				"tags": ["Statistics"],
+				"parameters": [
+					{
+						"name": "day",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "start",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					},
+					{
+						"name": "end",
+						"in": "query",
+						"schema": {
+							"type": "string",
+							"format": "date-time"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/Statistics/SendTestEmail": {
+			"get": {
+				"tags": ["Statistics"],
+				"parameters": [
+					{
+						"name": "to",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "subject",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "body",
+						"in": "query",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "string"
+								}
+							},
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							},
+							"text/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"ApplicationUser": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"nullable": true
+					},
+					"userName": {
+						"type": "string",
+						"nullable": true
+					},
+					"normalizedUserName": {
+						"type": "string",
+						"nullable": true
+					},
+					"email": {
+						"type": "string",
+						"nullable": true
+					},
+					"normalizedEmail": {
+						"type": "string",
+						"nullable": true
+					},
+					"emailConfirmed": {
+						"type": "boolean"
+					},
+					"passwordHash": {
+						"type": "string",
+						"nullable": true
+					},
+					"securityStamp": {
+						"type": "string",
+						"nullable": true
+					},
+					"concurrencyStamp": {
+						"type": "string",
+						"nullable": true
+					},
+					"phoneNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"phoneNumberConfirmed": {
+						"type": "boolean"
+					},
+					"twoFactorEnabled": {
+						"type": "boolean"
+					},
+					"lockoutEnd": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"lockoutEnabled": {
+						"type": "boolean"
+					},
+					"accessFailedCount": {
+						"type": "integer",
+						"format": "int32"
+					}
+				},
+				"additionalProperties": false
+			},
+			"BlocDataDto": {
+				"type": "object",
+				"properties": {
+					"blocId": {
+						"type": "string",
+						"nullable": true
+					},
+					"blocType": {
+						"type": "string",
+						"nullable": true
+					},
+					"maxBlocCapacity": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"commissionDate": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"generators": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/GeneratorDataDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"BlocDetailsDto": {
+				"type": "object",
+				"properties": {
+					"blocId": {
+						"type": "string",
+						"nullable": true
+					},
+					"blocType": {
+						"type": "string",
+						"nullable": true
+					},
+					"maxBlocCapacity": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"commissionDate": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"currentPower": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"maxPower": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"generators": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/GeneratorDetailsDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"CompactPowerPlantStatistics": {
+				"type": "object",
+				"properties": {
+					"powerPlantId": {
+						"type": "string",
+						"nullable": true
+					},
+					"powerPlantName": {
+						"type": "string",
+						"nullable": true
+					},
+					"powerPlantDescription": {
+						"type": "string",
+						"nullable": true
+					},
+					"image": {
+						"type": "string",
+						"nullable": true
+					},
+					"maxPower": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"averagePower": {
+						"type": "number",
+						"format": "double"
+					},
+					"generatedEnergy": {
+						"type": "number",
+						"format": "double"
+					},
+					"averageUsage": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"additionalProperties": false
+			},
+			"CountryStatisticsDto": {
+				"type": "object",
+				"properties": {
+					"countryId": {
+						"type": "string",
+						"nullable": true
+					},
+					"countryName": {
+						"type": "string",
+						"nullable": true
+					},
+					"image": {
+						"type": "string",
+						"nullable": true
+					},
+					"importedEnergy": {
+						"type": "number",
+						"format": "double"
+					},
+					"exportedEnergy": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"additionalProperties": false
+			},
+			"CountryStatisticsDtoWrapper": {
+				"type": "object",
+				"properties": {
+					"start": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"end": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/CountryStatisticsDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"CreatePowerPlantDto": {
+				"type": "object",
+				"properties": {
+					"powerPlantId": {
+						"type": "string",
+						"nullable": true
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"operatorCompany": {
+						"type": "string",
+						"nullable": true
+					},
+					"webpage": {
+						"type": "string",
+						"nullable": true
+					},
+					"image": {
+						"type": "string",
+						"nullable": true
+					},
+					"longitude": {
+						"type": "number",
+						"format": "float"
+					},
+					"latitude": {
+						"type": "number",
+						"format": "float"
+					},
+					"color": {
+						"type": "string",
+						"nullable": true
+					},
+					"address": {
+						"type": "string",
+						"nullable": true
+					},
+					"isCountry": {
+						"type": "boolean"
+					},
+					"blocs": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/BlocDataDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"EmailSubscriptionModel": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"created": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"email": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"FeatureGeometryDto": {
+				"type": "object",
+				"properties": {
+					"type": {
+						"type": "string",
+						"nullable": true
+					},
+					"coordinates": {
+						"type": "array",
+						"items": {
+							"type": "number",
+							"format": "float"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"FeaturePropertyDto": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"nullable": true
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"img": {
+						"type": "string",
+						"nullable": true
+					},
+					"color": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"GeneratorDataDto": {
+				"type": "object",
+				"properties": {
+					"generatorId": {
+						"type": "string",
+						"nullable": true
+					},
+					"maxCapacity": {
+						"type": "integer",
+						"format": "int32"
+					}
+				},
+				"additionalProperties": false
+			},
+			"GeneratorDetailsDto": {
+				"type": "object",
+				"properties": {
+					"generatorId": {
+						"type": "string",
+						"nullable": true
+					},
+					"maxCapacity": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"pastPower": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/GeneratorPowerDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"GeneratorPowerDto": {
+				"type": "object",
+				"properties": {
+					"timePoint": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"power": {
+						"type": "integer",
+						"format": "int32"
+					}
+				},
+				"additionalProperties": false
+			},
+			"LoginModel": {
+				"type": "object",
+				"properties": {
+					"userName": {
+						"type": "string",
+						"nullable": true
+					},
+					"password": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerOfPowerPlantDto": {
+				"type": "object",
+				"properties": {
+					"powerPlantName": {
+						"type": "string",
+						"nullable": true
+					},
+					"powerStamps": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/PowerOfPowerPlantModel"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerOfPowerPlantModel": {
+				"type": "object",
+				"properties": {
+					"start": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"power": {
+						"type": "integer",
+						"format": "int32"
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerOfPowerPlantsModel": {
+				"type": "object",
+				"properties": {
+					"start": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"end": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/PowerOfPowerPlantDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerPlantBasicsModel": {
+				"type": "object",
+				"properties": {
+					"type": {
+						"type": "string",
+						"nullable": true
+					},
+					"properties": {
+						"$ref": "#/components/schemas/FeaturePropertyDto"
+					},
+					"geometry": {
+						"$ref": "#/components/schemas/FeatureGeometryDto"
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerPlantDetailsModel": {
+				"type": "object",
+				"properties": {
+					"powerPlantId": {
+						"type": "string",
+						"nullable": true
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"operatorCompany": {
+						"type": "string",
+						"nullable": true
+					},
+					"webpage": {
+						"type": "string",
+						"nullable": true
+					},
+					"longitude": {
+						"type": "number",
+						"format": "double"
+					},
+					"latitude": {
+						"type": "number",
+						"format": "double"
+					},
+					"currentPower": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"maxPower": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"dataStart": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"dataEnd": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"color": {
+						"type": "string",
+						"nullable": true
+					},
+					"address": {
+						"type": "string",
+						"nullable": true
+					},
+					"isCountry": {
+						"type": "boolean"
+					},
+					"blocs": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/BlocDetailsDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerPlantModel": {
+				"type": "object",
+				"properties": {
+					"powerPlantId": {
+						"type": "string",
+						"nullable": true
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"operatorCompany": {
+						"type": "string",
+						"nullable": true
+					},
+					"webpage": {
+						"type": "string",
+						"nullable": true
+					},
+					"image": {
+						"type": "string",
+						"nullable": true
+					},
+					"longitude": {
+						"type": "number",
+						"format": "float"
+					},
+					"latitude": {
+						"type": "number",
+						"format": "float"
+					},
+					"color": {
+						"type": "string",
+						"nullable": true
+					},
+					"address": {
+						"type": "string",
+						"nullable": true
+					},
+					"isCountry": {
+						"type": "boolean"
+					},
+					"blocs": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/BlocDataDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerPlantStatisticsDto": {
+				"type": "object",
+				"properties": {
+					"powerPlantId": {
+						"type": "string",
+						"nullable": true
+					},
+					"powerPlantName": {
+						"type": "string",
+						"nullable": true
+					},
+					"powerPlantDescription": {
+						"type": "string",
+						"nullable": true
+					},
+					"image": {
+						"type": "string",
+						"nullable": true
+					},
+					"blocId": {
+						"type": "string",
+						"nullable": true
+					},
+					"generatorId": {
+						"type": "string",
+						"nullable": true
+					},
+					"maxPower": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"averagePower": {
+						"type": "number",
+						"format": "double"
+					},
+					"generatedEnergy": {
+						"type": "number",
+						"format": "double"
+					},
+					"averageUsage": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"additionalProperties": false
+			},
+			"PowerPlantStatisticsDtoWrapper": {
+				"type": "object",
+				"properties": {
+					"start": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"end": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/PowerPlantStatisticsDto"
+						},
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"RegistrationModel": {
+				"required": ["email", "password", "userName"],
+				"type": "object",
+				"properties": {
+					"userName": {
+						"minLength": 1,
+						"type": "string"
+					},
+					"email": {
+						"minLength": 1,
+						"type": "string"
+					},
+					"password": {
+						"minLength": 1,
+						"type": "string"
+					}
+				},
+				"additionalProperties": false
+			},
+			"TokenDto": {
+				"type": "object",
+				"properties": {
+					"token": {
+						"type": "string",
+						"nullable": true
+					},
+					"expires": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"additionalProperties": false
+			},
+			"UserProfileModel": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"nullable": true
+					},
+					"username": {
+						"type": "string",
+						"nullable": true
+					},
+					"email": {
+						"type": "string",
+						"nullable": true
+					},
+					"role": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"additionalProperties": false
+			},
+			"UserProfileModelWrapper": {
+				"type": "object",
+				"properties": {
+					"user": {
+						"$ref": "#/components/schemas/UserProfileModel"
+					}
+				},
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {
+			"Bearer": {
+				"type": "apiKey",
+				"description": "JWT Authorization header using the Bearer scheme. \\r\\n\\r\\n \r\n                      Enter 'Bearer' [space] and then your token in the text input below.\r\n                      \\r\\n\\r\\nExample: 'Bearer 12345abcdef'",
+				"name": "Authorization",
+				"in": "header"
+			}
+		}
+	},
+	"security": [
+		{
+			"Bearer": []
+		}
+	]
+}
