@@ -1,4 +1,5 @@
-﻿using PowerPlantMapAPI.Data.Dto;
+﻿using PowerPlantMapAPI.Data;
+using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Helpers;
 using PowerPlantMapAPI.Repositories;
 
@@ -80,6 +81,42 @@ public class StatisticsService : IStatisticsService
             Data = data
         };
         return statistics;
+    }
+
+    public async Task<IEnumerable<CompactPowerPlantStatistics>> GenerateCompactPowerPlantStatistics(DateTime? day = null,
+        DateTime? start = null, DateTime? end = null)
+    {
+        var compactPowerPlantStatistics = new List<CompactPowerPlantStatistics>();
+        
+        var powerPlants = await _powerDataRepository.GetDataOfPowerPlants();
+        var powerPlantStatistics = await GenerateDailyPowerPlantStatistics(day, start, end);
+        var filteredPowerPlants = powerPlants.Where(x => x.IsCountry == false).ToList();
+        var generatedEnergyByPowerPlants = new List<double>();
+
+        foreach (var powerPlant in filteredPowerPlants)
+        {
+            var statisticsOfCurrentPowerPlant = powerPlantStatistics.Data?
+                .Where(x => x.PowerPlantId == powerPlant.PowerPlantId);
+            
+            var powerPlantMaxPower = statisticsOfCurrentPowerPlant.Select(x => x.MaxPower).Sum();
+            var powerPlantCurrentAvgPower = statisticsOfCurrentPowerPlant.Select(x => x.AveragePower).Sum();
+            var powerPlantGeneratedEnergy = statisticsOfCurrentPowerPlant.Select(x => x.GeneratedEnergy).Sum();
+            var avgUsageOfPowerPlant = Math.Round(powerPlantCurrentAvgPower / powerPlantMaxPower * 100, 3);
+            
+            compactPowerPlantStatistics.Add(new CompactPowerPlantStatistics()
+            {
+                PowerPlantId = powerPlant.PowerPlantId,
+                PowerPlantName = powerPlant.Name,
+                PowerPlantDescription = powerPlant.Description,
+                Image = powerPlant.Image,
+                MaxPower = powerPlantMaxPower,
+                AveragePower = powerPlantCurrentAvgPower,
+                GeneratedEnergy = powerPlantGeneratedEnergy,
+                AverageUsage = avgUsageOfPowerPlant
+            });
+        }
+
+        return compactPowerPlantStatistics;
     }
 
     public async Task<CountryStatisticsDtoWrapper> GenerateDailyCountryStatistics(DateTime? day = null, DateTime? start = null, DateTime? end = null)

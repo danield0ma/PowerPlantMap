@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Services;
 
@@ -24,6 +25,13 @@ public class StatisticsController : ControllerBase
         DateTime? end)
     {
         return await _statisticsService.GenerateDailyPowerPlantStatistics(day, start, end);
+    }
+    
+    [HttpGet("")]
+    public async Task<IEnumerable<CompactPowerPlantStatistics>> GenerateCompactPowerPlantStatistics(DateTime? day, DateTime? start,
+        DateTime? end)
+    {
+        return await _statisticsService.GenerateCompactPowerPlantStatistics(day, start, end);
     }
 
     [HttpGet("")]

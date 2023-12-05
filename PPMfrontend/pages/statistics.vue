@@ -80,7 +80,7 @@
         </div>
         <div class="p-3 grid" v-else>
             <div
-                v-for="powerPlant in this.powerPlantStatistics.data"
+                v-for="powerPlant in this.compactPowerPlantStatistics.data"
                 :key="powerPlant.generatorId"
             >
                 <StatsCard :powerPlant="powerPlant"></StatsCard>
@@ -116,7 +116,7 @@ export default {
 
     data() {
         return {
-            powerPlantStatistics: {},
+            compactPowerPlantStatistics: {},
             countryStatistics: {},
             countries: [
                 { name: "Magyarország", img: "/hu.png" },
@@ -155,7 +155,7 @@ export default {
     },
 
     async asyncData({ $axios, store }) {
-        let powerPlantStatistics;
+        let compactPowerPlantStatistics;
         let countryStatistics;
         const date = store.state.power.date;
         if (
@@ -166,27 +166,27 @@ export default {
             store.state.power.date = moment(Date.now())
                 .subtract(1, "days")
                 .format("YYYY-MM-DD");
-            powerPlantStatistics = await $axios.$get(
-                "/api/Statistics/GeneratePowerPlantStatistics"
+            compactPowerPlantStatistics = await $axios.$get(
+                "/api/Statistics/GenerateCompactPowerPlantStatistics"
             );
             countryStatistics = await $axios.$get(
                 "/api/Statistics/GenerateCountryStatistics"
             );
         } else {
-            powerPlantStatistics = await $axios.$get(
-                `/api/Statistics/GeneratePowerPlantStatistics?day=${date}`
+            compactPowerPlantStatistics = await $axios.$get(
+                `/api/Statistics/GenerateCompactPowerPlantStatistics?day=${date}`
             );
             countryStatistics = await $axios.$get(
                 `/api/Statistics/GenerateCountryStatistics?day=${date}`
             );
         }
-        return { powerPlantStatistics, countryStatistics };
+        return { compactPowerPlantStatistics, countryStatistics };
     },
 
     methods: {
         async setDate() {
             if (this.chosenDate != null) {
-                this.powerPlantStatistics = await this.$axios.$get(
+                this.compactPowerPlantStatistics = await this.$axios.$get(
                     `/api/Statistics/GeneratePowerPlantStatistics?day=${this.getDate}`
                 );
                 this.countryStatistics = await this.$axios.$get(
