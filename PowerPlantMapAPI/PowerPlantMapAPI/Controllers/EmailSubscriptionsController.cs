@@ -18,21 +18,21 @@ public class EmailSubscriptionsController : ControllerBase
         _emailService = emailService;
     }
     
-    [Authorize]
+    [Authorize(Roles = "user, admin")]
     [HttpGet("")]
     public List<EmailSubscriptionModel>? Get()
     {
         return _emailService.Get();
     }
 
-    [Authorize]
+    [Authorize(Roles = "user, admin")]
     [HttpGet("")]
     public EmailSubscriptionModel? GetById(Guid id)
     {
         return _emailService.GetById(id);
     }
 
-    [Authorize]
+    [Authorize(Roles = "user, admin")]
     [HttpGet("")]
     public EmailSubscriptionModel? GetByEmail(string email)
     {

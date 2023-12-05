@@ -171,7 +171,7 @@ public class AccountController : ControllerBase
         return result.Succeeded ? Ok() : NoContent();
     }
 
-    [Authorize]
+    [Authorize(Roles = "admin")]
     [HttpDelete("")]
     public async Task<IActionResult> DeleteUser(string userName)
     {

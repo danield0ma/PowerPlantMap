@@ -80,7 +80,7 @@
         </div>
         <div class="p-3 grid" v-else>
             <div
-                v-for="powerPlant in this.compactPowerPlantStatistics.data"
+                v-for="powerPlant in this.compactPowerPlantStatistics"
                 :key="powerPlant.generatorId"
             >
                 <StatsCard :powerPlant="powerPlant"></StatsCard>
