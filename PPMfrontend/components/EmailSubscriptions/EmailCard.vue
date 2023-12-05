@@ -1,6 +1,13 @@
 <template>
     <div class="card cardHover">
-        <h5>{{ subscription.email }}</h5>
+        <div class="d-flex justify-content-center align-items-center">
+            <font-awesome-icon
+                :icon="['fas', 'envelope']"
+                :size="'lg'"
+                class="faicon"
+            />
+            <h5 class="m-0">{{ subscription.email }}</h5>
+        </div>
         <div class="d-flex justify-content-center align-items-center">
             <font-awesome-icon
                 :icon="['fas', 'clock']"

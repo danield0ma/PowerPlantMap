@@ -1,7 +1,21 @@
 <template>
     <div class="card cardHover">
-        <p>{{ user.userName }}</p>
-        <p>{{ user.email }}</p>
+        <div class="d-flex justify-content-center align-items-center">
+            <font-awesome-icon
+                :icon="['fas', 'user']"
+                :size="'lg'"
+                class="faicon blue"
+            />
+            <h4 class="m-0">{{ user.userName }}</h4>
+        </div>
+        <div class="d-flex justify-content-center align-items-center">
+            <font-awesome-icon
+                :icon="['fas', 'envelope']"
+                :size="'lg'"
+                class="faicon"
+            />
+            <h6 class="m-0">{{ user.email }}</h6>
+        </div>
         <font-awesome-icon
             :icon="['fas', 'trash']"
             :size="'lg'"
