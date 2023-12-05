@@ -11,9 +11,13 @@
                     <b-nav-item
                         href="/admin/powerplantseditor"
                         class="align-self-center"
+                        v-if="['admin', 'user'].includes(this.$auth.user.role)"
                         >Erőművek</b-nav-item
                     >
-                    <b-nav-item href="/admin/email" class="align-self-center"
+                    <b-nav-item
+                        href="/admin/email"
+                        class="align-self-center"
+                        v-if="['admin', 'user'].includes(this.$auth.user.role)"
                         >E-mail lista</b-nav-item
                     >
                     <b-nav-item

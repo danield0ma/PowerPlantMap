@@ -22,7 +22,7 @@ export default {
 
     layout: "adminLayout",
 
-    middleware: "authenticated",
+    middleware: "user",
 
     head() {
         return {

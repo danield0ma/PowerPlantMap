@@ -5,18 +5,20 @@
             <NuxtLink
                 to="/admin/powerplantseditor"
                 class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
+                v-if="['admin', 'user'].includes(this.$auth.user.role)"
                 ><h5>Erőművek szerkesztése</h5></NuxtLink
             >
             <NuxtLink
                 to="/admin/email"
                 class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
+                v-if="['admin', 'user'].includes(this.$auth.user.role)"
             >
                 <h5>E-mail lista szerkesztése</h5>
             </NuxtLink>
             <NuxtLink
                 to="/admin/users"
                 class="col-12 col-md-3 card cardHover adminCard text-decoration-none"
-                v-if="this.$auth.user.role == 'admin'"
+                v-if="this.$auth.user.role === 'admin'"
                 ><h5>Felhasználók kezelése</h5></NuxtLink
             >
         </div>

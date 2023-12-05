@@ -82,9 +82,13 @@ import PowerPlantModal from "../../components/PowerPlants/PowerPlantModal";
 
 export default {
     name: "PowerPlantEditor",
+
     layout: "adminLayout",
-    middleware: "authenticated",
+
+    middleware: "user",
+
     components: { PowerPlantCard, PowerPlantModal },
+
     head() {
         return {
             title: "PowerPlant Editor - PowerPlantMap",
