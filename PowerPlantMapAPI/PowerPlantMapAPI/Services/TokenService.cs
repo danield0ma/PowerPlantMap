@@ -18,10 +18,14 @@ public class TokenService : ITokenService
 
     public TokenDto CreateToken(ApplicationUser user, IList<string> roles)
     {
-        var role = "user";
+        var role = "";
         if (roles.Contains("admin"))
         {
             role = "admin";
+        }
+        else if (roles.Contains("user"))
+        {
+            role = "user";
         }
         
         var claims = new List<Claim>
