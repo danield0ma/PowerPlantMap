@@ -46,8 +46,7 @@ export default {
         async deleteSubscription() {
             if (!confirm("Biztosan törölni szeretnéd?")) return;
             await this.$axios.$get(
-                "/api/EmailSubscriptions/Delete?email=" +
-                    this.subscription.email
+                `/api/EmailSubscriptions/Delete?id=${this.subscription.id}`
             );
             this.$emit("delete");
         },

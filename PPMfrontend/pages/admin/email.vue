@@ -24,6 +24,8 @@ export default {
 
     middleware: "user",
 
+    components: { EmailCard },
+
     head() {
         return {
             title: "Email lista szerkesztő - PowerPlantMap",
