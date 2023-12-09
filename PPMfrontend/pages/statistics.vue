@@ -1,7 +1,10 @@
 <template>
     <div class="content">
-        <h1>PowerPlantMap Statisztikák</h1>
-        <h2>{{ chosenDate }}</h2>
+        <h1>
+            PowerPlantMap Statisztikák
+            {{ chosenDate.replace("-", ".").replace("-", ".") }}
+        </h1>
+        <h2></h2>
         <div class="d-flex justify-content-center mt-3 mb-2">
             <h5 class="pr-3">Dátum választása</h5>
             <input
@@ -21,7 +24,7 @@
         </div>
 
         <div
-            class="p-3 margin-auto d-flex align-items-center table-container"
+            class="p-1 margin-auto d-flex align-items-center table-container"
             v-if="isCountrySelected"
         >
             <table class="mx-auto d-block statsTable mx-auto d-block">
@@ -78,7 +81,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3 grid" v-else>
+        <div class="p-1 grid" v-else>
             <div
                 v-for="powerPlant in this.compactPowerPlantStatistics"
                 :key="powerPlant.powerPlantId"
@@ -98,7 +101,7 @@
             </div>
         </div>
 
-        <div class="m-5">
+        <div class="m-2">
             <h3>
                 Szeretnéd az aktuális statisztikákat minden reggel a
                 postaládádban látni?
