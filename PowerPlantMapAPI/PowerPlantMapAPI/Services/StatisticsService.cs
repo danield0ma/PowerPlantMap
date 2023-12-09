@@ -73,7 +73,23 @@ public class StatisticsService : IStatisticsService
                 }
             }
         }
-
+        
+        var gasPowerPlants = new string[] { "DME", "GNY", "CSP", "KF", "KP" };
+        var gasEnergy = 0.0; var gasPower = 0.0;
+        foreach (var gasPowerPlant in gasPowerPlants)
+        {
+            gasEnergy += data.Where(x => x.PowerPlantId == gasPowerPlant).Select(x => x.GeneratedEnergy).Sum();
+            gasPower += data.Where(x => x.PowerPlantId == gasPowerPlant).Select(x => x.AveragePower).Sum();
+        }
+        
+        foreach (var t in data)
+        {
+            if (t.PowerPlantId != "GAS") continue;
+            t.GeneratedEnergy -= gasEnergy;
+            t.AveragePower -= gasPower;
+            t.AverageUsage = Math.Round(t.AveragePower / t.MaxPower * 100, 3);
+        }
+        
         PowerPlantStatisticsDtoWrapper statistics = new()
         {
             Start = startTime,

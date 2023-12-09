@@ -94,16 +94,16 @@ public class PowerDataHelper : IPowerDataHelper
         foreach (var generator in generators)
         {
             var generatorPowers = await GetGeneratorPower(generator, timeStamps[0], timeStamps[1]);
-            if (generatorPowers is not null)
-                foreach (var generatorPower in generatorPowers)
+            if (generatorPowers is null) continue;
+            foreach (var generatorPower in generatorPowers)
+            {
+                var generatorPowerTimePointLocal = generatorPower.TimePoint;
+                var matches = powerStamps.Where(x => x.Start == generatorPowerTimePointLocal).ToList();
+                foreach (var match in matches)
                 {
-                    var generatorPowerTimePointLocal = generatorPower.TimePoint;
-                    var matches = powerStamps.Where(x => x.Start == generatorPowerTimePointLocal).ToList();
-                    foreach (var match in matches)
-                    {
-                        match.Power += generatorPower.Power;
-                    }
+                    match.Power += generatorPower.Power;
                 }
+            }
         }
         return powerStamps;
     }

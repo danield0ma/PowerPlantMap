@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text;
-using Microsoft.Extensions.Primitives;
 using PowerPlantMapAPI.Data;
 using PowerPlantMapAPI.Data.Dto;
 using PowerPlantMapAPI.Helpers;
@@ -61,69 +60,24 @@ public class EmailService: IEmailService
                         $"<td><p>{Format(powerPlantStatistics.AveragePower)} MW ({Format(powerPlantStatistics.MaxPower)} MW)</p></td><td><p>{Format(powerPlantStatistics.AverageUsage)}%</p></td></tr>");
         }
         body.Append("</table>");
+        body.Append($"<h3>Összes termelt energia: {Format(compactPowerPlantStatistics.Select(x => x.GeneratedEnergy).Sum())} MWh</h3>");
         body.Append("<h2 style=\\\"text-align: center;\\\">Hazai termelés megoszlása az erőművek között grafikonon</h2>");
-        var src =
-            "https://image-charts.com/chart.js/2.8.0?bkg=white&c=%7B%0A%20%20%22type%22%3A%20%22pie%22%2C%0A%20%20%22data%22%3A%20%7B%0A%20%20%20%20%22datasets%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B99741.25%2C%2060939%5D%2C%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22labels%22%3A%20%5B%22Hazai%20termel%C3%A9s%22%2C%20%22Import-export%20szald%C3%B3%22%5D%0A%20%20%7D%0A%7D";
-        body.Append($"<img src=\"{src}\" />");
         
-        // var powerPlants = await _powerDataRepository.GetDataOfPowerPlants();
-        // var filteredPowerPlants = powerPlants.Where(x => x.IsCountry == false).ToList();
-        // var generatedEnergyByPowerPlants = new List<double>();
-        // foreach (var powerPlant in filteredPowerPlants)
-        // {
-        //     var blocData = new StringBuilder("<ul>");
-        //     var statisticsOfCurrentPowerPlant = compactPowerPlantStatistics.Data?
-        //         .Where(x => x.PowerPlantId == powerPlant.PowerPlantId);
-        //     var blocs = statisticsOfCurrentPowerPlant
-        //         .GroupBy(x => x.BlocId)
-        //         .Select(group => group.First()).ToList();
-        //
-        //     foreach (var bloc in blocs)
-        //     {
-        //         var generatorData = new StringBuilder("<ul>");
-        //         var generatorsOfBloc = statisticsOfCurrentPowerPlant.Where(x => x.BlocId == bloc.BlocId).ToList();
-        //         foreach (var generator in generatorsOfBloc)
-        //         {
-        //             generatorData.Append($"<li>{generator.GeneratorId}: {Format(generator.AverageUsage)}% - ");
-        //             generatorData.Append(
-        //                 $"{Format(generator.AveragePower)} MW/{Format(generator.MaxPower)} MW -> {Format(generator.GeneratedEnergy)}  MWh</li>");
-        //         }
-        //
-        //         var blocCurrentAvgPower = generatorsOfBloc.Select(x => x.AveragePower).Sum();
-        //         var blocMaxPower = generatorsOfBloc.Select(x => x.MaxPower).Sum();
-        //         var blocGeneratedEnergy = generatorsOfBloc.Select(x => x.GeneratedEnergy).Sum();
-        //         var avgUsageOfBloc = Math.Round(blocCurrentAvgPower / blocMaxPower * 100, 3);
-        //         blocData.Append($"<li>{bloc.BlocId}: {Format(avgUsageOfBloc)}% - ");
-        //         blocData.Append(
-        //             $"{Format(Math.Round(blocCurrentAvgPower, 3))} MW/{Format(blocMaxPower)} MW -> {Format(blocGeneratedEnergy)}  MWh</li>");
-        //         if (generatorsOfBloc.Count > 1)
-        //         {
-        //             blocData.Append($"{generatorData}</ul>");
-        //         }
-        //     }
-        //
-        //     var powerPlantMaxPower = statisticsOfCurrentPowerPlant.Select(x => x.MaxPower).Sum();
-        //     var powerPlantCurrentAvgPower = statisticsOfCurrentPowerPlant.Select(x => x.AveragePower).Sum();
-        //     var powerPlantGeneratedEnergy = statisticsOfCurrentPowerPlant.Select(x => x.GeneratedEnergy).Sum();
-        //     var avgUsageOfPowerPlant = Math.Round(powerPlantCurrentAvgPower / powerPlantMaxPower * 100, 3);
-        //     body.Append($"<li>{powerPlant.Description}: {Format(avgUsageOfPowerPlant)}% - ");
-        //     body.Append(
-        //         $"{Format(Math.Round(powerPlantCurrentAvgPower, 3))} MW/{Format(powerPlantMaxPower)} MW -> ");
-        //     body.Append($"{Format(powerPlantGeneratedEnergy)}  MWh</li>");
-        //     if (blocs.Count > 1 ||
-        //         compactPowerPlantStatistics.Data?.Where(x => x.PowerPlantId == powerPlant.PowerPlantId).ToList().Count > 1)
-        //     {
-        //         body.Append($"{blocData}</ul>");
-        //     }
-        //
-        //     generatedEnergyByPowerPlants.Append(powerPlantGeneratedEnergy);
-        // }
-        //
-        // var generatedEnergySum = compactPowerPlantStatistics.Data!
-        //     .Where(x => filteredPowerPlants.Select(y => y.PowerPlantId).Contains(x.PowerPlantId))
-        //     .Select(z => z.GeneratedEnergy).Sum();
-        // body.Append($"</ul><h3>Összes termelt energia: {Format(generatedEnergySum)}  MWh</h3>");
-
+        var powerPlantBarChartUrl = new StringBuilder();
+        powerPlantBarChartUrl.Append("https://image-charts.com/chart.js/2.8.0?bkg=white&c=%7B%0A%20%20%22type%22%3A%20%22bar%22%2C%0A%20%20%22data%22%3A%20%7B%0A%20%20%20%20%22labels%22%3A%20%5B%0A%20%20%20%20%20%20%22Ismeretlen%20biomassza%20er%C5%91m%C5%B1vek%22%2C%0A%20%20%20%20%20%20%22Csepel%20II.%20Er%C5%91m%C5%B1%22%2C%0A%20%20%20%20%20%20%22Dunamenti%20Er%C5%91m%C5%B1%22%2C%0A%20%20%20%20%20%20%22Ismeretlen%20g%C3%A1zer%C5%91m%C5%B1vek%22%2C%0A%20%20%20%20%20%20%22G%C3%B6ny%C5%B1i%20Kombin%C3%A1lt%20Ciklus%C3%BA%20Er%C5%91m%C5%B1%22%2C%0A%20%20%20%20%20%20%22Kelenf%C3%B6ldi%20Er%C5%91m%C5%B1%22%2C%0A%20%20%20%20%20%20%22Kispesti%20Er%C5%91m%C5%B1%22%2C%0A%22Lit%C3%A9ri%20Er%C5%91m%C5%B1%22%2C%0A%22M%C3%A1travid%C3%A9ki%20er%C5%91m%C5%B1%22%2C%0A%22M%C3%A1trai%20sz%C3%A9ner%C5%91m%C5%B1%22%2C%0A%22Paksi%20Atomer%C5%91m%C5%B1%22%2C%0A%22Saj%C3%B3sz%C3%B6gedi%20Er%C5%91m%C5%B1%22%2C%0A%22Ismeretlen%20naper%C5%91m%C5%B1vek%22%2C%0A%22Ismeretlen%20sz%C3%A9ler%C5%91m%C5%B1vek%22%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22datasets%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22label%22%3A%20%22Dataset%201%22%2C%0A%20%20%20%20%20%20%20%20%22backgroundColor%22%3A%20%5B%0A%22rgba%2862%2C%20129%2C%20114%29%22%2C%0A%22rgba%28153%2C%2015%2C%2048%29%22%2C%0A%22rgba%28230%2C%20145%2C%20165%29%22%2C%0A%22rgba%28193%2C%2083%2C%20109%29%22%2C%0A%22rgba%28193%2C%2083%2C%20109%29%22%2C%0A%0A%22rgba%28230%2C%20145%2C%20165%29%22%2C%0A%22rgba%2892%2C%203%2C%2024%29%22%2C%0A%22rgba%28157%2C%20150%2C%20132%29%22%2C%0A%0A%22rgba%28157%2C%20150%2C%20132%29%22%2C%0A%22rgba%28181%2C%20156%2C%2094%29%22%2C%0A%22rgba%28183%2C%20191%2C%2080%29%22%2C%0A%22rgba%28157%2C%20150%2C%20132%29%22%2C%0A%22rgba%28238%2C%20137%2C%2049%29%22%2C%0A%22rgba%28137%2C%20208%2C%20192%29%22%2C%0A%5D%2C%0A%20%20%20%20%20%20%20%20%22borderWidth%22%3A%201%2C%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B%0A"); 
+        
+        foreach (var (generatedEnergy, index) in compactPowerPlantStatistics.Select((value, index) => (value.GeneratedEnergy, index)))
+        {
+            powerPlantBarChartUrl.Append(generatedEnergy);
+            if (index != compactPowerPlantStatistics.Count() - 1)
+            {
+                powerPlantBarChartUrl.Append("%2C%0A");
+            }
+        }
+        powerPlantBarChartUrl.Append(
+            "%0A%5D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%5D%0A%20%20%7D%2C%0A%20%20%22options%22%3A%20%7B%0A%20%20%20%20%22responsive%22%3A%20true%2C%0A%20%20%20%20%22legend%22%3A%20false%2C%0A%20%20%20%20%22title%22%3A%20%7B%0A%20%20%20%20%20%20%22display%22%3A%20false%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D");
+        body.Append($"<img src=\"{powerPlantBarChartUrl.Replace(",", ".")}\" />");
+        
         body.Append("<h2 style=\"text-align: center;\">\nImport-Export statisztika</h2><table style=\"margin: auto;\">");
         body.Append(
             "<thead><td><p>Ország</p></td><td><p>Importált energia</p></td><td><p>Exportált energia</p></td><td><p>Szaldó</p></td></thead>");
@@ -143,12 +97,12 @@ public class EmailService: IEmailService
 
         body.Append($"<tr><td><p>Összesen</p></td><td><p>{Format(importSum)}  MWh</p></td><td><p>{Format(exportSum)}  MWh</p></td>");
         body.Append($"<td><strong><p>{Format(importSum - exportSum)}  MWh</p></strong></td></tr></table>");
+        body.Append($"<h3>Teljes import-export szaldó: {Format(importSum - exportSum)} MWh</h3>");
         body.Append("<h2 style=\\\"text-align: center;\\\">Import-export megoszlása grafikonon</h2>");
         
         var barCahrtUrl = new StringBuilder();
         barCahrtUrl.Append("https://image-charts.com/chart.js/2.8.0?bkg=white&c=%7B%0A%20%20%22type%22%3A%20%22bar%22%2C%0A%20%20%22data%22%3A%20%7B%0A%20%20%20%20%22datasets%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B"); 
         
-        Console.WriteLine("sums");
         foreach (var (sum, index) in sums.Select((value, index) => (value, index)))
         {
             Console.WriteLine(sum);
@@ -158,7 +112,6 @@ public class EmailService: IEmailService
                 barCahrtUrl.Append("%2C%20");
             }
         }
-        Console.WriteLine(barCahrtUrl);
         barCahrtUrl.Append(
             "%5D%2C%0A%20%20%20%20%20%20%20%20%22backgroundColor%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%22rgb%28216%2C%200%2C%2039%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%2823%2C%2023%2C%20150%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%28191%2C%20159%2C%2017%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%280%2C%20139%2C%2027%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%280%2C%200%2C%200%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%280%2C%2082%2C%20180%29%22%2C%0A%20%20%20%20%20%20%20%20%20%20%22rgb%28255%2C%20218%2C%2068%29%22%0A%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20label%3A%20%22%22%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22labels%22%3A%20%5B%22Ausztria%22%2C%20%22Horv%C3%A1torsz%C3%A1g%22%2C%20%22Rom%C3%A1nia%22%2C%20%22Szlov%C3%A9nia%22%2C%20%20%22Szerbia%22%2C%20%22Szlov%C3%A1kia%22%2C%20%22Ukrajna%22%5D%0A%20%20%7D%0A%7D");
         body.Append($"<div style=\"text-align: center; margin: 30px;\"><img src={barCahrtUrl.Replace(",", ".")} width=\"500px\" /></div>");
