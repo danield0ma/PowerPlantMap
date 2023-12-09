@@ -81,9 +81,20 @@
         <div class="p-3 grid" v-else>
             <div
                 v-for="powerPlant in this.compactPowerPlantStatistics"
-                :key="powerPlant.generatorId"
+                :key="powerPlant.powerPlantId"
             >
-                <StatsCard :powerPlant="powerPlant"></StatsCard>
+                <StatsCard
+                    :compactPowerPlant="powerPlant"
+                    :powerPlant="
+                        powerPlantStatistics.data.filter(
+                            (x) => x.powerPlantId === powerPlant.powerPlantId
+                        )
+                    "
+                    v-on:click="
+                        selectedPowerPlant = powerPlant.powerPlantId;
+                        showModal = true;
+                    "
+                ></StatsCard>
             </div>
         </div>
 
@@ -114,9 +125,12 @@ export default {
         };
     },
 
+    components: { StatsCard },
+
     data() {
         return {
             compactPowerPlantStatistics: {},
+            powerPlantStatistics: {},
             countryStatistics: {},
             countries: [
                 { name: "Magyarország", img: "/hu.png" },
@@ -127,6 +141,8 @@ export default {
             maxDate: moment(Date(Date.now())).format("YYYY-MM-DD"),
             isCountrySelected: false,
             email: "",
+
+            selectedPowerPlant: "",
         };
     },
 
@@ -156,6 +172,7 @@ export default {
 
     async asyncData({ $axios, store }) {
         let compactPowerPlantStatistics;
+        let powerPlantStatistics;
         let countryStatistics;
         const date = store.state.power.date;
         if (
@@ -169,6 +186,9 @@ export default {
             compactPowerPlantStatistics = await $axios.$get(
                 "/api/Statistics/GenerateCompactPowerPlantStatistics"
             );
+            powerPlantStatistics = await $axios.$get(
+                "/api/Statistics/GeneratePowerPlantStatistics"
+            );
             countryStatistics = await $axios.$get(
                 "/api/Statistics/GenerateCountryStatistics"
             );
@@ -176,17 +196,27 @@ export default {
             compactPowerPlantStatistics = await $axios.$get(
                 `/api/Statistics/GenerateCompactPowerPlantStatistics?day=${date}`
             );
+            powerPlantStatistics = await $axios.$get(
+                `/api/Statistics/GeneratePowerPlantStatistics?day=${date}`
+            );
             countryStatistics = await $axios.$get(
                 `/api/Statistics/GenerateCountryStatistics?day=${date}`
             );
         }
-        return { compactPowerPlantStatistics, countryStatistics };
+        return {
+            compactPowerPlantStatistics,
+            powerPlantStatistics,
+            countryStatistics,
+        };
     },
 
     methods: {
         async setDate() {
             if (this.chosenDate != null) {
                 this.compactPowerPlantStatistics = await this.$axios.$get(
+                    `/api/Statistics/GenerateCompactPowerPlantStatistics?day=${this.getDate}`
+                );
+                this.powerPlantStatistics = await this.$axios.$get(
                     `/api/Statistics/GeneratePowerPlantStatistics?day=${this.getDate}`
                 );
                 this.countryStatistics = await this.$axios.$get(
@@ -211,16 +241,6 @@ export default {
 </script>
 
 <style scoped>
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    padding: 0 1rem 1rem 1rem;
-}
-
 .switch .custom-control-label::before {
     background-color: #f8f9fa;
     border: 2px solid #6c757d;
@@ -266,5 +286,9 @@ export default {
 
 .statsTable tr:hover {
     background-color: #ddd;
+}
+
+.pointer {
+    cursor: pointer;
 }
 </style>

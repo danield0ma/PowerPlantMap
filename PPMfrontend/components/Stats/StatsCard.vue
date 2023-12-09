@@ -1,13 +1,20 @@
 <template>
     <div class="card cardHover">
-        <h4>{{ powerPlant.powerPlantDescription }}</h4>
-        <div class="d-flex justify-content-center align-items-center">
+        <StatModal
+            v-if="showModal"
+            @close="showModal = false"
+            :powerPlant="powerPlant"
+        ></StatModal>
+
+        <h4>{{ compactPowerPlant.powerPlantDescription }}</h4>
+        <StatItem :item="compactPowerPlant"></StatItem>
+        <!-- <div class="d-flex justify-content-center align-items-center">
             <font-awesome-icon
                 :icon="['fas', 'bolt']"
                 :size="'lg'"
                 class="faicon yellow"
             />
-            <p>{{ powerPlant.averagePower }} MW</p>
+            <p>{{ compactPowerPlant.averagePower }} MW</p>
         </div>
         <div class="d-flex justify-content-center align-items-center">
             <font-awesome-icon
@@ -15,7 +22,7 @@
                 :size="'lg'"
                 class="faicon blue"
             />
-            <p>{{ powerPlant.generatedEnergy }} MWh</p>
+            <p>{{ compactPowerPlant.generatedEnergy }} MWh</p>
         </div>
         <div class="d-flex justify-content-center align-items-center">
             <font-awesome-icon
@@ -23,25 +30,35 @@
                 :size="'lg'"
                 class="faicon green"
             />
-            <p>{{ powerPlant.averageUsage }}%</p>
-        </div>
+            <p>{{ compactPowerPlant.averageUsage }}%</p>
+        </div> -->
+        <font-awesome-icon
+            :icon="['fas', 'circle-info']"
+            :size="'lg'"
+            class="faicon green"
+            v-on:click="showModal = true"
+        />
     </div>
 </template>
 
 <script>
+import StatModal from "./StatModal";
+import StatItem from "./StatItem";
+
 export default {
     name: "StatsCard",
+
     props: {
-        powerPlant: Object,
+        compactPowerPlant: Object,
+        powerPlant: [],
+    },
+
+    components: { StatModal, StatItem },
+
+    data() {
+        return {
+            showModal: false,
+        };
     },
 };
 </script>
-
-<style scoped>
-p {
-    padding: 0 0.5rem;
-    text-align: center;
-    font-size: 16px;
-    margin: 0;
-}
-</style>

@@ -120,3 +120,13 @@ body {
 .yellow {
     color: rgba(202, 202, 26, 0.87) !important;
 }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 0 1rem 1rem 1rem;
+}

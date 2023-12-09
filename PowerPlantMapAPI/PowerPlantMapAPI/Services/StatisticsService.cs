@@ -85,8 +85,8 @@ public class StatisticsService : IStatisticsService
         foreach (var t in data)
         {
             if (t.PowerPlantId != "GAS") continue;
-            t.GeneratedEnergy -= gasEnergy;
-            t.AveragePower -= gasPower;
+            t.GeneratedEnergy = Math.Round(t.GeneratedEnergy -= gasEnergy, 3);
+            t.AveragePower = Math.Round(t.AveragePower -= gasPower, 3);
             t.AverageUsage = Math.Round(t.AveragePower / t.MaxPower * 100, 3);
         }
         

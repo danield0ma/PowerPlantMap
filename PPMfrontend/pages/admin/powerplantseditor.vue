@@ -1,20 +1,6 @@
 <template>
     <div class="Admin">
         <div class="container">
-            <!-- <div
-                class="card cardHover d-flex flex-column justify-content-around"
-            >
-                <h5>Ország választása</h5>
-                <select v-model="selectedCountry">
-                    <option
-                        v-for="country in countries"
-                        :key="country.name"
-                        :value="country"
-                    >
-                        {{ country.name }}
-                    </option>
-                </select>
-            </div> -->
             <div
                 class="card cardHover d-flex flex-column justify-content-around"
             >
@@ -246,16 +232,6 @@ export default {
 p {
     padding-bottom: 0;
     text-align: center;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    padding: 0 1rem 1rem 1rem;
 }
 
 h1 {
