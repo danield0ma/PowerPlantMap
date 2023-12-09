@@ -177,11 +177,6 @@ export default {
                     fill = { value: 0 };
                 }
 
-                let data = this.getPowerOfPowerPlant(basicsOfPowerPlant.id);
-                if (basicsOfPowerPlant.id === "GAS") {
-                    data = this.getPowerOfGasPowerPlants();
-                }
-
                 createdDatasets.push({
                     label: basicsOfPowerPlant.description + " [MW]",
                     backgroundColor: "#" + basicsOfPowerPlant.color,
@@ -189,7 +184,7 @@ export default {
                     pointRadius: 0,
                     stack: "PP",
                     fill: fill,
-                    data: data,
+                    data: this.getPowerOfPowerPlant(basicsOfPowerPlant.id),
                 });
             }
 
@@ -211,30 +206,6 @@ export default {
             return this.powerOfPowerPlants.data
                 .filter((x) => x.powerPlantName === powerPlantId)
                 .flatMap((x) => x.powerStamps.map((y) => y.power));
-        },
-
-        getPowerOfGasPowerPlants() {
-            const gasPowerPlants = ["DME", "GNY", "CSP", "KF", "KP"];
-            const power = [];
-            for (let i = 0; i < 100; i++) {
-                power.push(0);
-            }
-
-            for (const gasPowerPlant of gasPowerPlants) {
-                const array = this.getPowerOfPowerPlant(gasPowerPlant);
-                for (let i = 0; i < array.length; i++) {
-                    power[i] += array[i];
-                }
-            }
-
-            const gasArray = this.getPowerOfPowerPlant("GAS");
-
-            const result = [];
-            for (let i = 0; i < gasArray.length; i++) {
-                result[i] = gasArray[i] - power[i];
-            }
-
-            return result;
         },
     },
 };

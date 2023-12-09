@@ -43,7 +43,7 @@ public class StatisticsController : ControllerBase
     [HttpGet("")]
     public async Task<string?> GenerateAndSendStatistics(DateTime? day, DateTime? start, DateTime? end)
     {
-        var powerPlantStatistics = await _statisticsService.GenerateDailyPowerPlantStatistics(day, start, end);
+        var powerPlantStatistics = await _statisticsService.GenerateCompactPowerPlantStatistics(day, start, end);
         var countryStatistics = await _statisticsService.GenerateDailyCountryStatistics(day, start, end);
         return await _emailService.GenerateAndSendDailyStatisticsInEmail(powerPlantStatistics, countryStatistics, day,
             start, end);

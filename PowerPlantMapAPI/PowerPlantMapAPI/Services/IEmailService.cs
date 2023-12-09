@@ -6,7 +6,7 @@ namespace PowerPlantMapAPI.Services;
 public interface IEmailService
 {
     Task<string?> GenerateAndSendDailyStatisticsInEmail(
-        PowerPlantStatisticsDtoWrapper powerPlantStatistics, CountryStatisticsDtoWrapper countryStatistics,
+        IEnumerable<CompactPowerPlantStatistics> compactPowerPlantStatistics, CountryStatisticsDtoWrapper countryStatistics,
         DateTime? day = null, DateTime? start = null, DateTime? end = null);
     List<EmailSubscriptionModel>? Get();
     EmailSubscriptionModel? GetById(Guid id);

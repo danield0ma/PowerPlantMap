@@ -194,6 +194,24 @@ public class PowerDataService : IPowerDataService
             };
             data.Add(powerOfPowerPlant);
         }
+        
+        var gasPowerPlants = new string[] { "DME", "GNY", "CSP", "KF", "KP" };
+        foreach (var gasPowerPlant in gasPowerPlants)
+        {
+            var gasPowerPlantData = data.
+                Where(x => x.PowerPlantName == gasPowerPlant).
+                SelectMany(y => y.PowerStamps!).
+                Select(z => z.Power).ToList();
+
+            var gasPowerStamps = data.
+                Where(x => x.PowerPlantName == "GAS").
+                SelectMany(y => y.PowerStamps!);
+            
+            foreach (var gasPowerStamp in gasPowerStamps)
+            {
+                gasPowerStamp.Power -= gasPowerPlantData[gasPowerStamps.ToList().IndexOf(gasPowerStamp)];
+            }
+        }
 
         powerOfPowerPlants.Data = data;
         return powerOfPowerPlants;
