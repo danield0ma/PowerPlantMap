@@ -1,5 +1,6 @@
-﻿using PowerPlantMapAPI.Repositories;
-using PowerPlantMapAPI.Services;
+﻿using System.Text;
+using Microsoft.Extensions.Primitives;
+using PowerPlantMapAPI.Repositories;
 
 namespace PowerPlantMapAPI.Helpers;
 
@@ -53,18 +54,15 @@ public class DateHelper : IDateHelper
         return timeStampsUtc;
     }
 
-    public string EditTime(DateTime start)
+    public string ConvertTimeToApiStringFormat(DateTime time)
     {
-        var startTime = Convert.ToString(start.Year);
-        if (start.Month < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Month);
-        if (start.Day < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Day);
-        if (start.Hour < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Hour);
-        if (start.Minute < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Minute);
-        return startTime;
+        var startTime = new StringBuilder();
+        startTime.Append(time.Year.ToString("yyyy"));
+        startTime.Append(time.Month.ToString("mm"));
+        startTime.Append(time.Day.ToString("dd"));
+        startTime.Append(time.Hour.ToString("hh"));
+        startTime.Append(time.Minute.ToString("mm"));
+        return startTime.ToString();
     }
 
     public async Task<List<DateTime>> GetApiQueryTimeInterval()

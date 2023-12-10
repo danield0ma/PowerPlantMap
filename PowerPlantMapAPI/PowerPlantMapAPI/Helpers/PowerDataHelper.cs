@@ -21,8 +21,8 @@ public class PowerDataHelper : IPowerDataHelper
 
     public async Task<string> MakeApiQuery(string documentType, DateTime startUtc, DateTime endUtc, string? inDomain = null, string? outDomain = null)
     {
-        var periodStartUtc = _dateHelper.EditTime(startUtc);
-        var periodEndUtc = _dateHelper.EditTime(endUtc);
+        var periodStartUtc = _dateHelper.ConvertTimeToApiStringFormat(startUtc);
+        var periodEndUtc = _dateHelper.ConvertTimeToApiStringFormat(endUtc);
 
         const string processType = "A16";
         inDomain ??= "10YHU-MAVIR----U";
