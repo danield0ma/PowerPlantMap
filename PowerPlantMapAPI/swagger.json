@@ -1,13 +1,14 @@
 {
 	"openapi": "3.0.1",
 	"info": {
-		"title": "PowerPlantMapAPI",
-		"version": "1.0"
+		"title": "My API",
+		"version": "v1"
 	},
 	"paths": {
 		"/api/Account/Get": {
 			"get": {
 				"tags": ["Account"],
+				"summary": "Get all users",
 				"responses": {
 					"200": {
 						"description": "Success",
@@ -44,10 +45,12 @@
 		"/api/Account/GetByUserName": {
 			"get": {
 				"tags": ["Account"],
+				"summary": "Get user by username",
 				"parameters": [
 					{
 						"name": "userName",
 						"in": "query",
+						"description": "Username of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -80,10 +83,12 @@
 		"/api/Account/GetByEmail": {
 			"get": {
 				"tags": ["Account"],
+				"summary": "Get user by email",
 				"parameters": [
 					{
 						"name": "email",
 						"in": "query",
+						"description": "Email of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -116,6 +121,7 @@
 		"/api/Account/GetCurrentUserProfile": {
 			"get": {
 				"tags": ["Account"],
+				"summary": "Get the current user's profile data",
 				"responses": {
 					"200": {
 						"description": "Success",
@@ -143,7 +149,9 @@
 		"/api/Account/Register": {
 			"post": {
 				"tags": ["Account"],
+				"summary": "Register new user",
 				"requestBody": {
+					"description": "Registration data of the new user",
 					"content": {
 						"application/json": {
 							"schema": {
@@ -172,7 +180,9 @@
 		"/api/Account/Login": {
 			"post": {
 				"tags": ["Account"],
+				"summary": "Login the user",
 				"requestBody": {
+					"description": "Username and password of the user",
 					"content": {
 						"application/json": {
 							"schema": {
@@ -218,6 +228,7 @@
 		"/api/Account/Logout": {
 			"post": {
 				"tags": ["Account"],
+				"summary": "Logout the user",
 				"responses": {
 					"200": {
 						"description": "Success"
@@ -228,10 +239,12 @@
 		"/api/Account/ChangeUserName": {
 			"put": {
 				"tags": ["Account"],
+				"summary": "Change the username of the user",
 				"parameters": [
 					{
 						"name": "currentUserName",
 						"in": "query",
+						"description": "The current username of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -239,6 +252,7 @@
 					{
 						"name": "newUserName",
 						"in": "query",
+						"description": "The new username of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -254,10 +268,12 @@
 		"/api/Account/ChangePassword": {
 			"put": {
 				"tags": ["Account"],
+				"summary": "Change password of the user",
 				"parameters": [
 					{
 						"name": "userName",
 						"in": "query",
+						"description": "Username of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -265,6 +281,7 @@
 					{
 						"name": "currentPassword",
 						"in": "query",
+						"description": "Old password of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -272,6 +289,7 @@
 					{
 						"name": "newPassword",
 						"in": "query",
+						"description": "The new desired password of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -287,10 +305,12 @@
 		"/api/Account/DeleteUser": {
 			"delete": {
 				"tags": ["Account"],
+				"summary": "Delete the specified user",
 				"parameters": [
 					{
 						"name": "userName",
 						"in": "query",
+						"description": "Username of the user",
 						"schema": {
 							"type": "string"
 						}
@@ -306,6 +326,7 @@
 		"/api/EmailSubscriptions/Get": {
 			"get": {
 				"tags": ["EmailSubscriptions"],
+				"summary": "Get all subscriptions",
 				"responses": {
 					"200": {
 						"description": "Success",
@@ -342,10 +363,12 @@
 		"/api/EmailSubscriptions/GetById": {
 			"get": {
 				"tags": ["EmailSubscriptions"],
+				"summary": "Get subscription by id",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "query",
+						"description": "Id of the subscription",
 						"schema": {
 							"type": "string",
 							"format": "uuid"
@@ -379,10 +402,12 @@
 		"/api/EmailSubscriptions/GetByEmail": {
 			"get": {
 				"tags": ["EmailSubscriptions"],
+				"summary": "Get subscription by email",
 				"parameters": [
 					{
 						"name": "email",
 						"in": "query",
+						"description": "Email of the subscription",
 						"schema": {
 							"type": "string"
 						}
@@ -415,10 +440,12 @@
 		"/api/EmailSubscriptions/Add": {
 			"post": {
 				"tags": ["EmailSubscriptions"],
+				"summary": "Add new subscription",
 				"parameters": [
 					{
 						"name": "email",
 						"in": "query",
+						"description": "New email to subscribe",
 						"schema": {
 							"type": "string"
 						}
@@ -434,10 +461,12 @@
 		"/api/EmailSubscriptions/Update": {
 			"put": {
 				"tags": ["EmailSubscriptions"],
+				"summary": "Update old email to new email",
 				"parameters": [
 					{
 						"name": "oldEmail",
 						"in": "query",
+						"description": "Old email to change",
 						"schema": {
 							"type": "string"
 						}
@@ -445,6 +474,7 @@
 					{
 						"name": "newEmail",
 						"in": "query",
+						"description": "New email to save",
 						"schema": {
 							"type": "string"
 						}
@@ -460,10 +490,12 @@
 		"/api/EmailSubscriptions/Delete": {
 			"get": {
 				"tags": ["EmailSubscriptions"],
+				"summary": "Delete subscription by id",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "query",
+						"description": "id of the subscription",
 						"schema": {
 							"type": "string",
 							"format": "uuid"
@@ -480,6 +512,7 @@
 		"/api/PowerData/GetPowerPlantBasics": {
 			"get": {
 				"tags": ["PowerData"],
+				"summary": "Power plant data for the map",
 				"responses": {
 					"200": {
 						"description": "Success",
@@ -516,10 +549,12 @@
 		"/api/PowerData/GetDetailsOfPowerPlant": {
 			"get": {
 				"tags": ["PowerData"],
+				"summary": "Power plant properties and its detailed production data in the given period",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "query",
+						"description": "Id of the power plant",
 						"schema": {
 							"type": "string"
 						}
@@ -527,6 +562,7 @@
 					{
 						"name": "date",
 						"in": "query",
+						"description": "Optional, one day for the interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -535,6 +571,7 @@
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -543,6 +580,7 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -576,10 +614,12 @@
 		"/api/PowerData/GetPowerOfPowerPlant": {
 			"get": {
 				"tags": ["PowerData"],
+				"summary": "Aggregated power plant production data in the given period",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "query",
+						"description": "Id of the power plant",
 						"schema": {
 							"type": "string"
 						}
@@ -587,6 +627,7 @@
 					{
 						"name": "date",
 						"in": "query",
+						"description": "Optional, one day for the interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -595,6 +636,7 @@
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -603,6 +645,7 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -645,10 +688,12 @@
 		"/api/PowerData/GetPowerOfPowerPlants": {
 			"get": {
 				"tags": ["PowerData"],
+				"summary": "Aggregated production data in the given period of every power plant",
 				"parameters": [
 					{
 						"name": "date",
 						"in": "query",
+						"description": "Optional, one day for the interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -657,6 +702,7 @@
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -665,6 +711,7 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -698,10 +745,12 @@
 		"/api/PowerData/QueryDataFromTheApi": {
 			"get": {
 				"tags": ["PowerData"],
+				"summary": "Data query from the API in the given time period",
 				"parameters": [
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -710,6 +759,7 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -743,6 +793,7 @@
 		"/api/PowerPlant/Get": {
 			"get": {
 				"tags": ["PowerPlant"],
+				"summary": "Get all power plants",
 				"responses": {
 					"200": {
 						"description": "Success",
@@ -779,10 +830,12 @@
 		"/api/PowerPlant/GetById": {
 			"get": {
 				"tags": ["PowerPlant"],
+				"summary": "Get power plant by id",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "query",
+						"description": "id of the power plant",
 						"schema": {
 							"type": "string"
 						}
@@ -815,7 +868,9 @@
 		"/api/PowerPlant/AddPowerPlant": {
 			"post": {
 				"tags": ["PowerPlant"],
+				"summary": "Add new power plant",
 				"requestBody": {
+					"description": "Object of the new power plant",
 					"content": {
 						"application/json": {
 							"schema": {
@@ -844,10 +899,12 @@
 		"/api/PowerPlant/Delete": {
 			"delete": {
 				"tags": ["PowerPlant"],
+				"summary": "Delete power plant",
 				"parameters": [
 					{
 						"name": "id",
 						"in": "query",
+						"description": "id of the power plant to be deleted",
 						"schema": {
 							"type": "string"
 						}
@@ -863,10 +920,12 @@
 		"/api/Statistics/GeneratePowerPlantStatistics": {
 			"get": {
 				"tags": ["Statistics"],
+				"summary": "Generate detailed statistics of every power plant including their generators",
 				"parameters": [
 					{
 						"name": "day",
 						"in": "query",
+						"description": "Optional, one day for the interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -875,6 +934,7 @@
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -883,6 +943,7 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -916,10 +977,12 @@
 		"/api/Statistics/GenerateCompactPowerPlantStatistics": {
 			"get": {
 				"tags": ["Statistics"],
+				"summary": "Generate compact statistics of every power plant",
 				"parameters": [
 					{
 						"name": "day",
 						"in": "query",
+						"description": "Optional, one day for the interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -928,6 +991,7 @@
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -936,6 +1000,7 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -978,10 +1043,12 @@
 		"/api/Statistics/GenerateCountryStatistics": {
 			"get": {
 				"tags": ["Statistics"],
+				"summary": "Generate statistics of every country trades in the given time period",
 				"parameters": [
 					{
 						"name": "day",
 						"in": "query",
+						"description": "Optional, one day for the interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -990,6 +1057,7 @@
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -998,6 +1066,7 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -1031,10 +1100,12 @@
 		"/api/Statistics/GenerateAndSendStatistics": {
 			"get": {
 				"tags": ["Statistics"],
+				"summary": "Send statistics email to every subscriber",
 				"parameters": [
 					{
 						"name": "day",
 						"in": "query",
+						"description": "Optional, one day for the interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -1043,6 +1114,7 @@
 					{
 						"name": "start",
 						"in": "query",
+						"description": "Optional, start of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
@@ -1051,59 +1123,10 @@
 					{
 						"name": "end",
 						"in": "query",
+						"description": "Optional, end of a custom time interval",
 						"schema": {
 							"type": "string",
 							"format": "date-time"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Success",
-						"content": {
-							"text/plain": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"application/json": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"text/json": {
-								"schema": {
-									"type": "string"
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/api/Statistics/SendTestEmail": {
-			"get": {
-				"tags": ["Statistics"],
-				"parameters": [
-					{
-						"name": "to",
-						"in": "query",
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"name": "subject",
-						"in": "query",
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"name": "body",
-						"in": "query",
-						"schema": {
-							"type": "string"
 						}
 					}
 				],

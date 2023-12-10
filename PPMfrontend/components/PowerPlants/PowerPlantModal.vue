@@ -377,9 +377,7 @@ export default {
             }
         },
 
-        modifyPowerPlant() {
-            alert("Test");
-        },
+        modifyPowerPlant() {},
     },
 };
 </script>
