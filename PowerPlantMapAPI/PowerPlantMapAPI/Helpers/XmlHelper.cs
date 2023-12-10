@@ -5,13 +5,13 @@ namespace PowerPlantMapAPI.Helpers;
 
 public class XmlHelper: IXmlHelper
 {
-    private readonly IPowerRepository _powerRepository;
-    private readonly IPowerHelper _powerHelper;
+    private readonly IPowerDataRepository _powerDataRepository;
+    private readonly IPowerDataHelper _powerDataHelper;
 
-    public XmlHelper(IPowerRepository repository, IPowerHelper powerHelper)
+    public XmlHelper(IPowerDataRepository dataRepository, IPowerDataHelper powerDataHelper)
     {
-        _powerRepository = repository;
-        _powerHelper = powerHelper;
+        _powerDataRepository = dataRepository;
+        _powerDataHelper = powerDataHelper;
     }
     
     public async Task GetPowerPlantData(string docType, IReadOnlyList<DateTime> timeStampsUtc)
@@ -20,9 +20,9 @@ public class XmlHelper: IXmlHelper
         {
             try
             {
-                var generators = await _powerRepository.GetGeneratorNames();
+                var generators = await _powerDataRepository.GetGeneratorNames();
 
-                var document = XDocument.Parse(await _powerHelper.ApiQuery(docType, timeStampsUtc[0], timeStampsUtc[1]));
+                var document = XDocument.Parse(await _powerDataHelper.MakeApiQuery(docType, timeStampsUtc[0], timeStampsUtc[1]));
                 var ns = document.Root?.Name.Namespace;
 
                 if (document.Root is not null && ns is not null && document.Root?.Elements(ns + "TimeSeries") is not null)
@@ -46,7 +46,7 @@ public class XmlHelper: IXmlHelper
                         foreach (var point in period.Elements(ns + "Point"))
                         {
                             var currentPower = Convert.ToInt32(point.Element(ns + "quantity")?.Value);
-                            await _powerRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
+                            await _powerDataRepository.AddPastActivity(generatorName, startTimePointUtc, currentPower);
                             startTimePointUtc = startTimePointUtc.AddMinutes(15);
                         }
                     }
@@ -98,8 +98,8 @@ public class XmlHelper: IXmlHelper
 
             try
             {
-                var importedEnergyData = XDocument.Parse(await _powerHelper.ApiQuery("A11", getStartTimeUtc, getEndTimeUtc, homeCountry, countryCode));
-                var exportedEnergyData = XDocument.Parse(await _powerHelper.ApiQuery("A11", getStartTimeUtc, getEndTimeUtc, countryCode, homeCountry));
+                var importedEnergyData = XDocument.Parse(await _powerDataHelper.MakeApiQuery("A11", getStartTimeUtc, getEndTimeUtc, homeCountry, countryCode));
+                var exportedEnergyData = XDocument.Parse(await _powerDataHelper.MakeApiQuery("A11", getStartTimeUtc, getEndTimeUtc, countryCode, homeCountry));
 
                 var importNameSpace = importedEnergyData.Root?.Name.Namespace;
                 var exportNameSpace = exportedEnergyData.Root?.Name.Namespace;
@@ -135,7 +135,7 @@ public class XmlHelper: IXmlHelper
 
                                for (var j = 0; j < numberOfTimesTheValueHasToBeSaved; j++)
                                {
-                                   await _powerRepository.AddPastActivity(countryCode, startTimePointUtc, currentPower);
+                                   await _powerDataRepository.AddPastActivity(countryCode, startTimePointUtc, currentPower);
                                    startTimePointUtc = startTimePointUtc.AddMinutes(15);
                                }
                            }

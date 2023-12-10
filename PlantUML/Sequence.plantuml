@@ -1,0 +1,30 @@
+@startuml sequence
+actor Felhasználó as user
+
+user -> Frontend : Főoldal megnyitása
+Frontend -> Backend : GetPowerPlantBasics(),\nGetPowerOfPowerPlants()
+Backend -> Adatbázis : GetDataOfPowerPlants, GetPastActivity\ntárolt eljárások meghívása
+Adatbázis -> Backend : Térképadatok, termelési adatok
+Backend -> Frontend : Térképadatok, összesített termelési adatok
+Frontend -> user : Kigenerált térkép és diagramm
+
+user -> Frontend : Erőmű kiválasztása, erőműnézet megnyitása
+Frontend -> Backend : GetPowerPlantDetails()\naz erőművel paraméterben
+Backend -> Adatbázis : GetDataOfPowerPlant\ntárolt eljárás meghívása
+Adatbázis -> Backend : Részletes termelési és erőművi adatok
+Backend -> Frontend : Részletes termelési és erőművi adatok
+Frontend -> user : Kigenerált diagramm
+
+user -> Frontend : Múltbeli dátum választása
+Frontend -> Backend : GetPowerOfPowerPlants()\na dátummal paraméterben
+Backend -> Adatbázis : GetPastActivity tárolt eljárás meghívása
+Adatbázis -> Backend : Múltbeli termelési adatok
+Backend -> Frontend : Múltbeli, összesített termelési adatok
+Frontend -> user : Kigenerált diagramm
+Backend -> Backend : QueryDataFromTheApi() a dátummal\nha nincsenek még meg az akkori adatok
+Backend -> Adatbázis : Új adatok mentése az\nAddPastActivity tárolt eljárással
+Backend -> Adatbázis : GetPastActivity tárolt eljárás meghívása
+Adatbázis -> Backend : Termelési adatok
+Backend -> Frontend : Összesített termelési adatok
+Frontend -> user : Kigenerált diagramm
+@enduml

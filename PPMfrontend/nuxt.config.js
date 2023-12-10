@@ -26,7 +26,6 @@ export default {
                 : null,
     },
 
-    // Global page headers: https://go.nuxtjs.dev/config-head
     head: {
         title: "PowerPlantMap",
         htmlAttrs: {
@@ -44,30 +43,48 @@ export default {
         link: [{ rel: "icon", type: "image/x-icon", href: "/electricity.ico" }],
     },
 
-    // Global CSS: https://go.nuxtjs.dev/config-css
-    css: ["mapbox-gl/dist/mapbox-gl.css"],
+    css: ["mapbox-gl/dist/mapbox-gl.css", "@/assets/global.css"],
 
-    // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
     plugins: [
         { src: "~/plugins/chart/chart.js", mode: "client", swcMinify: false },
     ],
 
-    // Auto import components: https://go.nuxtjs.dev/config-components
     components: true,
 
-    //DEPRECATED
-    // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-    buildModules: [
-        // '@nuxtjs/style-resources',
-        "@nuxtjs/fontawesome",
-        // '@nuxtjs/moment'
+    buildModules: ["@nuxtjs/fontawesome", "@nuxtjs/pwa"],
+
+    modules: [
+        "bootstrap-vue/nuxt",
+        "@nuxtjs/auth",
+        "@nuxtjs/axios",
+        "@nuxtjs/dotenv",
     ],
 
-    // Modules: https://go.nuxtjs.dev/config-modules
-    modules: [
-        // https://go.nuxtjs.dev/bootstrap
-        "bootstrap-vue/nuxt",
-    ],
+    axios: {
+        baseURL: "https://powerplantmap.tech:5001",
+    },
+
+    auth: {
+        strategies: {
+            local: {
+                scheme: "local",
+                token: {
+                    property: "token",
+                },
+                user: {
+                    property: "user",
+                },
+                endpoints: {
+                    login: { url: "/api/Account/Login", method: "post" },
+                    logout: { url: "/api/Account/Logout", method: "post" },
+                    user: {
+                        url: "/api/Account/GetCurrentUserProfile",
+                        method: "get",
+                    },
+                },
+            },
+        },
+    },
 
     fontawesome: {
         icons: {
@@ -76,6 +93,9 @@ export default {
         },
     },
 
-    // Build Configuration: https://go.nuxtjs.dev/config-build
-    build: {},
+    build: {
+        babel: {
+            compact: true,
+        },
+    },
 };

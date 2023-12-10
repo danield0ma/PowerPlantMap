@@ -35,6 +35,7 @@ services:
 volumes:
   PPM:
 # Cron jobok legyenek meg valahol máshol is, mint a server
-# 25 * * * * curl https://127.0.0.1:5001/API/Power/InitData -k
-# 55 * * * * curl https://127.0.0.1:5001/API/Power/InitData -k
-# 30 3 * * * docker exec -it powerplantmap_database_1 /var/opt/mssql/db.sh
+# 25 * * * * curl https://127.0.0.1:5001/api/PowerData/QueryDataFromTheApi -k
+# 55 * * * * curl https://127.0.0.1:5001/api/PowerData/QueryDataFromTheApi -k
+# 0 3 * * * docker exec -it powerplantmap_database_1 /bin/bash -c "/var/opt/mssql/db.sh"
+# 0 4 * * * curl https://powerplantmap.tech:5001/api/Statistics/GenerateAndSendStatistics -k

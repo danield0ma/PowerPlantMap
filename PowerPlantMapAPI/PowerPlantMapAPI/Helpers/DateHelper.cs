@@ -1,15 +1,16 @@
-﻿using PowerPlantMapAPI.Repositories;
-using PowerPlantMapAPI.Services;
+﻿using System.Text;
+using Microsoft.Extensions.Primitives;
+using PowerPlantMapAPI.Repositories;
 
 namespace PowerPlantMapAPI.Helpers;
 
 public class DateHelper : IDateHelper
 {
-    private readonly IPowerRepository _repository;
+    private readonly IPowerDataRepository _dataRepository;
 
-    public DateHelper(IPowerRepository repository)
+    public DateHelper(IPowerDataRepository dataRepository)
     {
-        _repository = repository;
+        _dataRepository = dataRepository;
     }
 
     public async Task<List<DateTime>> HandleWhichDateFormatIsBeingUsed(DateTime? date = null, DateTime? startLocal = null, DateTime? endLocal = null)
@@ -41,7 +42,7 @@ public class DateHelper : IDateHelper
         }
         else
         {
-            var lastDataTimeUtcArray = await _repository.GetLastDataTime();
+            var lastDataTimeUtcArray = await _dataRepository.GetLastDataTime();
             var lastDataTimeUtc = lastDataTimeUtcArray[0];
             var startUtc = lastDataTimeUtc.AddDays(-1);
             lastDataTimeUtc = DateTime.SpecifyKind(lastDataTimeUtc, DateTimeKind.Utc);
@@ -53,21 +54,18 @@ public class DateHelper : IDateHelper
         return timeStampsUtc;
     }
 
-    public string EditTime(DateTime start)
+    public string ConvertTimeToApiStringFormat(DateTime time)
     {
-        var startTime = Convert.ToString(start.Year);
-        if (start.Month < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Month);
-        if (start.Day < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Day);
-        if (start.Hour < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Hour);
-        if (start.Minute < 10) { startTime += "0"; }
-        startTime += Convert.ToString(start.Minute);
-        return startTime;
+        var startTime = new StringBuilder();
+        startTime.Append(time.Year.ToString("yyyy"));
+        startTime.Append(time.Month.ToString("mm"));
+        startTime.Append(time.Day.ToString("dd"));
+        startTime.Append(time.Hour.ToString("hh"));
+        startTime.Append(time.Minute.ToString("mm"));
+        return startTime.ToString();
     }
 
-    public async Task<List<DateTime>> GetInitDataTimeInterval()
+    public async Task<List<DateTime>> GetApiQueryTimeInterval()
     {
         var utcNow = DateTime.UtcNow;
         DateTime endUtc = new(utcNow.Year, utcNow.Month, utcNow.Day, utcNow.Hour, 0, 0);
@@ -91,7 +89,7 @@ public class DateHelper : IDateHelper
         
         endUtc = DateTime.SpecifyKind(endUtc, DateTimeKind.Utc);
         var startUtc = endUtc.AddHours(-48);
-        var lastDataUtc = await _repository.GetLastDataTime();
+        var lastDataUtc = await _dataRepository.GetLastDataTime();
         if (lastDataUtc[0] > startUtc)
         {
             startUtc = lastDataUtc[0];
@@ -106,5 +104,14 @@ public class DateHelper : IDateHelper
         var period = end - start;
         var numberOfDataPoints = (int)period.TotalMinutes / 15;
         return numberOfDataPoints;
+    }
+    
+    public List<DateTime> GetStartAndEndTimeOfDailyStatistics()
+    {
+        var yesterday = DateTime.Today.AddDays(-1);
+        var start = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day, 0, 0, 0);
+        var today = DateTime.Today;
+        var end = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0);
+        return new List<DateTime> { start, end };
     }
 }

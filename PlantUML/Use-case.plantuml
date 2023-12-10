@@ -1,0 +1,52 @@
+@startuml usecase
+left to right direction
+actor Látogató as l
+ 
+package Adminok {
+  actor "Regisztrált felhasználó" as r
+  l <|-- r
+  actor Szerkesztő as u
+  r <|-- u
+  actor Admin as a
+  u <|-- a
+}
+ 
+package PowerPlantMap {
+  usecase "Térkép böngészése az erőművekkel" as UC1
+  usecase "Energiamix diagramm böngészése" as UC2
+  usecase "Erőmű kiválasztása, részletes adatainak böngészése" as UC3
+  usecase "Erőmű termelési adatainak megtekintése" as UC4
+  usecase "Blokkok és generátorok termelési adatainak megtekintése" as UC5
+  usecase "Múltbeli időpont kiválasztása, az akkori termelési adatok megtekintése" as UC6
+  usecase "Statisztikák megtekintése" as UC7
+  usecase "E-mail listára feliratkozni" as UC8
+}
+ 
+package "Management felület" {
+  usecase "Erőmű törlése" as UC9
+  usecase "Új erőmű hozzáadása" as UC10
+  usecase "Meglévő erőmű adatainak módosítása" as UC11
+  usecase "E-mail lista megtekintése" as UC12
+  usecase "Törlés az E-mail listából" as UC13
+ 
+  usecase "Felhasználók megtekintése" as UC14
+  usecase "Felhasználók jogosultságának módosítása" as UC15
+}
+ 
+l --> UC1
+l --> UC2
+l --> UC3
+l --> UC4
+l --> UC5
+l --> UC6
+l --> UC7
+l --> UC8
+u --> UC9
+u --> UC10
+u --> UC11
+u --> UC12
+u --> UC13
+
+a --> UC14
+a --> UC15
+@enduml

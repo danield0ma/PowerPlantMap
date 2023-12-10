@@ -1,0 +1,14 @@
+[Unit]
+Description=Docker Compose Application
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+User=root
+WorkingDirectory=/Projects/PowerPlantMap
+ExecStart=docker-compose up --build
+ExecStop=docker-compose down
+
+[Install]
+WantedBy=multi-user.target

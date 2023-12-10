@@ -55,4 +55,4 @@ jobs:
           echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_rsa
           chmod 700 ~/.ssh
-          ssh -i "~/.ssh/id_rsa" root@powerplantmap.tech "cd /Projects/PowerPlantMap && docker-compose down && git pull && docker-compose up --build -d && exit"
+          ssh -i "~/.ssh/id_rsa" root@powerplantmap.tech "cd /Projects/PowerPlantMap && service PPM stop && systemctl daemon-reload && git stash && git pull && service PPM start && exit"

@@ -1,0 +1,70 @@
+@startuml object_diagram
+
+class PowerPlantBasicsModel {
+    - string: Type
+    - FeaturePropertyDto: Properties
+    - FeatureGeometryDto: Geometry
+}
+
+class FeaturePropertyDto {
+    - string: Id
+    - string: Name
+    - string: Description
+    - string: Img
+}
+
+class FeatureGeometryDto {
+    - string: Type
+    - List<float>: Coordinates
+}
+
+PowerPlantBasicsModel *-- FeaturePropertyDto
+PowerPlantBasicsModel *-- FeatureGeometryDto
+
+class PowerPlantDetailsModel {
+    - string: PowerPlantId
+    - string: Name
+    - string: Description
+    - string: OperatorCompany
+    - string: Webpage
+    - string: Longitude
+    - string: Latitude
+    - int: CurrentPower
+    - int: MaxPower
+    - DateTime: DataStart
+    - DateTime: DataEnd
+    - string: Address
+    - bool: IsCountry
+    - List<BlocDetailsDto>: Blocs
+}
+
+class BlocDetailsDto {
+    - string: BlocId
+    - string: BlocType
+    - int: MaxBlocCapacity
+    - int: CommissionDate
+    - int: CurrentPower
+    - int: MaxPower
+    - List<GeneratorDetailsDto>: Generators
+}
+
+class GeneratorDetailsDto {
+    - string: GeneratorId
+    - int: MaxCapacity
+    - List<GeneratorPowerDto>: PastPower
+}
+
+class GeneratorPowerDto {
+    - DateTime: TimePoint
+    - int: Power
+}
+
+PowerPlantDetailsModel *-- BlocDetailsDto
+BlocDetailsDto *-- GeneratorDetailsDto
+GeneratorDetailsDto *-- GeneratorPowerDto
+
+class PowerOfPowerPlantsModel {
+
+}
+
+@enduml
