@@ -7,6 +7,9 @@ using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers;
 
+/// <summary>
+/// Manage power plant data
+/// </summary>
 [Route("api/[controller]/[action]")]
 [ApiController]
 [Authorize]
@@ -14,11 +17,18 @@ public class PowerPlantController : ControllerBase
 {
     private readonly IPowerPlantService _powerPlantService;
 
+    /// <summary>
+    /// Instantiate the dependencies
+    /// </summary>
     public PowerPlantController(IPowerPlantService powerPlantService)
     {
         _powerPlantService = powerPlantService;
     }
-        
+    
+    /// <summary>
+    /// Get all power plants
+    /// </summary>
+    /// <returns>List of all power plants</returns>
     [HttpGet]
     [Authorize(Roles = "user, admin")]
     public async Task<ActionResult<IEnumerable<PowerPlantModel?>?>> Get()
@@ -35,6 +45,11 @@ public class PowerPlantController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// Get power plant by id
+    /// </summary>
+    /// <param name="id">id of the power plant</param>
+    /// <returns>Object of the given power plant</returns>
     [HttpGet]
     [Authorize(Roles = "user, admin")]
     public async Task<ActionResult<PowerPlantModel?>> GetById(string id)
@@ -51,6 +66,11 @@ public class PowerPlantController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// Add new power plant
+    /// </summary>
+    /// <param name="createPowerPlantDto">Object of the new power plant</param>
+    /// <returns>Result of the process</returns>
     [HttpPost]
     [Authorize(Roles = "user, admin")]
     public async Task<ActionResult> AddPowerPlant(CreatePowerPlantDto createPowerPlantDto)
@@ -66,24 +86,11 @@ public class PowerPlantController : ControllerBase
         return Ok();
     }
     
-    // [HttpPut]
-    // [AllowAnonymous]
-    // public async Task<ActionResult> UpdatePowerPlant(RegisterDto updateUserDto)
-    // {
-    //     
-    //     
-    //     try
-    //     {
-    //         await _powerPlantService.UpdatePowerPlant(updatePowerPlantDto);
-    //         return Ok();
-    //     }
-    //     catch (ArgumentException e)
-    //     {
-    //         Console.WriteLine(e.Message);
-    //         return BadRequest(e.Message);
-    //     }
-    // }
-    
+    /// <summary>
+    /// Delete power plant
+    /// </summary>
+    /// <param name="id">id of the power plant to be deleted</param>
+    /// <returns>Result of the process</returns>
     [HttpDelete]
     [Authorize(Roles = "user, admin")]
     public async Task<ActionResult> Delete(string id)

@@ -6,6 +6,9 @@ using PowerPlantMapAPI.Services;
 
 namespace PowerPlantMapAPI.Controllers;
 
+/// <summary>
+/// Manage the email subscriptions
+/// </summary>
 [EnableCors]
 [Route("api/[controller]/[action]")]
 [ApiController]
@@ -13,11 +16,18 @@ public class EmailSubscriptionsController : ControllerBase
 {
     private readonly IEmailService _emailService;
 
+    /// <summary>
+    /// Instantiate the dependencies
+    /// </summary>
     public EmailSubscriptionsController(IEmailService emailService)
     {
         _emailService = emailService;
     }
     
+    /// <summary>
+    /// Get all subscriptions
+    /// </summary>
+    /// <returns>List of all subscriptions</returns>
     [Authorize(Roles = "user, admin")]
     [HttpGet("")]
     public List<EmailSubscriptionModel>? Get()
@@ -25,6 +35,11 @@ public class EmailSubscriptionsController : ControllerBase
         return _emailService.Get();
     }
 
+    /// <summary>
+    /// Get subscription by id
+    /// </summary>
+    /// <param name="id">Id of the subscription</param>
+    /// <returns>Subscription with the given id</returns>
     [Authorize(Roles = "user, admin")]
     [HttpGet("")]
     public EmailSubscriptionModel? GetById(Guid id)
@@ -32,6 +47,11 @@ public class EmailSubscriptionsController : ControllerBase
         return _emailService.GetById(id);
     }
 
+    /// <summary>
+    /// Get subscription by email
+    /// </summary>
+    /// <param name="email">Email of the subscription</param>
+    /// <returns>Subscription with the given email</returns>
     [Authorize(Roles = "user, admin")]
     [HttpGet("")]
     public EmailSubscriptionModel? GetByEmail(string email)
@@ -39,6 +59,11 @@ public class EmailSubscriptionsController : ControllerBase
         return _emailService.GetByEmail(email);
     }
 
+    /// <summary>
+    /// Add new subscription
+    /// </summary>
+    /// <param name="email">New email to subscribe</param>
+    /// <returns>Result of the subscription</returns>
     [HttpPost("")]
     public ActionResult Add(string email)
     {
@@ -54,6 +79,12 @@ public class EmailSubscriptionsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Update old email to new email
+    /// </summary>
+    /// <param name="oldEmail">Old email to change</param>
+    /// <param name="newEmail">New email to save</param>
+    /// <returns>Result of the subscription</returns>
     [HttpPut("")]
     public ActionResult Update(string oldEmail, string newEmail)
     {
@@ -69,6 +100,11 @@ public class EmailSubscriptionsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Delete subscription by id
+    /// </summary>
+    /// <param name="id">id of the subscription</param>
+    /// <returns>Result of the delete operation</returns>
     [HttpGet("")]
     public ActionResult Delete(Guid id)
     {
