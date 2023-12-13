@@ -56,13 +56,7 @@ public class DateHelper : IDateHelper
 
     public string ConvertTimeToApiStringFormat(DateTime time)
     {
-        var startTime = new StringBuilder();
-        startTime.Append(time.Year.ToString("yyyy"));
-        startTime.Append(time.Month.ToString("mm"));
-        startTime.Append(time.Day.ToString("dd"));
-        startTime.Append(time.Hour.ToString("hh"));
-        startTime.Append(time.Minute.ToString("mm"));
-        return startTime.ToString();
+        return time.ToString("yyyyMMddHHmm");
     }
 
     public async Task<List<DateTime>> GetApiQueryTimeInterval()
